@@ -1,0 +1,1236 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "APIs For Raffle Draw",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/v1/customer/register-user": {
+            "post": {
+                "tags": [
+                    "Mobile"
+                ],
+                "operationId": "7e6531ab8368567483f50e4f6c931d81",
+                "parameters": [
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "username",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "Password",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "first_name",
+                        "in": "query",
+                        "description": "first_name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "last_name",
+                        "in": "query",
+                        "description": "last_name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "description": "phone",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/verify-code": {
+            "post": {
+                "tags": [
+                    "Mobile"
+                ],
+                "operationId": "e1065d2568b66294d40c94a0b63c3948",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "code",
+                        "in": "query",
+                        "description": "code",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification successful"
+                    },
+                    "404": {
+                        "description": "Code Not Found"
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/forgot-password": {
+            "post": {
+                "tags": [
+                    "Mobile"
+                ],
+                "operationId": "4774265050b5eba05aee884573d5b519",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration successful"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/update/password": {
+            "post": {
+                "tags": [
+                    "Mobile"
+                ],
+                "operationId": "c59e84bd9e4bf417b1e9be88975f2dd2",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "new_password",
+                        "in": "query",
+                        "description": "new_password",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "confirm_password",
+                        "in": "query",
+                        "description": "confirm_password",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration successful"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/verify-otp": {
+            "post": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "Authenticate user and generate Sactum token",
+                "operationId": "4a5f39e05e5a09615fb0a0d344d98782",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "query",
+                        "description": "code",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/login": {
+            "post": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "Authenticate user and generate Sactum token",
+                "operationId": "15400f94bfe16d4952aa545606939fc2",
+                "parameters": [
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "Username",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "Password",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/bank-accounts/all": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all Bank Accounts",
+                "operationId": "b39940e5eb0710060eba63b59f3b9a38",
+                "responses": {
+                    "200": {
+                        "description": "Get all Bank Accounts"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/profile": {
+            "get": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "Get all Bank Accounts",
+                "operationId": "e331c03c3c41a841193290b7404925d3",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "id of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get all Bank Accounts"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/categories": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all Categories",
+                "operationId": "499b0fa3c97856d15aa34ef5e7b7de58",
+                "responses": {
+                    "200": {
+                        "description": "Get all Categories"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/category/create": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Create New Categories",
+                "operationId": "31cc09f32c4696f35fac6636363a2658",
+                "responses": {
+                    "200": {
+                        "description": "Create New Categories"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/get-raffles": {
+            "get": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "Get Stake History",
+                "operationId": "3275844e71fd66d4f833c0a2b038ea8f",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "category id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "winning_tag_id",
+                        "in": "query",
+                        "description": "winning tag id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get Stake Items",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/get-stake-history": {
+            "get": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "Get Stake History",
+                "operationId": "bcd0f57b8d8787cdf4c3263e23a2f53a",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "id of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get Stake Items"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/dashboard": {
+            "get": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "Get Dashboard Items",
+                "operationId": "de6a11cb9d0de10e87007ce53ac69a93",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "id of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get Dashboard Items",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/staking/open": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get Dashboard Items",
+                "operationId": "e6e69bfbd195501130c1c5234bcf9655",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "Category Id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "winning_tags_id",
+                        "in": "query",
+                        "description": "Winning Tag Id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "Date format(YYYY-MM-DD)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get Dashboard Items"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/customer-stake": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get Dashboard Items",
+                "operationId": "eca00e306ac034d18bbd451b92c0f407",
+                "responses": {
+                    "200": {
+                        "description": "Get Dashboard Items"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/stake/add": {
+            "post": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "Get Dashboard Items",
+                "operationId": "741d6f4439c64eeacd5f4d0fb29fd03c",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "User Id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "Category Id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "winning_tags_id",
+                        "in": "query",
+                        "description": "Winning Tag Id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "description": "Month",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "stake_price",
+                        "in": "query",
+                        "description": "stake_price",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "stake_number",
+                        "in": "query",
+                        "description": "stake_number",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "year",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "payment_method",
+                        "in": "query",
+                        "description": "Payment Method(card or credit)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get Dashboard Items"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/update/name": {
+            "post": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "Get Dashboard Items",
+                "operationId": "9ab5eeb7386d679af30d617f9df755ea",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "Id of the User",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Name of the User",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update user name"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/stake/numbers": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "List all the numbers",
+                "operationId": "7a844c98ac445ae98e6001d7bd09d87d",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "category id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "winning_tag_id",
+                        "in": "query",
+                        "description": "winning tag id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "winning tag id",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/stake/numbers/add": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Create numbers",
+                "operationId": "07dd5db91153cc0a9e35ed0d41fe8336",
+                "parameters": [
+                    {
+                        "name": "stake_nos",
+                        "in": "query",
+                        "description": "Any number",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Any number",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/customer/get-history": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List all the transactions",
+                "operationId": "d46b261713bd20e5ed30d6e531e43cc9",
+                "responses": {
+                    "200": {
+                        "description": "List all the transactions"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List all winners by Date",
+                "operationId": "ca29e6671706fa0bf6bfb5884def6da2",
+                "parameters": [
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "Start Date",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "End Date",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List all winners by Date"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/get-transaction-history": {
+            "post": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "List debit transactions",
+                "operationId": "825ed3f074503f5d786331c7eb137387",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "User IDr",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List debit transactions"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/get-history": {
+            "get": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "List Credit transactions",
+                "operationId": "1a75a42fb026d50361ce9aab9ad63f4f",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "List transactions",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List transactions"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/add-fund": {
+            "get": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "Add Fund",
+                "operationId": "4d245f31310c27908c3471c0f30b2fef",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "id of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "description": "Amount",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "trx_ref",
+                        "in": "query",
+                        "description": "trx_ref",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "description": "description",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Add Fund"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/get-win-history": {
+            "get": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "List all the Wins",
+                "operationId": "d8b2968848166fd6ca536b3b6a0fb03d",
+                "responses": {
+                    "200": {
+                        "description": "List all the Wins"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/customer/winners": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List all winners",
+                "operationId": "d2d144297dbda7bbfd93279abbdaab63",
+                "responses": {
+                    "200": {
+                        "description": "List all winners"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/customer/winners-by-category": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List all winners by Date",
+                "operationId": "d238eb2052635aebdc1bc10a6b9233e4",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "Category ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List all winners by Date"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/get-machines": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "Get Machines",
+                "operationId": "b7f31b4adf358c36cd0bdc2c0bd6be14",
+                "responses": {
+                    "200": {
+                        "description": "Get Machines"
+                    }
+                }
+            }
+        },
+        "/api/v1/category/winning-tags": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "Get Machines",
+                "operationId": "ddc7f0b7d3fc9025471c6fd1bb740658",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "category id of the winning tag",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get category id",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/winning-tags": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "Get Machines",
+                "operationId": "13446f60965839d7ab395478fd481369",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "category id of the winning tag",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get category id",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/category/winning-tags/:id": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "Get a Single Tag",
+                "operationId": "1a510696bfef120c971e7593321c0e25",
+                "responses": {
+                    "200": {
+                        "description": "Get Machines"
+                    }
+                }
+            }
+        },
+        "/api/v1/get-tools": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "Get Tools",
+                "operationId": "5ef535558c825cd86eba8bd3a286db67",
+                "responses": {
+                    "200": {
+                        "description": "Get Tools"
+                    }
+                }
+            }
+        },
+        "/api/v1/winning-tags": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "Get all winning tags",
+                "operationId": "e53cfa18d12b9ae9aa4ee7aa76de4726",
+                "responses": {
+                    "200": {
+                        "description": "Get all winning tags"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/winning-tags/create": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "operationId": "2d58826a3f94a2a732f7801efb283aea",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Name of the winning tag",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "category_id: 1 = Riders, 2 = Machines, 3 = Tools ",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "stake_price",
+                        "in": "query",
+                        "description": "stake_price",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "image",
+                        "in": "query",
+                        "description": "image must be in base64",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration successful"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "name": "bearerAuth",
+                "in": "header",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    }
+}
