@@ -1,7 +1,4 @@
-## Uzundu Internet Banking Application
-
-
-Regina Caeli Booking Application
+## Regina Caeli Booking Application
 
 <br />
 
