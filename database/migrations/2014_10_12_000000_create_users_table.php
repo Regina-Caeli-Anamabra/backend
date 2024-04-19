@@ -18,8 +18,9 @@ return new class extends Migration
             $table->string('phone', 12);
             $table->string('created_by', 100);
             $table->string('last_modified_by', 100);
-            $table->string('authentication_type', 23);
-            $table->text('password');
+            $table->enum('authentication_type', ["EMAIL", "SMS"]);
+            $table->string('password');
+            $table->integer('vCode');
             $table->tinyInteger('active')->default(0);
             $table->rememberToken();
             $table->timestamps();

@@ -15,11 +15,14 @@ class BookingController extends Controller
      */
     public function index(Request $request, Utils $utils)
     {
-        $request->validate([
-            "user_id" => "required|int"
-        ]);
+
+        if(!auth('sanctum')->check())
+            return $utils->message("error","Unauthorized Access." , 401);
+
+        $user_id =  auth('sanctum')->user()->id;
+
         try {
-            $booking = Bookings::where("user_id", $request->get("user_id"))->get();
+            $booking = Bookings::where("user_id", $user_id)->get();
             return $utils->message("success", $booking , 400);
         }catch (\Throwable $e) {
             // Do something with your exception
@@ -35,17 +38,54 @@ class BookingController extends Controller
         //
     }
 
+
+
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/v1/patient/add-a-session",
+     *      tags={"Booking"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Parameter(
+     *         name="booking_start",
+     *         in="query",
+     *         description="booking_start",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="service_id",
+     *         in="query",
+     *         description="service_id",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="booking_for_self",
+     *         in="query",
+     *         description="booking_for_self",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     *     @OA\Response(response="400", description="Booking already exists", @OA\JsonContent())
+     * )
      */
     public function store(Request $request, Utils $utils)
     {
         $request->validate([
-            "user_id" => "required|int",
             "booking_start" => "required",
             "service_id" => "required|int",
+            "booking_for_self" => "required|int",
         ]);
 
+        if(!auth('sanctum')->check())
+            return $utils->message("error","Unauthorized Access." , 401);
+
+        $user_id =  auth('sanctum')->user()->id;
         try {
             $booking_start = Carbon::parse($request->get("booking_start"));
             $booking_start_formatted =  $booking_start->format("Y-m-d H:i:s");
@@ -58,7 +98,8 @@ class BookingController extends Controller
             $booking->session_start = $booking_start_formatted;
             $booking->service_id = $request->get("service_id");
             $booking->session_end = $booking_end;
-            $booking->user_id = $request->get("user_id");
+            $booking->user_id = $user_id;
+            $booking->booking_for_self = $request->get("booking_for_self");
             $booking->save();
             return $utils->message("success", $booking , 400);
 

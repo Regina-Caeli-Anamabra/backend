@@ -16,7 +16,26 @@ return new class extends Migration
             $table->string("first_name");
             $table->string("last_name");
             $table->string("phone");
+            $table->text("address");
             $table->string("gender");
+            $table->string("marital_status");
+            $table->string("religion");
+            $table->string("preferred_language");
+            $table->string("nationality");
+            $table->string("state");
+            $table->string("lga");
+            $table->string("town");
+            $table->string("card_number")->nullable();
+            $table->string("next_of_kin")->nullable();
+            $table->string("next_of_kin_phone")->nullable();
+            $table->string("nature_of_relationship")->nullable();
+            $table->string("date_of_birth")->nullable();
+            $table->string("insurance_number")->nullable();
+            $table->string("ward")->nullable();
+            $table->string("state_of_residence");
+            $table->text("address_of_residence");
+            $table->string("patient_id")->nullable();
+
             $table->unsignedBigInteger("user_id");
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

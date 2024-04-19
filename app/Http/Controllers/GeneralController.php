@@ -15,9 +15,12 @@ class GeneralController extends Controller
 {
 
     /**
-     * @OA\Post(
+     * @OA\Get (
      *     path="/api/v1/services",
      *      tags={"General"},
+     *       security={
+     *            {"sanctum": {}},
+     *        },
      *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
      *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
@@ -28,7 +31,6 @@ class GeneralController extends Controller
     {
         try {
             return $utils->message("success", Services::all()  , 200);
-
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);
@@ -36,29 +38,6 @@ class GeneralController extends Controller
     }
 
 
-    /**
-     * @OA\Post(
-     *     path="/api/v1/customer/register-user",
-     *      tags={"General"},
-     *     @OA\Parameter(
-     *         name="name",
-     *         in="query",
-     *         description="name",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="amount",
-     *         in="query",
-     *         description="amount",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-
-     *     @OA\Response(response="200", description="Service Added successful", @OA\JsonContent()),
-     *     @OA\Response(response="400", description="Eror", @OA\JsonContent())
-     * )
-     */
 
     public function addService(Request $request, Utils $utils): JsonResponse
     {
