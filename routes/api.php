@@ -25,12 +25,18 @@ Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], funct
     Route::get('/all-sessions', ['App\Http\Controllers\BookingController', 'index']);
     Route::post('/add-payment', ['App\Http\Controllers\PatientController', 'addPayment']);
     Route::get('/payments', ['App\Http\Controllers\PatientController', 'payments']);
-    Route::post('/register', ['App\Http\Controllers\Auth\AuthController', 'registerUser']);
+    Route::get('/get-users-created', ['App\Http\Controllers\PatientController', 'getAllRegisteredByUser']);
+    Route::patch('/profile/update', ['App\Http\Controllers\PatientController', 'updateProfile']);
+    Route::patch('/password/update', ['App\Http\Controllers\Auth\AuthController', 'updatePassword']);
 
 });
 
 Route::group(['prefix' => 'v1'], function () {
+    Route::post('/register', ['App\Http\Controllers\Auth\AuthController', 'registerUser']);
     Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'login']);
+    Route::post('/verify-code', ['App\Http\Controllers\Auth\AuthController', 'verifyCode']);
+    Route::post('/send-forgot-password-code', ['App\Http\Controllers\Auth\AuthController', 'forgotPassword']);
+    Route::post('/verify-password-reset-code', ['App\Http\Controllers\Auth\AuthController', 'verifyPasswordCode']);
     Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/services', ['App\Http\Controllers\GeneralController', 'services']);
         Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);

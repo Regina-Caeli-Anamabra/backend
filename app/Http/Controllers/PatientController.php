@@ -6,13 +6,253 @@ use App\Http\Resources\PaymentsResource;
 use App\Models\Bookings;
 use App\Models\Patients;
 use App\Models\Payments;
+use App\Models\User;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Mockery\Exception;
 
 class PatientController extends Controller
 {
+    /**
+     * @OA\Patch(
+     *     path="/api/v1/patient/profile/update",
+     *      tags={"Auth"},
+     *       security={
+     *            {"sanctum": {}},
+     *        },
+     *     @OA\Parameter(
+     *         name="first_name",
+     *         in="query",
+     *         description="first_name",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="last_name",
+     *         in="query",
+     *         description="last_name",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="phone",
+     *         in="query",
+     *         description="phone",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="email",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="gender",
+     *         in="query",
+     *         description="gender",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="marital_status",
+     *         in="query",
+     *         description="marital_status",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="religion",
+     *         in="query",
+     *         description="religion",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="preferred_language",
+     *         in="query",
+     *         description="religion",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="nationality",
+     *         in="query",
+     *         description="nationality",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="lga",
+     *         in="query",
+     *         description="lga",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="town",
+     *         in="query",
+     *         description="town",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="card_number",
+     *         in="query",
+     *         description="card_number",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="next_of_kin",
+     *         in="query",
+     *         description="next_of_kin",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="next_of_kin_phone",
+     *         in="query",
+     *         description="next_of_kin_phone",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="nature_of_relationship",
+     *         in="query",
+     *         description="nature_of_relationship",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="date_of_birth",
+     *         in="query",
+     *         description="date_of_birth",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="insurance_number",
+     *         in="query",
+     *         description="insurance_number",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="ward",
+     *         in="query",
+     *         description="ward",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="state_of_residence",
+     *         in="query",
+     *         required=true,
+     *         description="state_of_residence",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="address_of_residence",
+     *         in="query",
+     *         required=true,
+     *         description="address_of_residence",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *
+     * )
+     */
+    public function updateProfile(Request $request, Utils $utils)
+    {
+        try {
+
+            if(!auth('sanctum')->check())
+                return $utils->message("error","Unauthorized Access." , 401);
+
+               $user =  Patients::where("user_id", auth('sanctum')->id())->firstOrFail();
+               if($user){
+                    $user->first_name = $request->get("first_name");
+                    $user->last_name = $request->get("last_name");
+                    $user->phone = $request->get("phone");
+                    $user->gender = $request->get("gender");
+                    $user->marital_status = $request->get("marital_status");
+                    $user->religion = $request->get("religion");
+                    $user->preferred_language = $request->get("preferred_language");
+                    $user->nationality = $request->get("nationality");
+                    $user->lga = $request->get("lga");
+                    $user->town = $request->get("town");
+                    $user->card_number = $request->get("card_number");
+                    $user->next_of_kin = $request->get("next_of_kin");
+                    $user->next_of_kin_phone = $request->get("next_of_kin_phone");
+                    $user->nature_of_relationship = $request->get("nature_of_relationship");
+                    $user->date_of_birth = $request->get("date_of_birth");
+                    $user->insurance_number = $request->get("insurance_number");
+                    $user->ward = $request->get("ward");
+                    $user->state_of_residence = $request->get("state_of_residence");
+                    $user->address_of_residence = $request->get("address_of_residence");
+                    $user->save();
+               }
+//               $user =  Patients::where("user_id", auth('sanctum')->id())->update([
+//                            "first_name" => $request->get("first_name"),
+//                            "last_name" => $request->get("last_name"),
+//                            "phone" => $request->get("phone"),
+//                            "gender" => $request->get("gender"),
+//                            "marital_status" => $request->get("marital_status"),
+//                            "religion" => $request->get("religion"),
+//                            "preferred_language" => $request->get("preferred_language"),
+//                            "nationality" => $request->get("nationality"),
+//                            "state" => $request->get("state"),
+//                            "lga" => $request->get("lga"),
+//                            "town" => $request->get("town"),
+//                            "card_number" => $request->get("card_number"),
+//                            "next_of_kin" => $request->get("next_of_kin"),
+//                            "next_of_kin_phone" => $request->get("next_of_kin_phone"),
+//                            "nature_of_relationship" => $request->get("nature_of_relationship"),
+//                            "date_of_birth" => $request->get("date_of_birth"),
+//                            "insurance_number" => $request->get("insurance_number"),
+//                            "ward" => $request->get("ward"),
+//                            "state_of_residence" => $request->get("state_of_residence"),
+//                            "address_of_residence" => $request->get("address_of_residence")
+//                    ]);
+
+            return $utils->message("success", $user , 200);
+
+        }catch (\Exception $exception){
+            Log::error($exception->getMessage());
+        }
+    }
+    /**
+     * @OA\Get (
+     *     path="/api/v1/patient/get-users-created",
+     *      tags={"Patients"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     *     @OA\Response(response="400", description="Booking already exists", @OA\JsonContent())
+     * )
+     */
+    public function getAllRegisteredByUser(Request $request, Utils $utils)
+    {
+        try {
+
+            if(!auth('sanctum')->check())
+                return $utils->message("error","Unauthorized Access." , 401);
+
+            $user_id =  auth('sanctum')->user()->id;
+
+            $users = User::with(["patient" => function ($query) {
+                $query->get();
+            }])->where("registerer_user_id", $user_id)->get(["username"]);
+
+            return $utils->message("success", $users , 200);
+
+        }catch (Exception $exception){
+            Log::error($exception->getMessage());
+        }
+    }
     public function addPayment(Request $request, Utils $utils)
     {
         $request->validate([
@@ -36,7 +276,7 @@ class PatientController extends Controller
                 $payments->service_id = $request->get("service_id");
                 $payments->patient_id = Patients::where("user_id", $user_id)->value("id");
                 $payments->save();
-                return $utils->message("success", $payments , 400);
+                return $utils->message("success", $payments , 200);
 
             }else{
                 return $utils->message("error", "Network Error. Please Try Again." , 400);

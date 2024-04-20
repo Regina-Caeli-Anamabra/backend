@@ -16,13 +16,11 @@ return new class extends Migration
             $table->string("first_name");
             $table->string("last_name");
             $table->string("phone");
-            $table->text("address");
             $table->string("gender");
             $table->string("marital_status");
             $table->string("religion");
             $table->string("preferred_language");
             $table->string("nationality");
-            $table->string("state");
             $table->string("lga");
             $table->string("town");
             $table->string("card_number")->nullable();

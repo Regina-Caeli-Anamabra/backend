@@ -5,6 +5,137 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/v1/send-forgot-password-code": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "fee83178a17b368a2c93383d271ab785",
+                "parameters": [
+                    {
+                        "name": "options",
+                        "in": "query",
+                        "description": "options",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "auth_type",
+                        "in": "query",
+                        "description": "EMAIL or SMS",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration successful"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/verify-code": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "e595585c1138633ec0e21e6754863fcb",
+                "parameters": [
+                    {
+                        "name": "options",
+                        "in": "query",
+                        "description": "email or phone",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "code",
+                        "in": "query",
+                        "description": "code",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification successful"
+                    },
+                    "404": {
+                        "description": "Code Not Found"
+                    }
+                }
+            }
+        },
+        "/api/v1/patient/password/update": {
+            "patch": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "23c3fefdcf7f8361f081c009e6630bad",
+                "parameters": [
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "password",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "confirm_password",
+                        "in": "query",
+                        "description": "confirm_password",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/register": {
             "post": {
                 "tags": [
@@ -59,6 +190,24 @@
                     },
                     {
                         "name": "email",
+                        "in": "query",
+                        "description": "email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "description": " address",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "gender",
                         "in": "query",
                         "description": "gender",
                         "required": true,
@@ -189,6 +338,7 @@
                         "name": "state_of_residence",
                         "in": "query",
                         "description": "state_of_residence",
+                        "required": true,
                         "schema": {
                             "type": "string"
                         }
@@ -197,14 +347,33 @@
                         "name": "address_of_residence",
                         "in": "query",
                         "description": "address_of_residence",
+                        "required": true,
                         "schema": {
                             "type": "string"
                         }
                     },
                     {
-                        "name": "patient_id",
+                        "name": "register_for_self",
                         "in": "query",
-                        "description": "patient_id",
+                        "description": "1 = register for self, 0 = register for another person",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "auth_type",
+                        "in": "query",
+                        "description": "EMAIL OR SMS",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "registerer_user_id",
+                        "in": "query",
+                        "description": "registerer_user_id",
                         "schema": {
                             "type": "string"
                         }
@@ -234,114 +403,6 @@
                                 "schema": {}
                             }
                         }
-                    }
-                }
-            }
-        },
-        "/api/v1/customer/verify-code": {
-            "post": {
-                "tags": [
-                    "Mobile"
-                ],
-                "operationId": "e1065d2568b66294d40c94a0b63c3948",
-                "parameters": [
-                    {
-                        "name": "email",
-                        "in": "query",
-                        "description": "email",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "code",
-                        "in": "query",
-                        "description": "code",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Verification successful"
-                    },
-                    "404": {
-                        "description": "Code Not Found"
-                    }
-                }
-            }
-        },
-        "/api/v1/customer/forgot-password": {
-            "post": {
-                "tags": [
-                    "Mobile"
-                ],
-                "operationId": "4774265050b5eba05aee884573d5b519",
-                "parameters": [
-                    {
-                        "name": "email",
-                        "in": "query",
-                        "description": "email",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Registration successful"
-                    },
-                    "401": {
-                        "description": "Invalid credentials"
-                    }
-                }
-            }
-        },
-        "/api/v1/customer/update/password": {
-            "post": {
-                "tags": [
-                    "Mobile"
-                ],
-                "operationId": "c59e84bd9e4bf417b1e9be88975f2dd2",
-                "parameters": [
-                    {
-                        "name": "email",
-                        "in": "query",
-                        "description": "email",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "new_password",
-                        "in": "query",
-                        "description": "new_password",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "confirm_password",
-                        "in": "query",
-                        "description": "confirm_password",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Registration successful"
-                    },
-                    "401": {
-                        "description": "Invalid credentials"
                     }
                 }
             }
@@ -487,6 +548,53 @@
                 ]
             }
         },
+        "/api/v1/patient/all-sessions": {
+            "get": {
+                "tags": [
+                    "Booking"
+                ],
+                "operationId": "7d5f9559c8003ca88301bd9d0dd5b595",
+                "responses": {
+                    "200": {
+                        "description": "Booking successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Code Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Booking already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/patient/add-a-session": {
             "post": {
                 "tags": [
@@ -517,6 +625,14 @@
                         "in": "query",
                         "description": "booking_for_self",
                         "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "booked_by_id",
+                        "in": "query",
+                        "description": "booked_by_id",
                         "schema": {
                             "type": "string"
                         }
@@ -588,6 +704,267 @@
                     },
                     "422": {
                         "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/patient/profile/update": {
+            "patch": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "9ef0dfe79a7c071fab57d9909f031d8e",
+                "parameters": [
+                    {
+                        "name": "first_name",
+                        "in": "query",
+                        "description": "first_name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "last_name",
+                        "in": "query",
+                        "description": "last_name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "description": "phone",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "gender",
+                        "in": "query",
+                        "description": "gender",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "marital_status",
+                        "in": "query",
+                        "description": "marital_status",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "religion",
+                        "in": "query",
+                        "description": "religion",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "preferred_language",
+                        "in": "query",
+                        "description": "religion",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "nationality",
+                        "in": "query",
+                        "description": "nationality",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "lga",
+                        "in": "query",
+                        "description": "lga",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "town",
+                        "in": "query",
+                        "description": "town",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "card_number",
+                        "in": "query",
+                        "description": "card_number",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "next_of_kin",
+                        "in": "query",
+                        "description": "next_of_kin",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "next_of_kin_phone",
+                        "in": "query",
+                        "description": "next_of_kin_phone",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "nature_of_relationship",
+                        "in": "query",
+                        "description": "nature_of_relationship",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "date_of_birth",
+                        "in": "query",
+                        "description": "date_of_birth",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "insurance_number",
+                        "in": "query",
+                        "description": "insurance_number",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "ward",
+                        "in": "query",
+                        "description": "ward",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "state_of_residence",
+                        "in": "query",
+                        "description": "state_of_residence",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "address_of_residence",
+                        "in": "query",
+                        "description": "address_of_residence",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/patient/get-users-created": {
+            "get": {
+                "tags": [
+                    "Patients"
+                ],
+                "operationId": "9894452a675fd505114b73057f356558",
+                "responses": {
+                    "200": {
+                        "description": "Booking successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Code Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Booking already exists",
                         "content": {
                             "application/json": {
                                 "schema": {}

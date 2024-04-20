@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('authentication_type', ["EMAIL", "SMS"]);
             $table->string('password');
             $table->integer('vCode');
-            $table->tinyInteger('active')->default(0);
+            $table->tinyInteger('verified')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });

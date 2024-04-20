@@ -29,7 +29,6 @@ class UserRequest extends FormRequest
             "last_name" => "required|string",
             "gender" => "required|string",
             "email" => "required|string",
-            "address" => "required|string",
             "marital_status" => "required|string",
             "religion" => "required|string",
             "preferred_language" => "required|string",

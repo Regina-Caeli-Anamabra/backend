@@ -10,16 +10,16 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PasswordCodeEmail extends Mailable
+class PasswordResetMail extends Mailable
 {
     use Queueable, SerializesModels;
-    public $mailData;
+    public $data;
     /**
      * Create a new message instance.
      */
-    public function __construct($mailData)
+    public function __construct($data)
     {
-        $this->mailData = $mailData;
+        $this->data = $data;
     }
 
     /**
@@ -29,7 +29,7 @@ class PasswordCodeEmail extends Mailable
     {
         return new Envelope(
             from: new Address('regina@raffle-draw.name.ng', 'Regina Caeli'),
-            subject: "Reset your Password"
+            subject: 'Password Reset Mail',
         );
     }
 
@@ -39,7 +39,7 @@ class PasswordCodeEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.password_code',
+            view: 'emails.password-reset-mail',
             with: $this->data
         );
     }

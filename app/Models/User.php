@@ -51,6 +51,11 @@ class User extends Authenticatable
         return $this->hasOne('App\Models\Bookings');
     }
 
+    public function patient(): HasOne
+    {
+        return $this->hasOne('App\Models\Patients', 'user_id');
+    }
+
 
     public function customerTransactions(): HasMany
     {
