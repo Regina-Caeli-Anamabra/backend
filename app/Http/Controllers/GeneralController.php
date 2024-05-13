@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Bank;
 use App\Http\Resources\BankResource;
+use App\Models\Patients;
 use App\Models\Services;
 use App\Models\User;
 use App\Utils\Utils;
@@ -30,7 +31,7 @@ class GeneralController extends Controller
     public function services(Utils $utils): JsonResponse
     {
         try {
-            return $utils->message("success", Services::all()  , 200);
+            return $utils->message("success", Services::orderBy("id", "DESC")->get()  , 200);
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);
@@ -39,24 +40,6 @@ class GeneralController extends Controller
 
 
 
-    public function addService(Request $request, Utils $utils): JsonResponse
-    {
-        $request->validate([
-            "name" => "required|string",
-            "amount" => "required|regex:/^[0-9]+(\.[0-9][0-9]?)?$/",
-        ]);
-        try {
-            $service = new Services();
-            $service->name = $request->get("name");
-            $service->amount = $request->get("amount");
-            $service->save();
-            return $utils->message("success", $service  , 200);
-
-        }catch (\Throwable $e) {
-            // Do something with your exception
-            return $utils->message("error", $e->getMessage() , 400);
-        }
-    }
     public function verifyAccount(Request $request, Utils $utils)
     {
 

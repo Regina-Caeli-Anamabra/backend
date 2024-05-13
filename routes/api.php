@@ -20,11 +20,9 @@ Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'in
 
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], function () {
-    Route::post('/add-service', ['App\Http\Controllers\GeneralController', 'addService']);
     Route::post('/add-a-session', ['App\Http\Controllers\BookingController', 'store']);
     Route::get('/all-sessions', ['App\Http\Controllers\BookingController', 'index']);
     Route::post('/add-payment', ['App\Http\Controllers\PatientController', 'addPayment']);
-    Route::get('/payments', ['App\Http\Controllers\PatientController', 'payments']);
     Route::get('/get-users-created', ['App\Http\Controllers\PatientController', 'getAllRegisteredByUser']);
     Route::patch('/profile/update', ['App\Http\Controllers\PatientController', 'updateProfile']);
     Route::patch('/password/update', ['App\Http\Controllers\Auth\AuthController', 'updatePassword']);
@@ -40,11 +38,22 @@ Route::group(['prefix' => 'v1'], function () {
     Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/services', ['App\Http\Controllers\GeneralController', 'services']);
         Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
+        Route::get('/payments', ['App\Http\Controllers\PatientController', 'payments']);
+
     });
 });
 
 Route::group(['prefix' => 'v1/admin'], function () {
-    Route::post('/add-service', ['App\Http\Controllers\GeneralController', 'addService']);
-    Route::get('/payments', ['App\Http\Controllers\PatientController', 'adminPayments']);
-
+    Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'login']);
+    Route::group(['middleware' => ['auth:sanctum']], function () {
+        Route::post('/add-service', ['App\Http\Controllers\AdminController', 'addService']);
+        Route::get('/get-dashboard-data', ['App\Http\Controllers\AdminController', 'dashboardData']);
+        Route::get('/payments', ['App\Http\Controllers\AdminController', 'adminPayments']);
+        Route::post('/add-service', ['App\Http\Controllers\AdminController', 'addService']);
+        Route::get('/patients', ['App\Http\Controllers\AdminController', 'getPatients']);
+        Route::get('/get-bookings', ['App\Http\Controllers\AdminController', 'index']);
+        Route::post('/create-service', ['App\Http\Controllers\AdminController', 'createService']);
+        Route::get('/services', ['App\Http\Controllers\GeneralController', 'services']);
+        Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
+    });
 });

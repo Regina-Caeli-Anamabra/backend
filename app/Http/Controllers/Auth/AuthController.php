@@ -559,9 +559,11 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $loginRequest, Utils $utils, Execs $execs)
     {
+//        return Hash::make($loginRequest->get("password"));
         if (!auth()->attempt(request()->only(['username', 'password']))) {
-            return $utils->message( "error", "Invalid Username/Password", 400);
+            return $utils->message( "error", "Invalid Username/Password", 401);
         }
+        
 
         $authUser = Auth::user();
         $success['token'] =  $authUser->createToken('MyAuthApp')->plainTextToken;
@@ -579,7 +581,7 @@ class AuthController extends Controller
      *       security={
      *            {"sanctum": {}},
      *        },
-     *     @OA\Response(response="200", description="Login successful", @OA\JsonContent()),
+     *     @OA\Response(response="200", description="logout successful", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized", @OA\JsonContent()),
      *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
      * )

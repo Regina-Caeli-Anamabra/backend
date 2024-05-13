@@ -11,11 +11,14 @@ class Bookings extends Model
 {
     use HasFactory;
 
-    public function bookings(): BelongsTo
+    public function patient(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Patients::class, 'patient_id');
     }
-
+    public function users(): BelongsTo
+    {
+        return $this->belongsTo(User::class, "user_id");
+    }
 
     public function bookingPayments(): HasOne
     {

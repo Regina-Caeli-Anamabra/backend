@@ -303,14 +303,4 @@ class PatientController extends Controller
         }
     }
 
-    public function adminPayments(Request $request, Utils $utils)
-    {
-        try {
-            $payments = Payments::with(["user", "paymentBookings", "patients", "services"])->get();
-            return $utils->message("success", PaymentsResource::collection($payments) , 200);
-        }catch (\Throwable $e) {
-            // Do something with your exception
-            return $utils->message("error", $e->getMessage() , 400);
-        }
-    }
 }

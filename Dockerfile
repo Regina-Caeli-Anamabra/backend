@@ -14,7 +14,7 @@ COPY . .
 COPY --from=composer:2.7.4 /usr/bin/composer /usr/bin/composer
 
 ENV PORT=8000
-ENTRYPOINT [ "entrypoint.sh" ]
+ENTRYPOINT [ "./docker/entrypoint.sh" ]
 
 # ==============================================================================
 #  node
