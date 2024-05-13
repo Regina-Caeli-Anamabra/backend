@@ -2,7 +2,7 @@
 version: "3.8"
 services:
   database:
-    image: mariadb:10.6
+    image: mysql:8.2
     container_name: regina_db_mysql
     ports:
       - 3306:3306
