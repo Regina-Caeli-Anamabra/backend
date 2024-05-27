@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Bank;
 use App\Http\Resources\BankResource;
+use App\Models\Countries;
 use App\Models\Patients;
 use App\Models\Services;
+use App\Models\States;
 use App\Models\User;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
@@ -15,6 +17,62 @@ use Illuminate\Support\Facades\DB;
 class GeneralController extends Controller
 {
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/countries",
+     *      tags={"General"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Response(response="200", description="successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="States Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     * )
+     */
+    public function countries(Utils $utils): JsonResponse
+    {
+
+        try {
+            return $utils->message("success", Countries::all(["name", "id"])  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/states",
+     *      tags={"General"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Parameter(
+     *         name="country_id",
+     *         in="query",
+     *         description="country_id",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="States Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     * )
+     */
+    public function states(Request $request, Utils $utils): JsonResponse
+    {
+        $request->validate([
+            "country_id" => "required",
+        ]);
+        try {
+            return $utils->message("success", States::where('country_id', $request->get("country_id"))->get(["name", "id"])  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
     /**
      * @OA\Get (
      *     path="/api/v1/services",

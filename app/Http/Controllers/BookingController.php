@@ -3,13 +3,57 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bookings;
+use App\Models\Donations;
 use App\Models\r;
 use App\Utils\Utils;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
+    public function donation(Request $request, Utils $utils)
+    {
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.flutterwave.com/v3/transactions/". $request->get("transaction_id")."/verify",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: application/json",
+                "Authorization: Bearer FLWSECK_TEST-940432bfbcd581506e354f8597ca89ab-X"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+return        $response = json_decode($response, true);
+        return $response["data"]["card"]["country"];
+
+
+        $request->validate([
+            "name" => "required",
+            "amount" => "required",
+        ]);
+        try {
+            $donation = new Donations();
+            $donation->name = $request->get("name");
+            $donation->amount = $request->get("amount");
+            $donation->save();
+
+            return $utils->message("success", $donation , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
 
     /**
      * @OA\Get (
@@ -34,7 +78,7 @@ class BookingController extends Controller
 
         try {
             $booking = Bookings::where("user_id", $user_id)->get();
-            return $utils->message("success", $booking , 400);
+            return $utils->message("success", $booking , 200);
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);

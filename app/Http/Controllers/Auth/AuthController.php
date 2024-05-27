@@ -145,7 +145,7 @@ class AuthController extends Controller
      *         in="query",
      *         description="code",
      *         required=true,
-     *         @OA\Schema(type="string")
+     *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Response(response="200", description="Verification successful"),
      *     @OA\Response(response="404", description="Code Not Found")
@@ -153,9 +153,8 @@ class AuthController extends Controller
      */
     public function verifyCode(Request $request, Utils $utils)
     {
-
         $request->validate([
-            "code" => "required|string",
+            "code" => "required",
             "options" => "required|string"
         ]);
 //
@@ -171,7 +170,7 @@ class AuthController extends Controller
         })->firstOrFail();
         $user->verified = 1;
         $user->update();
-        return $utils->message("success","Verification Successful.", 404);
+        return $utils->message("success","Verification Successful.", 200);
     }
 
 
@@ -298,13 +297,6 @@ class AuthController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="address",
-     *         in="query",
-     *         description=" address",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="gender",
      *         in="query",
      *         description="gender",
@@ -326,13 +318,6 @@ class AuthController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="preferred_language",
-     *         in="query",
-     *         description="religion",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="nationality",
      *         in="query",
      *         description="nationality",
@@ -344,26 +329,6 @@ class AuthController extends Controller
      *         in="query",
      *         description="state",
      *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="lga",
-     *         in="query",
-     *         description="lga",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="town",
-     *         in="query",
-     *         description="town",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="card_number",
-     *         in="query",
-     *         description="card_number",
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
@@ -391,18 +356,6 @@ class AuthController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="insurance_number",
-     *         in="query",
-     *         description="insurance_number",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="ward",
-     *         in="query",
-     *         description="ward",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="state_of_residence",
      *         in="query",
      *         required=true,
@@ -414,6 +367,13 @@ class AuthController extends Controller
      *         in="query",
      *         required=true,
      *         description="address_of_residence",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="address_of_next_of_kin",
+     *         in="query",
+     *         required=true,
+     *         description="address_of_next_of_kin",
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
@@ -430,33 +390,26 @@ class AuthController extends Controller
      *         description="EMAIL OR SMS",
      *         @OA\Schema(type="string")
      *     ),
-     *     @OA\Parameter(
-     *         name="registerer_user_id",
-     *         in="query",
-     *         description="registerer_user_id",
-     *         @OA\Schema(type="string")
-     *     ),
      *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
      *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
      *
      * )
      */
-    public function registerUser(Request $userRequest, Utils $utils, Execs $execs)
+    public function registerUser(UserRequest $userRequest, Utils $utils, Execs $execs)
     {
         $phone = $userRequest->get("phone");
-
-        $verifyCode = Str::random(6);
-            try {
+        $phone = $userRequest->get("phone");
+         $password =   Hash::make($userRequest->get("password"));
+        $verifyCode = mt_rand(100000,999999);
+        try {
                 $user = New User();
                 $user->username = $userRequest->get("username");
-                $user->password = $userRequest->get("password");
+                $user->password = $password;
                 $user->email = $userRequest->get("email");
                 $user->phone = $userRequest->get("phone");
-                $user->authentication_type = "EMAIL";
+                $user->authentication_type = $userRequest->get("auth_type");
                 $user->register_for_self = $userRequest->get("register_for_self");
-                $user->register_for_self = $userRequest->get("register_for_self");
-                $user->registerer_user_id = $userRequest->get("registerer_user_id");
                 $user->vCode = $verifyCode;
                 $user->save();
 
@@ -467,21 +420,14 @@ class AuthController extends Controller
                 $patient->gender = $userRequest->get("gender");
                 $patient->marital_status = $userRequest->get("marital_status");
                 $patient->religion = $userRequest->get("religion");
-                $patient->preferred_language = $userRequest->get("preferred_language");
-                $patient->preferred_language = $userRequest->get("preferred_language");
                 $patient->nationality = $userRequest->get("nationality");
-                $patient->lga = $userRequest->get("lga");
-                $patient->town = $userRequest->get("town");
-                $patient->card_number = $userRequest->get("card_number");
                 $patient->next_of_kin = $userRequest->get("next_of_kin");
+                $patient->address_of_next_of_kin = $userRequest->get("address_of_next_of_kin");
                 $patient->next_of_kin_phone = $userRequest->get("next_of_kin_phone");
                 $patient->nature_of_relationship = $userRequest->get("nature_of_relationship");
                 $patient->date_of_birth = $userRequest->get("date_of_birth");
-                $patient->insurance_number = $userRequest->get("insurance_number");
-                $patient->ward = $userRequest->get("ward");
                 $patient->state_of_residence = $userRequest->get("state_of_residence");
                 $patient->address_of_residence = $userRequest->get("address_of_residence");
-                $patient->patient_id = $userRequest->get("patient_id");
                 $patient->user_id = $user->id;
                 $patient->save();
 
@@ -512,7 +458,7 @@ class AuthController extends Controller
      *         in="query",
      *         description="code",
      *         required=true,
-     *         @OA\Schema(type="string")
+     *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Response(response="200", description="Verification successful", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
@@ -524,7 +470,7 @@ class AuthController extends Controller
     {
 
         $request->validate([
-            'code' => "required|integer",
+            'code' => "required",
         ]);
         if(User::where('email',$request->get("email"))->value("password_reset") !== $request->get("code"))
             return $utils->message("error", "Code is incorrect", 401);
@@ -539,9 +485,9 @@ class AuthController extends Controller
      *     summary="Authenticate user and generate Sactum token",
      *     tags={"Auth"},
      *     @OA\Parameter(
-     *         name="username",
+     *         name="email",
      *         in="query",
-     *         description="Username",
+     *         description="email",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -559,11 +505,9 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $loginRequest, Utils $utils, Execs $execs)
     {
-//        return Hash::make($loginRequest->get("password"));
-        if (!auth()->attempt(request()->only(['username', 'password']))) {
-            return $utils->message( "error", "Invalid Username/Password", 401);
-        }
-        
+
+        if (!auth()->attempt($loginRequest->only(['email', 'password'])))
+            return $utils->message( "error", "Invalid Email/Password", 401);
 
         $authUser = Auth::user();
         $success['token'] =  $authUser->createToken('MyAuthApp')->plainTextToken;

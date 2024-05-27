@@ -31,11 +31,8 @@ class UserRequest extends FormRequest
             "email" => "required|string",
             "marital_status" => "required|string",
             "religion" => "required|string",
-            "preferred_language" => "required|string",
             "nationality" => "required|string",
             "state" => "required|string",
-            "lga" => "required|string",
-            "town" => "required|string",
             "state_of_residence" => "required|string",
             "address_of_residence" => "required|string",
             "password" => [
