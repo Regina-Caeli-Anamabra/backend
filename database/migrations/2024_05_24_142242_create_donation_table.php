@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('flutterwave_payments', function (Blueprint $table) {
+        Schema::create('donation_payments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger("user_id");
-            $table->unsignedBigInteger("patient_id");
+            $table->string("name");
             $table->integer("account_id");
             $table->decimal("amount");
             $table->decimal("amount_settled");
@@ -38,8 +37,6 @@ return new class extends Migration
             $table->decimal("merchant_fee");
             $table->string("tx_ref");
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');
 
         });
     }
@@ -49,6 +46,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('flutterwave_payments');
+        Schema::dropIfExists('donation_payments');
     }
 };

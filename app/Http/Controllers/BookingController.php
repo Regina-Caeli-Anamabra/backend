@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bookings;
+use App\Models\DonationPayment;
 use App\Models\Donations;
+use App\Models\FlutterwavePayment;
+use App\Models\Patients;
 use App\Models\r;
+use App\Models\Services;
 use App\Utils\Utils;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -15,27 +19,33 @@ class BookingController extends Controller
     public function donation(Request $request, Utils $utils)
     {
 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.flutterwave.com/v3/transactions/". $request->get("transaction_id")."/verify",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => array(
-                "Content-Type: application/json",
-                "Authorization: Bearer FLWSECK_TEST-940432bfbcd581506e354f8597ca89ab-X"
-            ),
-        ));
+     return   $paymentData =  $utils->validatePayment(5804669);
 
-        $response = curl_exec($curl);
-
-        curl_close($curl);
-return        $response = json_decode($response, true);
-        return $response["data"]["card"]["country"];
+        $donation = new DonationPayment();
+        $donation->name = $request->get("name");
+        $donation->account_id = $paymentData["data"]["account_id"];
+        $donation->amount =  $paymentData["data"]["amount"];
+        $donation->amount_settled =  $paymentData["data"]["amount_settled"];
+        $donation->app_fee =  $paymentData["data"]["app_fee"];
+        $donation->charged_amount =  $paymentData["data"]["charged_amount"];
+        $donation->country =  $paymentData["data"]["card"]["country"];
+        $donation->expiry = $paymentData["data"]["card"]["expiry"];
+        $donation->first_6digits =  $paymentData["data"]["card"]["first_6digits"];
+        $donation->issuer = $paymentData["data"]["card"]["issuer"];
+        $donation->last_4digits = $paymentData["data"]["card"]["last_4digits"];
+        $donation->card_token =  $paymentData["data"]["card"]["token"];
+        $donation->card_type =   $paymentData["data"]["card"]["type"];
+        $donation->email =  $paymentData["data"]["customer"]["email"];
+        $donation->name =  $paymentData["data"]["customer"]["name"];
+        $donation->phone_number =  $paymentData["data"]["customer"]["phone_number"];
+        $donation->flw_ref =  $paymentData["data"]["flw_ref"];
+        $donation->ip =  $paymentData["data"]["ip"];
+        $donation->processor_response =  $paymentData["data"]["processor_response"];
+        $donation->status =  $paymentData["data"]["status"];
+        $donation->narration =  $paymentData["data"]["status"];
+        $donation->merchant_fee =  $paymentData["data"]["merchant_fee"];
+        $donation->tx_ref =  $paymentData["data"]["tx_ref"];
+        $donation->save();
 
 
         $request->validate([
@@ -77,7 +87,7 @@ return        $response = json_decode($response, true);
         $user_id =  auth('sanctum')->user()->id;
 
         try {
-            $booking = Bookings::where("user_id", $user_id)->get();
+            $booking = Bookings::with(["services"])->where("user_id", $user_id)->get();
             return $utils->message("success", $booking , 200);
         }catch (\Throwable $e) {
             // Do something with your exception
@@ -105,7 +115,14 @@ return        $response = json_decode($response, true);
      *     @OA\Parameter(
      *         name="booking_start",
      *         in="query",
-     *         description="booking_start",
+     *         description="2024-04-29 18:00:00",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="transaction_id",
+     *         in="query",
+     *         description="Transaction id",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -119,22 +136,10 @@ return        $response = json_decode($response, true);
      *     @OA\Parameter(
      *         name="booking_for_self",
      *         in="query",
-     *         description="booking_for_self",
+     *         description="1 for self, 0 for someone else",
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
-     *     @OA\Parameter(
-     *         name="booked_by_id",
-     *         in="query",
-     *         description="booked_by_id",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *      @OA\Parameter(
-     *          name="price",
-     *          in="query",
-     *          description="price",
-     *          @OA\Schema(type="string")
-     *      ),
      *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
@@ -147,14 +152,48 @@ return        $response = json_decode($response, true);
             "booking_start" => "required",
             "service_id" => "required|int",
             "booking_for_self" => "required|int",
-            "price" => "required"
+            "transaction_id" => "required"
         ]);
+
 
         if(!auth('sanctum')->check())
             return $utils->message("error","Unauthorized Access." , 401);
 
         $user_id =  auth('sanctum')->user()->id;
         try {
+
+            $paymentData =  $utils->validatePayment($request->get("transaction_id"));
+
+            $donation = new FlutterwavePayment();
+            $donation->user_id = $user_id ;
+            $donation->patient_id = Patients::where("user_id", $user_id)->value("id");
+            $donation->account_id = $paymentData["data"]["account_id"];
+            $donation->amount =  $paymentData["data"]["amount"];
+            $donation->amount_settled =  $paymentData["data"]["amount_settled"];
+            $donation->app_fee =  $paymentData["data"]["app_fee"];
+            $donation->charged_amount =  $paymentData["data"]["charged_amount"];
+            $donation->country =  $paymentData["data"]["card"]["country"];
+            $donation->expiry = $paymentData["data"]["card"]["expiry"];
+            $donation->first_6digits =  $paymentData["data"]["card"]["first_6digits"];
+            $donation->issuer = $paymentData["data"]["card"]["issuer"];
+            $donation->last_4digits = $paymentData["data"]["card"]["last_4digits"];
+            $donation->card_token =  $paymentData["data"]["card"]["token"];
+            $donation->card_type =   $paymentData["data"]["card"]["type"];
+            $donation->email =  $paymentData["data"]["customer"]["email"];
+            $donation->name =  $paymentData["data"]["customer"]["name"];
+            $donation->phone_number =  $paymentData["data"]["customer"]["phone_number"];
+            $donation->flw_ref =  $paymentData["data"]["flw_ref"];
+            $donation->ip =  $paymentData["data"]["ip"];
+            $donation->processor_response =  $paymentData["data"]["processor_response"];
+            $donation->status =  $paymentData["data"]["status"];
+            $donation->narration =  $paymentData["data"]["status"];
+            $donation->merchant_fee =  $paymentData["data"]["merchant_fee"];
+            $donation->tx_ref =  $paymentData["data"]["tx_ref"];
+            $donation->service_id = $request->get("service_id");
+            $donation->save();
+
+
+
             $booking_start = Carbon::parse($request->get("booking_start"));
             $booking_start_formatted =  $booking_start->format("Y-m-d H:i:s");
             $booking_end =  $booking_start->copy()->addMinute(45)->format("Y-m-d H:i:s");
@@ -162,17 +201,19 @@ return        $response = json_decode($response, true);
             if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
                 return $utils->message("error","The session is already booked." , 400);
 
+
+
             $recipient_id = $request->get("booked_by_id");
             $booking = new Bookings();
             $booking->session_start = $booking_start_formatted;
             $booking->service_id = $request->get("service_id");
-            $booking->price = $request->get("price");
+            $booking->price = Services::where("id", $request->get("service_id"))->value("amount");
             $booking->session_end = $booking_end;
             $booking->user_id =  $user_id;
             $booking->booking_for_self = $request->get("booking_for_self");
             $booking->recipient_id = $recipient_id;
             $booking->save();
-            return $utils->message("success", $booking , 400);
+            return $utils->message("success", $booking , 200);
 
         }catch (\Throwable $e) {
             // Do something with your exception

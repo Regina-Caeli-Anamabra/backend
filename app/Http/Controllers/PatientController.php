@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PaymentResource;
 use App\Http\Resources\PaymentsResource;
 use App\Models\Bookings;
+use App\Models\FlutterwavePayment;
 use App\Models\Patients;
 use App\Models\Payments;
 use App\Models\User;
@@ -16,6 +18,54 @@ use Mockery\Exception;
 
 class PatientController extends Controller
 {
+    public function getPayments(Request $request, Utils $utils)
+    {
+        try {
+
+            if(!auth('sanctum')->check())
+                return $utils->message("error","Unauthorized Access." , 401);
+
+            $user_id = auth('sanctum')->id();
+             $patient = FlutterwavePayment::with(["services", "patients"])->get();
+             $data = [
+                 "payments" => PaymentResource::collection($patient),
+                 "total" => number_format(FlutterwavePayment::sum("amount_settled"), 2)
+             ];
+            return $utils->message("success",$data , 200);
+
+        }catch (\Exception $exception){
+            Log::error($exception->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/patient/profile",
+     *      tags={"Auth"},
+     *       security={
+     *            {"sanctum": {}},
+     *        },
+     *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *
+     * )
+     */
+    public function profile(Request $request, Utils $utils)
+    {
+        try {
+
+            if(!auth('sanctum')->check())
+                return $utils->message("error","Unauthorized Access." , 401);
+
+            $user_id = auth('sanctum')->id();
+            $patient = Patients::with(["user"])->where("user_id", $user_id)->get();
+            return $utils->message("success", $patient , 200);
+
+        }catch (\Exception $exception){
+            Log::error($exception->getMessage());
+        }
+    }
     /**
      * @OA\Patch(
      *     path="/api/v1/patient/profile/update",
@@ -73,37 +123,10 @@ class PatientController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="preferred_language",
-     *         in="query",
-     *         description="religion",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="nationality",
      *         in="query",
      *         description="nationality",
      *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="lga",
-     *         in="query",
-     *         description="lga",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="town",
-     *         in="query",
-     *         description="town",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="card_number",
-     *         in="query",
-     *         description="card_number",
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
@@ -131,18 +154,6 @@ class PatientController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="insurance_number",
-     *         in="query",
-     *         description="insurance_number",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="ward",
-     *         in="query",
-     *         description="ward",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="state_of_residence",
      *         in="query",
      *         required=true,
@@ -154,6 +165,13 @@ class PatientController extends Controller
      *         in="query",
      *         required=true,
      *         description="address_of_residence",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="address_of_next_of_kin",
+     *         in="query",
+     *         required=true,
+     *         description="address_of_next_of_kin",
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
@@ -177,17 +195,12 @@ class PatientController extends Controller
                     $user->gender = $request->get("gender");
                     $user->marital_status = $request->get("marital_status");
                     $user->religion = $request->get("religion");
-                    $user->preferred_language = $request->get("preferred_language");
                     $user->nationality = $request->get("nationality");
-                    $user->lga = $request->get("lga");
-                    $user->town = $request->get("town");
-                    $user->card_number = $request->get("card_number");
                     $user->next_of_kin = $request->get("next_of_kin");
                     $user->next_of_kin_phone = $request->get("next_of_kin_phone");
+                    $user->address_of_next_of_kin = $request->get("address_of_next_of_kin");
                     $user->nature_of_relationship = $request->get("nature_of_relationship");
                     $user->date_of_birth = $request->get("date_of_birth");
-                    $user->insurance_number = $request->get("insurance_number");
-                    $user->ward = $request->get("ward");
                     $user->state_of_residence = $request->get("state_of_residence");
                     $user->address_of_residence = $request->get("address_of_residence");
                     $user->save();

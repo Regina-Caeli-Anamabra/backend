@@ -17,4 +17,16 @@ class Services extends Model
     {
         return $this->hasMany(Payments::class);
     }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Bookings::class, "service_id");
+    }
+
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany('App\Models\FlutterwavePayment');
+    }
+
 }

@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <h3>Verification code is {{ $code }}</h3>
+    <h3>Password Reset code is {{ $code }}</h3>
 
     <p>
         Please. Do not show this to anyone. If you are not the one that made this request kindly ignore.

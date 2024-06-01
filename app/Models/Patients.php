@@ -24,4 +24,9 @@ class Patients extends Model
         return $this->belongsTo('App\Models\User', 'user_id');
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany('App\Models\FlutterwavePayment');
+    }
+
 }

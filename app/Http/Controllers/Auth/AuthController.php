@@ -39,7 +39,7 @@ class AuthController extends Controller
      *     @OA\Parameter(
      *         name="options",
      *         in="query",
-     *         description="email or phone",
+     *         description="username",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -61,14 +61,16 @@ class AuthController extends Controller
             "code" => "required|string",
             "options" => "required|string"
         ]);
-//
+
+
         if(!User::where(function ($query) use ($request){
             $query->where("email", $request->get("options"));
+            $query->orWhere("username", $request->get("options"));
             $query->orWhere("phone", $request->get("options"));
-        })->where("vCode", $request->get("password_reset_code"))->exists())
+        })->where("password_reset_code", $request->get("code"))->exists())
             return $utils->message("error", "Code Does Not Exist", 404);
 
-        return $utils->message("success","Verification Successful.", 404);
+        return $utils->message("success","Verification Successful.", 200);
     }
 
 
@@ -77,9 +79,9 @@ class AuthController extends Controller
      *     path="/api/v1/send-forgot-password-code",
      *      tags={"Auth"},
      *     @OA\Parameter(
-     *         name="options",
+     *         name="username",
      *         in="query",
-     *         description="options",
+     *         description="username",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -94,36 +96,38 @@ class AuthController extends Controller
      *     @OA\Response(response="401", description="Invalid credentials")
      * )
      */
-    public function forgotPassword(Request $request, Utils $utils): JsonResponse
+    public function forgotPassword(Request $request, Utils $utils)
     {
 
         $request->validate([
-            "options" => "required|string",
+            "username" => "required|string",
             "auth_type" => "required|string"
         ]);
 
         $auth_type = $request->get("auth_type");
-        $options = $request->get("options");
+        $options = $request->get("username");
 
         if (!User::where(function ($query) use ($options){
-            $query->where("email", $options);
-            $query->orWhere("phone", $options);
+            $query->where("username", $options);
+//            $query->orWhere("phone", $options);
         })->exists())
             return $utils->message("error", "User Not Found", 404);
 
 
         $password_reset_code = random_int(100000, 999999);
         User::where(function ($query) use ($options){
-            $query->where("email", $options);
-            $query->orWhere("phone", $options);
+            $query->where("username", $options);
+//            $query->orWhere("phone", $options);
         })->update(["password_reset_code" => $password_reset_code]);
+
         $mailData = [
             'title' => 'Reset your password',
             'code' => $password_reset_code
         ];
 
+
         if ($auth_type == "EMAIL")
-            Mail::to($options)->send(new PasswordResetMail($mailData));
+            Mail::to(User::where("username", $options)->value("email"))->send(new PasswordResetMail($mailData));
 
         return $utils->message("success", "Email Sent. Check your mailbox", 200);
 
@@ -176,11 +180,15 @@ class AuthController extends Controller
 
     /**
      * @OA\Patch(
-     *     path="/api/v1/patient/password/update",
+     *     path="/api/v1/password/update",
      *      tags={"Auth"},
-     *       security={
-     *            {"sanctum": {}},
-     *        },
+     *     @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="email",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
      *     @OA\Parameter(
      *         name="password",
      *         in="query",
@@ -206,13 +214,63 @@ class AuthController extends Controller
     {
 
         $request->validate([
-//            "old_password" => "required|string",
+            'password' => "required|string|required_with:confirm_password|same:confirm_password",
+            'confirm_password' => "required|string",
+            'email' => "required|string"
+        ]);
+
+        User::where("email", $request->get("email"))->update(["password" => Hash::make($request->get("password"))]);
+        return $utils->message("success", "Password Updated Successfully.", 200);
+
+
+    }
+
+    /**
+     * @OA\Patch(
+     *     path="/api/v1/patient/inner/password/update",
+     *      tags={"Auth"},
+     *       security={
+     *            {"sanctum": {}},
+     *        },
+     *     @OA\Parameter(
+     *         name="old_password",
+     *         in="query",
+     *         description="password",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="password",
+     *         in="query",
+     *         description="password",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="confirm_password",
+     *         in="query",
+     *         description="confirm_password",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *
+     * )
+     */
+
+    public function innerUpdatePassword(Request $request, Utils $utils)
+    {
+
+        $request->validate([
+            "old_password" => "required|string",
             'password' => "required|string|required_with:confirm_password|same:confirm_password",
             'confirm_password' => "required|string"
         ]);
 
-//        if(!Hash::check($request->get("old_password"), auth('sanctum')->user()->password))
-//            return $utils->message("error", "Invalid Password", 400);
+        if(!Hash::check($request->get("old_password"), auth('sanctum')->user()->password))
+            return $utils->message("error", "Invalid Password", 400);
 
 
         User::where("id", auth('sanctum')->user()->id)->update(["password" => Hash::make($request->get("new_password"))]);
@@ -507,6 +565,22 @@ class AuthController extends Controller
     {
 
         if (!auth()->attempt($loginRequest->only(['email', 'password'])))
+            return $utils->message( "error", "Invalid Email/Password", 401);
+
+        $authUser = Auth::user();
+        $success['token'] =  $authUser->createToken('MyAuthApp')->plainTextToken;
+        $success['username'] =  $authUser->username;
+        $success['email'] =  $authUser->email;
+        return $utils->message("success", $success, 200);
+    }
+
+    public function adminLogin(Request $loginRequest, Utils $utils, Execs $execs)
+    {
+        $loginRequest->validate([
+            "username" => "required",
+            "password" => "required"
+        ]);
+        if (!auth()->attempt($loginRequest->only(['username', 'password'])))
             return $utils->message( "error", "Invalid Email/Password", 401);
 
         $authUser = Auth::user();
