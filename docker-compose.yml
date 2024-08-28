@@ -7,10 +7,10 @@ services:
     ports:
       - 3333:3306
     environment:
-      - MYSQL_DATABASE=db_regina
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - CONTAINER_ROLE=CONTAINER_ROLE
     volumes:
       - db-data:/var/lib/mysql
       - ~/php.ini:/usr/local/etc/php/php.ini
@@ -23,6 +23,7 @@ services:
     container_name: regina_laravel_app
     environment:
       - APP_ENV="${APP_ENV}"
+      - CONTAINER_ROLE=app
     working_dir: /var/www
     volumes:
       - ./:/var/www
