@@ -1,0 +1,91 @@
+name: CI - Development
+
+on:
+  push:
+    branches:
+      - develop   # Trigger on push to the develop branch
+  pull_request:
+    branches:
+      - develop   # Trigger on pull requests targeting the develop branch
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      IMAGE_NAME: regina-backend-dev
+      IMAGE_TAG: ${{ github.run_id }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
+      - name: Build Docker image
+        run: |
+          docker build -t "$IMAGE_NAME:IMAGE_TAG" .
+
+      - name: Push Docker image to development registry
+        if: github.ref == 'refs/heads/develop'
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: myregistry.com/my-app:develop
+
+name: CD - Production
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+
+jobs:
+ 
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      IMAGE_NAME: regina-backend-prod
+      IMAGE_TAG: ${{ github.run_id }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        run: |
+          docker build -t "$IMAGE_NAME:IMAGE_TAG" .
+
+      - name: Push Docker image to production registry
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: "$IMAGE_NAME:IMAGE_TAG" 
+
+      - name: Deploy to production server
+        
+        run: |
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << 'EOF'
+          docker login myregistry.com -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+          docker pull myregistry.com/my-app:latest
+          docker stop my-app || true
+          docker rm my-app || true
+          docker run -d --name my-app -p 80:80 "$IMAGE_NAME:IMAGE_TAG" 
+          EOF
