@@ -41,7 +41,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: echo "$DOCKER_USERNAME/$DEV_IMAGE_NAME:$DEV_IMAGE_TAG"
+        run: echo "$DEV_IMAGE_NAME:$DEV_IMAGE_TAG"
         run: |
           docker build -t  $DEV_IMAGE_NAME:$DEV_IMAGE_TAG .
 
