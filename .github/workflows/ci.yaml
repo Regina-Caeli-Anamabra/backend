@@ -61,7 +61,7 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
-          scp -o StrictHostKeyChecking=no docker-compose.yml $SERVER_USER@$SERVER_HOST:/sam/home
+          scp -o StrictHostKeyChecking=no docker-compose.yml $SERVER_USER@$SERVER_HOST:/home/$SERVER_USER
 
 
       - name: Deploy to dev server server
