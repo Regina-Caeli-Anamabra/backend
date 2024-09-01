@@ -14,7 +14,7 @@ services:
     volumes:
       - db-data:/var/lib/mysql
       - ~/php.ini:/usr/local/etc/php/php.ini
-  php:
+  backend:
     build:
       context: .
       target: php
