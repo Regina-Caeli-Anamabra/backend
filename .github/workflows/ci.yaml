@@ -57,4 +57,6 @@ jobs:
           docker login myregistry.com -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
           docker-compose up --build --no-deps 
           EOF
-        run: echo "docker image url  ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}"
+          
+      - name: Display Docker image url
+        run:  echo "docker image url  ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}"
