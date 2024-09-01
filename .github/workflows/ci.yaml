@@ -51,12 +51,18 @@ jobs:
           push: true
           tags:  ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}
 
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+
       - name: Deploy to dev server server
         run: |
-          ssh -o StrictHostKeyChecking=no sam@77.37.124.68 << 'EOF'
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << 'EOF'
               docker login docker.io -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
               docker-compose up --build --no-deps 
           EOF
           
       - name: Display Docker image url
-        run:  echo "docker image url ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}"
+        run:  echo "docker image ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}"
