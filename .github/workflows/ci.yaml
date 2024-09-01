@@ -41,13 +41,13 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: echo "${{ DOCKER_USERNAME }}/$DEV_IMAGE_NAME:$DEV_IMAGE_TAG"
+        run: echo "$DOCKER_USERNAME/$DEV_IMAGE_NAME:$DEV_IMAGE_TAG"
         run: |
-          docker build -t  ${{ DOCKER_USERNAME }}/$DEV_IMAGE_NAME:$DEV_IMAGE_TAG .
+          docker build -t  $DOCKER_USERNAME/$DEV_IMAGE_NAME:$DEV_IMAGE_TAG .
 
       - name: Push Docker image to development registry
         if: github.ref == 'refs/heads/develop'
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ${{ DOCKER_USERNAME }}/$DEV_IMAGE_NAME:$DEV_IMAGE_TAG
+          tags: $DOCKER_USERNAME/$DEV_IMAGE_NAME:$DEV_IMAGE_TAG
