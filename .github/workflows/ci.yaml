@@ -17,6 +17,7 @@ jobs:
       SERVER_USER: ${{ secrets.SERVER_USER }}
       DEV_IMAGE_NAME: regina-backend-dev
       DEV_IMAGE_TAG: ${{ github.run_id }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
     steps:
       - name: Checkout code
@@ -41,11 +42,19 @@ jobs:
           
       - name: Build Docker image
         run: |
-          docker build -t   ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ github.run_id }} .
+          docker build -t   ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }} .
 
       - name: Push Docker image to development registry
         if: github.ref == 'refs/heads/develop'
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags:  ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ github.run_id }}
+          tags:  ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}
+
+      - name: Deploy to dev server server
+        run: |
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << 'EOF'
+          docker login myregistry.com -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+          docker-compose up --build --no-deps 
+          EOF
+        run: echo "docker image url  ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}"

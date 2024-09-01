@@ -15,11 +15,9 @@ services:
       - db-data:/var/lib/mysql
       - ~/php.ini:/usr/local/etc/php/php.ini
   backend:
-    build:
-      context: .
-      target: php
-      args:
-        - APP_ENV="${APP_ENV}"
+    image:  ${env.DOCKER_USERNAME}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}
+    args:
+      - APP_ENV="${APP_ENV}"
     container_name: regina_laravel_app
     environment:
       - APP_ENV="${APP_ENV}"
