@@ -51,6 +51,12 @@ jobs:
           push: true
           tags:  ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}
 
+      - name: Display the cedentials
+        run: echo "$SERVER_USER@$SERVER_HOST"
+
+      - name: Display the private key keys
+        run: echo "${{ secrets.SSH_PRIVATE_KEY }}"
+
       - name: Deploy to dev server server
         run: |
           ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << 'EOF'
