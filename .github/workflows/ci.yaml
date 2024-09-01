@@ -15,7 +15,7 @@ jobs:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_HOST: ${{ secrets.SERVER_HOST }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
-      IMAGE_NAME: regina-backend-dev
+      IMAGE_NAME: oshabz/regina-backend-dev
       IMAGE_TAG: ${{ github.run_id }}
 
     steps:
