@@ -41,11 +41,11 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t  oshabz/regina-backend-dev:${{ github.run_id }} .
+          docker build -t  $DEV_IMAGE_NAME:DEV_IMAGE_TAG .
 
       - name: Push Docker image to development registry
         if: github.ref == 'refs/heads/develop'
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: oshabz/regina-backend-dev:${{ github.run_id }}
+          tags: $DEV_IMAGE_NAME:DEV_IMAGE_TAG
