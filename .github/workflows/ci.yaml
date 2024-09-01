@@ -15,7 +15,7 @@ jobs:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_HOST: ${{ secrets.SERVER_HOST }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
-      DEV_IMAGE_NAME: regina-backend-dev
+      DEV_IMAGE_NAME: oshabz/regina-backend-dev
       DEV_IMAGE_TAG: ${{ github.run_id }}
       DOCKER_USERNAME: oshabz
 
@@ -43,11 +43,11 @@ jobs:
       - name: Build Docker image
         run: echo "$DOCKER_USERNAME/$DEV_IMAGE_NAME:$DEV_IMAGE_TAG"
         run: |
-          docker build -t  $DOCKER_USERNAME/$DEV_IMAGE_NAME:$DEV_IMAGE_TAG .
+          docker build -t  $DEV_IMAGE_NAME:$DEV_IMAGE_TAG .
 
       - name: Push Docker image to development registry
         if: github.ref == 'refs/heads/develop'
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: $DOCKER_USERNAME/$DEV_IMAGE_NAME:$DEV_IMAGE_TAG
+          tags: $DEV_IMAGE_NAME:$DEV_IMAGE_TAG
