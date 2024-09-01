@@ -42,4 +42,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: "$IMAGE_NAME:IMAGE_TAG"
+          tags: $IMAGE_NAME:IMAGE_TAG
