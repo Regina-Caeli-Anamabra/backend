@@ -48,4 +48,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags:  ${{ secrets.DOCKER_USERNAME }}/DEV_IMAGE_NAME:${{ github.run_id }}
+          tags:  ${{ secrets.DOCKER_USERNAME }}/$DEV_IMAGE_NAME:${{ github.run_id }}
