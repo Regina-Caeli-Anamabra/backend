@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ls -l /app/docker/entrypoint.sh
+
 if [ ! -f "vendor/autoload.php" ]; then
     composer install --no-progress --no-interaction
 fi
