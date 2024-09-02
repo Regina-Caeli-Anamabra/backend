@@ -13,7 +13,7 @@ WORKDIR /app
 COPY . .
 
 RUN ls -l /app/docker/entrypoint.sh
-RUN chmod +x /app/docker/entrypoint.sh
+RUN chmod 777 /app/docker/entrypoint.sh
 
 
 COPY --from=composer:2.7.4 /usr/bin/composer /usr/bin/composer
