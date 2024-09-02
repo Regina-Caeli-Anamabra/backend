@@ -11,7 +11,7 @@ RUN docker-php-ext-install pdo pdo_mysql bcmath
 
 WORKDIR /var/www
 COPY . .
-RUN chmod +x /var/www/docker/entrypoint.sh
+RUN sudo chmod +x /var/www/docker/entrypoint.sh
 
 COPY --from=composer:2.7.4 /usr/bin/composer /usr/bin/composer
 
