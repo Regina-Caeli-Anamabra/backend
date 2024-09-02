@@ -34,43 +34,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-docker-
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }} .
-
-      - name: Push Docker image to development registry
-        if: github.ref == 'refs/heads/develop'
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags:  ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}
-
-      - name: Set up SSH key
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Copy docker-compose.yml to remote server
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-        run: |
-          scp -o StrictHostKeyChecking=no docker-compose.yml $SERVER_USER@$SERVER_HOST:/home/$SERVER_USER
-
-
       - name: Deploy to dev server server
         run: |
           ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << 'EOF'
               docker login docker.io -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                export $(grep -v '^#' dev.env | xargs)
-              docker compose up --build --no-deps 
+              docker compose down
           EOF
-          
-      - name: Display Docker image url
-        run:  echo "docker image   ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}"
