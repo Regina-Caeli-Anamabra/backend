@@ -69,7 +69,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << 'EOF'
               docker login docker.io -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                export $(grep -v '^#' dev.env | xargs)
-              docker compose down
+              docker compose up --build --no-deps 
           EOF
           
       - name: Display Docker image url
