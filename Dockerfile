@@ -2,7 +2,7 @@ FROM php:8.2 as php
 
 RUN apt-get update -y
 RUN apt-get install -y unzip libpq-dev libcurl4-gnutls-dev
-RUN docker-php-ext-install pdo pdo_mysql bcmath sudo
+RUN docker-php-ext-install pdo pdo_mysql bcmath
 
 #RUN pecl install -o -f redis \
 #    && rm -rf /tmp/pear \
@@ -11,7 +11,10 @@ RUN docker-php-ext-install pdo pdo_mysql bcmath sudo
 
 WORKDIR /var/www
 COPY . .
-RUN sudo chmod +x /var/www/docker/entrypoint.sh
+
+RUN ls -l /var/www/docker/entrypoint.sh
+RUN chmod +x /var/www/docker/entrypoint.sh
+
 
 COPY --from=composer:2.7.4 /usr/bin/composer /usr/bin/composer
 
