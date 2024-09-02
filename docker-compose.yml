@@ -16,8 +16,6 @@ services:
       - ~/php.ini:/usr/local/etc/php/php.ini
   backend:
     image:  "${DOCKER_USERNAME}/${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}"
-    args:
-      - APP_ENV="${APP_ENV}"
     container_name: regina_laravel_app
     environment:
       - APP_ENV="${APP_ENV}"

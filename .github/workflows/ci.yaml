@@ -16,7 +16,7 @@ jobs:
       SERVER_HOST: ${{ secrets.SERVER_HOST }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
       DEV_IMAGE_NAME: regina-backend-dev
-      DEV_IMAGE_TAG: ${{ github.run_id }}
+      DEV_IMAGE_TAG: 1.0
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
     steps:
@@ -68,6 +68,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << 'EOF'
               docker login docker.io -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+               export $(grep -v '^#' dev.env | xargs)
               docker-compose up --build --no-deps 
           EOF
           
