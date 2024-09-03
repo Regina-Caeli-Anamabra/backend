@@ -72,7 +72,7 @@ jobs:
               export $(grep -v '^#' dev.env | xargs)
               docker compose up --build --no-deps -d
               sleep 10s
-              docker cp regina-dev/.env regina_laravel_app:/app/.env
+              docker cp .env regina_laravel_app:/app/.env
           EOF
           
       - name: Display Docker image url
