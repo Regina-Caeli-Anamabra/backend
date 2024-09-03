@@ -15,7 +15,7 @@ services:
       - db-data:/var/lib/mysql
       - ~/php.ini:/usr/local/etc/php/php.ini
   backend:
-    image:  "${DOCKER_USERNAME}/${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}"
+    image:  oshabz/regina-backend-dev:1
     container_name: regina_laravel_app
     environment:
       - APP_ENV="${APP_ENV}"
