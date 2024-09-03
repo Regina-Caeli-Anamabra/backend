@@ -12,14 +12,14 @@ RUN docker-php-ext-install pdo pdo_mysql bcmath
 WORKDIR /app
 COPY . .
 
-RUN ls -l /app/docker/entrypoint.sh
-RUN  chmod +x /app/docker/entrypoint.sh
+RUN ls -l ./docker/entrypoint.sh
+RUN  chmod +x ./docker/entrypoint.sh
 
 
 COPY --from=composer:2.7.4 /usr/bin/composer /usr/bin/composer
 
 ENV PORT=8000
-ENTRYPOINT [ "/app/docker/entrypoint.sh" ]
+ENTRYPOINT [ "./docker/entrypoint.sh" ]
 
 # ==============================================================================
 #  node
