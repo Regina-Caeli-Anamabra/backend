@@ -70,7 +70,7 @@ jobs:
               docker login docker.io -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
               cd regina-dev
               export $(grep -v '^#' dev.env | xargs)
-              docker compose up --build --no-deps 
+              docker compose up --build --no-deps -d
               sleep 10s
               docker cp regina-dev/.env regina_laravel_app:/app/.env
           EOF
