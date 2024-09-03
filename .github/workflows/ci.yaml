@@ -69,8 +69,10 @@ jobs:
           ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << 'EOF'
               docker login docker.io -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
               cd regina-dev
-               export $(grep -v '^#' dev.env | xargs)
+              export $(grep -v '^#' dev.env | xargs)
               docker compose up --build --no-deps 
+              sleep 10s
+              docker cp regina-dev/.env regina_laravel_app:/app/.env
           EOF
           
       - name: Display Docker image url
