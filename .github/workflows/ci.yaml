@@ -61,16 +61,17 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
-          scp -o StrictHostKeyChecking=no docker-compose.yml $SERVER_USER@$SERVER_HOST:/home/$SERVER_USER
+          scp -o StrictHostKeyChecking=no docker-compose.yml $SERVER_USER@$SERVER_HOST:/home/$SERVER_USER/regina-dev
 
 
       - name: Deploy to dev server server
         run: |
           ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << 'EOF'
               docker login docker.io -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+              cd regina-dev
                export $(grep -v '^#' dev.env | xargs)
               docker compose up --build --no-deps 
           EOF
           
       - name: Display Docker image url
-        run:  echo "docker image url   ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}"
+        run:  echo "docker image   ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}"
