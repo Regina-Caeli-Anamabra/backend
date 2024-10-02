@@ -10,11 +10,14 @@ services:
       - MYSQL_ROOT_PASSWORD=${DB_MASTER_PASSWORD}
       - MYSQL_USER=${DB_USERNAME}
       - MYSQL_PASSWORD=${DB_PASSWORD}
-      - CONTAINER_ROLE=CONTAINER_ROLE
+      - CONTAINER_ROLE=app
     volumes:
       - db-data:/var/lib/mysql
       - ~/php.ini:/usr/local/etc/php/php.ini
-  backend:
+    networks:
+      - mysql_network
+
+  php:
     build:
       context: .
       target: php
@@ -25,12 +28,13 @@ services:
       - APP_ENV="${APP_ENV}"
       - CONTAINER_ROLE=app
     working_dir: /var/www
-    volumes:
-      - ./:/var/www
     ports:
       - 8010:8000
     depends_on:
       - database
+    networks:
+      - mysql_network
+
 
   phpmyadmin:
       image: phpmyadmin
@@ -42,6 +46,13 @@ services:
           - UPLOAD_LIMIT= 100000000
       depends_on:
           - database
+      networks:
+        - mysql_network
+
+
 volumes:
   db-data: null
 
+networks:
+  mysql_network:
+      external: true
