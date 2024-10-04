@@ -1,10 +1,11 @@
 ---
 services:
-  database:
+  mysql_db:
     image: mysql:8.3
-    container_name: regina_db_mysql
+    container_name: hms_db_mysql
+    restart: unless-stopped
     ports:
-      - 3333:3306
+      - 3355:3306
     environment:
       - MYSQL_DATABASE=${DB_DATABASE}
       - MYSQL_ROOT_PASSWORD=${DB_MASTER_PASSWORD}
@@ -14,45 +15,47 @@ services:
     volumes:
       - db-data:/var/lib/mysql
       - ~/php.ini:/usr/local/etc/php/php.ini
+      - ./mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
     networks:
       - mysql_network
 
-  php:
+
+  hms_app:
     build:
       context: .
       target: php
       args:
         - APP_ENV="${APP_ENV}"
-    container_name: regina_laravel_app
+    container_name: hms_laravel_app
     environment:
       - APP_ENV="${APP_ENV}"
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USERNAME=${DB_USERNAME}
       - CONTAINER_ROLE=app
-    working_dir: /var/www
+    working_dir: /app
     ports:
-      - 8010:8000
+      - 8030:8000
     depends_on:
-      - database
+      - mysql_db
     networks:
       - mysql_network
-
 
   phpmyadmin:
       image: phpmyadmin
       restart: always
       ports:
-          - 9000:80
+          - 9300:80
       environment:
           - PMA_ARBITRARY=1
           - UPLOAD_LIMIT= 100000000
       depends_on:
-          - database
+          - mysql_db
       networks:
         - mysql_network
-
-
 volumes:
   db-data: null
 
 networks:
   mysql_network:
-      external: true
+      driver: bridge
