@@ -15,7 +15,7 @@ use App\Http\Controller\CustomerStakeController;
 |
 */
 
-// this is the part that is listing all categorie
+// this is the part that is listing all categories
 Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'index']);
 
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
