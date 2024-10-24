@@ -33,9 +33,8 @@ services:
       - 8030:8000
     depends_on:
       - mysql_db
-    networks:
-      - web_mysql_network
 
+      
   phpmyadmin:
       image: phpmyadmin
       restart: always
@@ -46,11 +45,6 @@ services:
           - UPLOAD_LIMIT= 100000000
       depends_on:
           - mysql_db
-      networks:
-        - web_mysql_network
 volumes:
   db-data: null
 
-networks:
-  existing_network:
-    external: true 
