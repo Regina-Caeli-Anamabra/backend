@@ -12,8 +12,6 @@ services:
     working_dir: /app
     ports:
       - 8030:8000
-    depends_on:
-      - mysql_db
     networks:
       - web_mysql_network
 
@@ -25,8 +23,6 @@ services:
       environment:
           - PMA_ARBITRARY=1
           - UPLOAD_LIMIT= 100000000
-      depends_on:
-          - mysql_db
       networks:
         - web_mysql_network
 volumes:
