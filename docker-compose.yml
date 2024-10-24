@@ -1,23 +1,23 @@
-  hms_app:
-    build:
-      context: .
-      target: php
-      args:
-        - APP_ENV="${APP_ENV}"
-    container_name: hms_laravel_app
-  backend:
-    image:  "${DOCKER_USERNAME}/${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}"
-    container_name: regina_laravel_app
-    environment:
+hms_app:
+  build:
+    context: .
+    target: php
+    args:
       - APP_ENV="${APP_ENV}"
-      - DB_DATABASE=${DB_DATABASE}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_USERNAME=${DB_USERNAME}
-      - CONTAINER_ROLE=app
-    working_dir: /app
-    ports:
-      - 8030:8000
-    depends_on:
-      - mysql_db
-    networks:
-      - mysql_network
+  container_name: hms_laravel_app
+backend:
+  image:  "${DOCKER_USERNAME}/${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}"
+  container_name: regina_laravel_app
+  environment:
+    - APP_ENV="${APP_ENV}"
+    - DB_DATABASE=${DB_DATABASE}
+    - DB_PASSWORD=${DB_PASSWORD}
+    - DB_USERNAME=${DB_USERNAME}
+    - CONTAINER_ROLE=app
+  working_dir: /app
+  ports:
+    - 8030:8000
+  depends_on:
+    - mysql_db
+  networks:
+    - mysql_network
