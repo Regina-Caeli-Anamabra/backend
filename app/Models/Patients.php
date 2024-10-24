@@ -12,9 +12,8 @@ class Patients extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        "first_name"
-    ];
+    protected $guarded = [];
+
     public function bookings(): HasMany
     {
         return $this->hasMany(Bookings::class, 'patient_id');

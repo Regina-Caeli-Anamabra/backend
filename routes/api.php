@@ -17,7 +17,7 @@ use App\Models\Services;
 |
 */
 
-// this is the part that is listing all categories
+
 Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'index']);
 
 Route::get('/re-arrange/category', function(){
