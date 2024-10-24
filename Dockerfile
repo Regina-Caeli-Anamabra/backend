@@ -8,8 +8,13 @@ RUN docker-php-ext-install pdo pdo_mysql bcmath
 #    && rm -rf /tmp/pear \
 #    && docker-php-ext-enable redis
 
-WORKDIR /var/www
+
+WORKDIR /app
 COPY . .
+
+RUN ls -l ./docker/entrypoint.sh
+RUN  chmod +x ./docker/entrypoint.sh
+
 
 COPY --from=composer:2.7.4 /usr/bin/composer /usr/bin/composer
 

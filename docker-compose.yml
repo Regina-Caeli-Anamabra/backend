@@ -15,32 +15,7 @@ services:
     volumes:
       - db-data:/var/lib/mysql
       - ~/php.ini:/usr/local/etc/php/php.ini
-      - ./mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
-    networks:
-      - mysql_network
-
-
-  hms_app:
-    build:
-      context: .
-      target: php
-      args:
-        - APP_ENV="${APP_ENV}"
-    container_name: hms_laravel_app
-    environment:
-      - APP_ENV="${APP_ENV}"
-      - DB_DATABASE=${DB_DATABASE}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_USERNAME=${DB_USERNAME}
-      - CONTAINER_ROLE=app
-    working_dir: /app
-    ports:
-      - 8030:8000
-    depends_on:
-      - mysql_db
-    networks:
-      - mysql_network
-
+      
   phpmyadmin:
       image: phpmyadmin
       restart: always
