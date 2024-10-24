@@ -17,7 +17,7 @@ services:
       - ~/php.ini:/usr/local/etc/php/php.ini
       - ./mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
     networks:
-      - mysql_network
+      - web_mysql_network
 
   backend:
     image:  "${DOCKER_USERNAME}/${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}"
