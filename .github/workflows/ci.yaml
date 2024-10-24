@@ -70,11 +70,10 @@ jobs:
               docker login docker.io -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
               cd regina-dev
               export $(grep -v '^#' dev.env | xargs)
-              docker run --name regina-dev -p 7200:8000 ${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}
+              docker compose up --build --no-deps -d
               sleep 10s
               docker cp .env regina_laravel_app:/app/.env
           EOF
           
       - name: Display Docker image url
         run:  echo "docker image url  ${{ secrets.DOCKER_USERNAME }}/${{ env.DEV_IMAGE_NAME}}:${{ env.DEV_IMAGE_TAG }}"
-##
