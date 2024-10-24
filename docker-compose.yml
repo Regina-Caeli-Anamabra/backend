@@ -33,5 +33,5 @@ volumes:
   db-data: null
 
 networks:
-  existing_network:
+  web_mysql_network:
     external: true 
