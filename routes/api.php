@@ -17,7 +17,7 @@ use App\Models\Services;
 |
 */
 
-// welcome @@
+// welcome 
 Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'index']);
 
 Route::get('/re-arrange/category', function(){
@@ -35,7 +35,6 @@ Route::get('/re-arrange/category', function(){
 });
 
 
-
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], function () {
     Route::post('/send-payment', ['App\Http\Controllers\BookingController', 'sendPayment']);
@@ -51,9 +50,6 @@ Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], funct
 
 });
 Route::group(['prefix' => 'v1'], function () {
-    Route::middleware('auth:sanctum', 'ability:' . \App\Enums\TokenAbility::ISSUE_ACCESS_TOKEN->value)->group(function () {
-        Route::get('/refresh-token',['App\Http\Controllers\Auth\AuthController', 'refreshToken']);
-    });
     Route::get('/countries', ['App\Http\Controllers\GeneralController', 'countries']);
     Route::post('/donation', ['App\Http\Controllers\BookingController', 'donation']);
     Route::get('/states', ['App\Http\Controllers\GeneralController', 'states']);
@@ -69,7 +65,10 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/services', ['App\Http\Controllers\GeneralController', 'services']);
         Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
         Route::get('/payments', ['App\Http\Controllers\PatientController', 'payments']);
-
+    });
+    
+    Route::middleware('auth:sanctum', 'ability:' . \App\Enums\TokenAbility::ISSUE_ACCESS_TOKEN->value)->group(function () {
+        Route::get('/refresh-token',['App\Http\Controllers\Auth\AuthController', 'refreshToken']);
     });
 });
 
