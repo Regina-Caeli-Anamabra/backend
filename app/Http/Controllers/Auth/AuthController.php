@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\TokenAbility;
 use App\Execs\Execs;
 use App\Http\Resources\Customer;
 use App\Mail\PasswordCodeEmail;
@@ -15,6 +16,7 @@ use App\Models\User;
 use App\Utils\CurlGet;
 use App\Utils\CurlPost;
 use App\Utils\Utils;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -31,7 +33,6 @@ use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class AuthController extends Controller
 {
-
     /**
      * @OA\Post(
      *     path="/api/v1/verify-password-reset-code",
@@ -564,14 +565,48 @@ class AuthController extends Controller
     public function login(LoginRequest $loginRequest, Utils $utils, Execs $execs)
     {
 
-        if (!auth()->attempt($loginRequest->only(['email', 'password'])))
+        if (auth()->attempt($loginRequest->only(['username', 'password'])) || auth()->attempt($loginRequest->only(['phone', 'password'])) ){
+
+            $authUser = Auth::user();
+
+            $success['token']  = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addMinutes(15))->plainTextToken;
+            $success['refreshToken']  = $authUser->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value],\Carbon\Carbon::now()->addDays(7))->plainTextToken;
+            $success['username'] =  $authUser->username;
+            $success['email'] =  $authUser->email;
+            $success['first_name'] =  Patients::where("user_id", $authUser->id)->value("first_name");
+            $success['last_name'] =  Patients::where("user_id", $authUser->id)->value("last_name");
+            return $utils->message("success", $success, 200);
+        }else{
             return $utils->message( "error", "Invalid Email/Password", 401);
 
-        $authUser = Auth::user();
-        $success['token'] =  $authUser->createToken('MyAuthApp')->plainTextToken;
-        $success['username'] =  $authUser->username;
-        $success['email'] =  $authUser->email;
-        return $utils->message("success", $success, 200);
+        }
+
+    }
+
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/regresh-token",
+     *      tags={"Auth"},
+     *     @OA\Parameter(
+     *         name="refresh_token",
+     *         in="query",
+     *         description="refresh_token",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Verification successful"),
+     *     @OA\Response(response="404", description="Code Not Found")
+     * )
+     */
+    public function refreshToken(Request $request, Utils $utils)
+    {
+        if(!auth('sanctum')->check())
+            return $utils->message("error","Unauthorized Access." , 401);
+
+        $accessToken = $request->user()->createToken('access_token', [TokenAbility::ACCESS_API->value], Carbon::now()->addMinutes(10))->plainTextToken;
+        return $utils->message("success",  ['token' => $accessToken ], 200);
+
     }
 
     public function adminLogin(Request $loginRequest, Utils $utils, Execs $execs)
@@ -581,10 +616,11 @@ class AuthController extends Controller
             "password" => "required"
         ]);
         if (!auth()->attempt($loginRequest->only(['username', 'password'])))
-            return $utils->message( "error", "Invalid Email/Password", 401);
+            return $utils->message( "error", "Invalid Username/Password", 401);
 
         $authUser = Auth::user();
-        $success['token'] =  $authUser->createToken('MyAuthApp')->plainTextToken;
+        $success['token']  = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addMinutes(15))->plainTextToken;
+        $success['refreshToken']  = $authUser->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value],\Carbon\Carbon::now()->addDays(7))->plainTextToken;
         $success['username'] =  $authUser->username;
         $success['email'] =  $authUser->email;
         return $utils->message("success", $success, 200);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Bank;
 use App\Http\Resources\BankResource;
+use App\Models\Categories;
 use App\Models\Countries;
 use App\Models\Patients;
 use App\Models\Services;
@@ -17,6 +18,27 @@ use Illuminate\Support\Facades\DB;
 class GeneralController extends Controller
 {
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/category",
+     *      tags={"General"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Response(response="200", description="successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="States Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     * )
+     */
+    public function category(Utils $utils): JsonResponse
+    {
+        try {
+            return $utils->message("success", Categories::all()  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
     /**
      * @OA\Get(
      *     path="/api/v1/countries",
@@ -67,15 +89,53 @@ class GeneralController extends Controller
             "country_id" => "required",
         ]);
         try {
-            return $utils->message("success", States::where('country_id', $request->get("country_id"))->get(["name", "id"])  , 200);
+            return $utils->message("success", States::where('country_id', $request->get("country_id"))->orderBy("name", "ASC")->get(["name", "id"])  , 200);
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);
         }
     }
+
+
     /**
      * @OA\Get (
      *     path="/api/v1/services",
+     *      tags={"General"},
+     *       security={
+     *            {"sanctum": {}},
+     *        },
+     *       @OA\Parameter(
+     *           name="category_id",
+     *           in="query",
+     *           description="category_id",
+     *           required=true,
+     *           @OA\Schema(type="string")
+     *       ),
+     *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *
+     * )
+     */
+    public function services(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "category_id" => "required",
+        ]);
+        try {
+            if(!auth('sanctum')->check())
+                return $utils->message("error","Unauthorized Access." , 401);
+            $services = Services::orderBy("id", "DESC")->get();
+            return $utils->message("success", Services::where("category_id", $request->get("category_id"))->orderBy("id", "DESC")->get()  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/admin-services",
      *      tags={"General"},
      *       security={
      *            {"sanctum": {}},
@@ -86,10 +146,13 @@ class GeneralController extends Controller
      *
      * )
      */
-    public function services(Utils $utils): JsonResponse
+    public function adminServices(Request $request, Utils $utils)
     {
         try {
-            return $utils->message("success", Services::orderBy("id", "DESC")->get()  , 200);
+            if(!auth('sanctum')->check())
+                return $utils->message("error","Unauthorized Access." , 401);
+                $services = Services::orderBy("id", "DESC")->get();
+                 return $utils->message("success", $services  , 200);
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);

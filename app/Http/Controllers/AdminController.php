@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\BookingResource;
+use App\Http\Resources\Category;
+use App\Http\Resources\CategoryResource;
 use App\Http\Resources\PatientResource;
 use App\Http\Resources\PaymentsResource;
 use App\Models\Bookings;
+use App\Models\Categories;
 use App\Models\Patients;
 use App\Models\Payments;
 use App\Models\Services;
@@ -13,13 +16,26 @@ use App\Models\User;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
 
+    public function getCategories(Request $request, Utils $utils)
+    {
+        if(!auth('sanctum')->check())
+            return $utils->message("error","Unauthorized Access." , 401);
+
+        $categories = CategoryResource::collection(Categories::all());
+
+        return $utils->message("success", $categories , 200);
+
+    }
+
     public function dashboardData(Request $request, Utils $utils)
     {
+
         if(!auth('sanctum')->check())
             return $utils->message("error","Unauthorized Access." , 401);
 
@@ -38,7 +54,7 @@ class AdminController extends Controller
         return $utils->message("success", $data , 200);
 
     }
-    public function createService(Request $request, Utils $utils): JsonResponse
+    public function createService(Request $request, Utils $utils)
     {
 
         if(!auth('sanctum')->check())
@@ -48,6 +64,7 @@ class AdminController extends Controller
             $service = new Services();
             $service->name = $request->get('name');
             $service->amount  = $request->get('amount');
+            $service->category_id  = $request->get('category');
             $service->save();
 
             return $utils->message("success", $service , 200);
@@ -67,7 +84,7 @@ class AdminController extends Controller
         $user_id =  auth('sanctum')->user()->id;
 
         try {
-             $booking = Bookings::with("users", "patient")->get(['user_id', 'session_start', 'session_end', 'price']);
+             $booking = Bookings::with("users", "patient")->orderBy("created_at", "DESC")->get();
             $bookings = BookingResource::collection($booking);
             $data = [
                 "bookings" => $bookings,
@@ -82,7 +99,7 @@ class AdminController extends Controller
     public function adminPayments(Request $request, Utils $utils)
     {
         try {
-            $payments = Payments::with(["user", "paymentBookings", "patients", "services"])->get();
+            $payments = Payments::with(["user", "paymentBookings", "patients", "services"])->orderBy("created_at", "DESC")->get();
             return $utils->message("success", PaymentsResource::collection($payments) , 200);
         }catch (\Throwable $e) {
             // Do something with your exception
@@ -112,9 +129,11 @@ class AdminController extends Controller
     {
 
         try {
-            $patients = User::with(['patient'])->get();
+
+            $patients = User::with(['patient'])->orderBy("created_at", "DESC")->get();
             $patients = PatientResource::collection($patients);
             return $utils->message("success", $patients  , 200);
+
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);

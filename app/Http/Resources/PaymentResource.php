@@ -18,9 +18,9 @@ class PaymentResource extends JsonResource
             'first_name' => $this->patients->first_name,
             'last_name' => $this->patients->last_name,
             'service_name' => $this->services->name,
-            'amount' => $this->amount,
-            'app_fee' => $this->app_fee,
-            'amount_settled' => $this->amount_settled
+            'amount' => number_format($this->amount, 2),
+            'app_fee' => number_format($this->app_fee, 2),
+            'amount_settled' => number_format($this->amount_settled, 2)
         ];
     }
 }

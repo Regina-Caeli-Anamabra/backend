@@ -12,7 +12,7 @@ class Services extends Model
 {
     use HasFactory;
 
-
+    protected $guarded = [];
     public function services(): HasMany
     {
         return $this->hasMany(Payments::class);
