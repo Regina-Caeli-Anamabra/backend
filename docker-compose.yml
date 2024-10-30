@@ -37,7 +37,7 @@ services:
       image: phpmyadmin
       restart: always
       ports:
-          - 9300:80
+          - 9000:80
       environment:
           - PMA_ARBITRARY=1
           - UPLOAD_LIMIT= 100000000

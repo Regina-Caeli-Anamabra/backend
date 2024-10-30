@@ -14,6 +14,8 @@ class Patients extends Model
 
     protected $guarded = [];
 
+    protected $table = "patient";
+
     public function bookings(): HasMany
     {
         return $this->hasMany(Bookings::class, 'patient_id');

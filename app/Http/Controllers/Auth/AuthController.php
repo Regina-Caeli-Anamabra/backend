@@ -457,6 +457,7 @@ class AuthController extends Controller
      */
     public function registerUser(UserRequest $userRequest, Utils $utils, Execs $execs)
     {
+        return $userRequest->al();
         $phone = $userRequest->get("phone");
         $phone = $userRequest->get("phone");
          $password =   Hash::make($userRequest->get("password"));
@@ -473,18 +474,23 @@ class AuthController extends Controller
                 $user->save();
 
                 $patient = new Patients();
-                $patient->first_name = $userRequest->get("first_name");
-                $patient->last_name = $userRequest->get("last_name");
-                $patient->phone = $userRequest->get("phone");
+                
+                $patient->firstName = $userRequest->get("first_name");
+                $patient->lastName = $userRequest->get("last_name");
+                $patient->phone_no = $userRequest->get("phone");
+                $patient->system_id = $utils->generateKey();
+                $patient->patient_id = $utils->generateKey();
+                $patient->dateOfBirth = $userRequest->get("date_of_birth");
                 $patient->gender = $userRequest->get("gender");
+                $patient->phone_no = $userRequest->get("phone");
+                $patient->next_of_kin_relationship = $userRequest->get("gender");
                 $patient->marital_status = $userRequest->get("marital_status");
-                $patient->religion = $userRequest->get("religion");
+                $patient->ethnic = $userRequest->get("religion");
                 $patient->nationality = $userRequest->get("nationality");
                 $patient->next_of_kin = $userRequest->get("next_of_kin");
                 $patient->address_of_next_of_kin = $userRequest->get("address_of_next_of_kin");
-                $patient->next_of_kin_phone = $userRequest->get("next_of_kin_phone");
-                $patient->nature_of_relationship = $userRequest->get("nature_of_relationship");
-                $patient->date_of_birth = $userRequest->get("date_of_birth");
+                $patient->next_of_kin_phoneno = $userRequest->get("next_of_kin_phone");
+                $patient->next_of_kin_relationship = $userRequest->get("nature_of_relationship");
                 $patient->state_of_residence = $userRequest->get("state_of_residence");
                 $patient->address_of_residence = $userRequest->get("address_of_residence");
                 $patient->user_id = $user->id;

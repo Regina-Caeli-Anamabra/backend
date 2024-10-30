@@ -11,6 +11,15 @@ use PHPUnit\Util\Json;
 class Utils
 {
 
+    public function generateKey($keyLength = 6) {
+        // Set a blank variable to store the key in
+        $key = "";
+        for ($x = 1; $x <= $keyLength; $x++) {
+            // Set each digit
+            $key .= random_int(0, 9);
+        }
+        return $key;
+    }
 
     public function validatePayment($transaction_id)
     {
