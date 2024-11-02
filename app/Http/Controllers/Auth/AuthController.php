@@ -443,13 +443,6 @@ class AuthController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="nature_of_relationship",
- *             required=true,
-     *         in="query",
-     *         description="Natrue of their relationship",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="auth_type",
  *             required=true,
      *         in="query",
@@ -484,6 +477,7 @@ class AuthController extends Controller
 
                 $patient->firstName = $userRequest->get("first_name");
                 $patient->lastName = $userRequest->get("last_name");
+                $patient->user_id = $user->id;
                 $patient->phone_no = $userRequest->get("phone");
                 $patient->system_id = $utils->generateKey();
                 $patient->patient_id = $utils->generateKey();

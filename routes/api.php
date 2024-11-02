@@ -60,6 +60,7 @@ Route::group(['prefix' => 'v1'], function () {
 
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
+        Route::get('/category', ['App\Http\Controllers\GeneralController', 'category']);
         Route::get('/services', ['App\Http\Controllers\GeneralController', 'services']);
         Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
         Route::get('/payments', ['App\Http\Controllers\PatientController', 'payments']);
