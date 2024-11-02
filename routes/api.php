@@ -21,16 +21,14 @@ use App\Models\Services;
 Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'index']);
 
 Route::get('/re-arrange/category', function(){
-
     $categories = Category::all();
-
     foreach($categories as $category){
-        $id = Categories::where("name", $category->OBSTETRICS_GYNAECOLOGY)->value("id");
-        Services::create([
-            "category_id" => $id,
-            "name" => $category->Episotomy_Repair_after_dischage,
-            "amount" => $category->Column_5000
-        ]);       
+        if (Categories::where("name", $category->name)->value("name") == $category->name) {
+            echo Categories::where("name", $category->name)->value("id");
+            $cat = Category::findOrFail($category->id);
+            $cat->category_id = Categories::where("name", $category->name)->value("id");
+            $cat->update();
+        }
     }
 });
 
@@ -66,7 +64,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
         Route::get('/payments', ['App\Http\Controllers\PatientController', 'payments']);
     });
-    
+
     Route::middleware('auth:sanctum', 'ability:' . \App\Enums\TokenAbility::ISSUE_ACCESS_TOKEN->value)->group(function () {
         Route::get('/refresh-token',['App\Http\Controllers\Auth\AuthController', 'refreshToken']);
     });

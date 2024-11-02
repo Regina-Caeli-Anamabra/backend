@@ -202,7 +202,7 @@ class PatientController extends Controller
                     $user->date_of_birth = $request->get("date_of_birth");
                     $user->state_of_residence = $request->get("state_of_residence");
                     $user->address_of_residence = $request->get("address_of_residence");
-                    $user->save();
+                    $user->update();
                }
 //               $user =  Patients::where("user_id", auth('sanctum')->id())->update([
 //                            "first_name" => $request->get("first_name"),

@@ -443,6 +443,13 @@ class AuthController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
+     *         name="nature_of_relationship",
+ *             required=true,
+     *         in="query",
+     *         description="Natrue of their relationship",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
      *         name="auth_type",
  *             required=true,
      *         in="query",
@@ -457,7 +464,7 @@ class AuthController extends Controller
      */
     public function registerUser(UserRequest $userRequest, Utils $utils, Execs $execs)
     {
-        return $userRequest->al();
+
         $phone = $userRequest->get("phone");
         $phone = $userRequest->get("phone");
          $password =   Hash::make($userRequest->get("password"));
@@ -474,7 +481,7 @@ class AuthController extends Controller
                 $user->save();
 
                 $patient = new Patients();
-                
+
                 $patient->firstName = $userRequest->get("first_name");
                 $patient->lastName = $userRequest->get("last_name");
                 $patient->phone_no = $userRequest->get("phone");
@@ -488,11 +495,11 @@ class AuthController extends Controller
                 $patient->ethnic = $userRequest->get("religion");
                 $patient->nationality = $userRequest->get("nationality");
                 $patient->next_of_kin = $userRequest->get("next_of_kin");
-                $patient->address_of_next_of_kin = $userRequest->get("address_of_next_of_kin");
+//                $patient->address_of_next_of_kin = $userRequest->get("address_of_next_of_kin");
                 $patient->next_of_kin_phoneno = $userRequest->get("next_of_kin_phone");
                 $patient->next_of_kin_relationship = $userRequest->get("nature_of_relationship");
                 $patient->state_of_residence = $userRequest->get("state_of_residence");
-                $patient->address_of_residence = $userRequest->get("address_of_residence");
+//                $patient->address_of_residence = $userRequest->get("address_of_residence");
                 $patient->user_id = $user->id;
                 $patient->save();
 
@@ -572,15 +579,14 @@ class AuthController extends Controller
     {
 
         if (auth()->attempt($loginRequest->only(['phone', 'password'])) ){
-
             $authUser = Auth::user();
 
             $success['token']  = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addMinutes(15))->plainTextToken;
             $success['refreshToken']  = $authUser->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value],\Carbon\Carbon::now()->addDays(7))->plainTextToken;
             $success['username'] =  $authUser->username;
             $success['email'] =  $authUser->email;
-            $success['first_name'] =  Patients::where("user_id", $authUser->id)->value("first_name");
-            $success['last_name'] =  Patients::where("user_id", $authUser->id)->value("last_name");
+            $success['first_name'] =  Patients::where("user_id", $authUser->id)->value("firstName");
+            $success['last_name'] =  Patients::where("user_id", $authUser->id)->value("lastName");
             return $utils->message("success", $success, 200);
         }else{
             return $utils->message( "error", "Invalid Email/Password", 401);
