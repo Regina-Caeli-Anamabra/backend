@@ -503,7 +503,7 @@ class AuthController extends Controller
                     $data = [
                         "code" => $verifyCode
                     ];
-                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
+//                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
                 }else{
 
                 }
