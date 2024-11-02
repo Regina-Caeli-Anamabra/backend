@@ -23,8 +23,8 @@ class UserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "username" => "required|string|unique:users",
-            "phone" => "required|string|unique:patients",
+
+            "phone" => "required|string|unique:users",
             "first_name" => "required|string",
             "last_name" => "required|string",
             "gender" => "required|string",

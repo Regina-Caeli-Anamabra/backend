@@ -464,7 +464,6 @@ class AuthController extends Controller
         $verifyCode = mt_rand(100000,999999);
         try {
                 $user = New User();
-                $user->username = $userRequest->get("username");
                 $user->password = $password;
                 $user->email = $userRequest->get("email");
                 $user->phone = $userRequest->get("phone");
@@ -591,7 +590,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Get (
-     *     path="/api/v1/regresh-token",
+     *     path="/api/v1/refresh-token",
      *      tags={"Auth"},
      *     @OA\Parameter(
      *         name="refresh_token",
