@@ -550,9 +550,9 @@ class AuthController extends Controller
      *     summary="Authenticate user and generate Sactum token",
      *     tags={"Auth"},
      *     @OA\Parameter(
-     *         name="email",
+     *         name="phone",
      *         in="query",
-     *         description="email",
+     *         description="Phone",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -571,7 +571,7 @@ class AuthController extends Controller
     public function login(LoginRequest $loginRequest, Utils $utils, Execs $execs)
     {
 
-        if (auth()->attempt($loginRequest->only(['username', 'password'])) || auth()->attempt($loginRequest->only(['phone', 'password'])) ){
+        if (auth()->attempt($loginRequest->only(['phone', 'password'])) ){
 
             $authUser = Auth::user();
 
@@ -584,7 +584,6 @@ class AuthController extends Controller
             return $utils->message("success", $success, 200);
         }else{
             return $utils->message( "error", "Invalid Email/Password", 401);
-
         }
 
     }
