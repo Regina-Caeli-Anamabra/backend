@@ -465,6 +465,7 @@ class AuthController extends Controller
                 $user = New User();
                 $user->password = $password;
                 $user->email = $userRequest->get("email");
+                $user->username = $userRequest->get("username");
                 $user->phone = $userRequest->get("phone");
                 $user->authentication_type = $userRequest->get("auth_type");
                 $user->register_for_self = $userRequest->get("register_for_self");
