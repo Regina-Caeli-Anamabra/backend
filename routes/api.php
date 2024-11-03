@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controller\CustomerStakeController;
 use App\Models\Category;
@@ -29,6 +30,20 @@ Route::get('/re-arrange/category', function(){
             $cat->category_id = Categories::where("name", $category->name)->value("id");
             $cat->update();
         }
+    }
+});
+
+Route::get('/add-patient-to-users', function(){
+    $patients = \App\Models\Patients::all();
+    foreach($patients as $patient){
+        echo $patient->phone_no . "<br />";
+        $user = new \App\Models\User();
+        $user->phone = $patient->phone_no;
+        $user->password = Hash::make("12345");
+        $user->verified = 1;
+        $user->save();
+
+        \App\Models\Patients::where("id", $user->id)->update(["user_id" => $user->id]);
     }
 });
 
