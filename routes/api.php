@@ -49,7 +49,6 @@ Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], funct
 });
 Route::group(['prefix' => 'v1'], function () {
     Route::get('/countries', ['App\Http\Controllers\GeneralController', 'countries']);
-    Route::post('/donation', ['App\Http\Controllers\BookingController', 'donation']);
     Route::get('/states', ['App\Http\Controllers\GeneralController', 'states']);
     Route::post('/register', ['App\Http\Controllers\Auth\AuthController', 'registerUser']);
     Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'login']);

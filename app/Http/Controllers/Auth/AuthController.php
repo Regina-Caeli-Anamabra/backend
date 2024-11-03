@@ -66,7 +66,6 @@ class AuthController extends Controller
 
         if(!User::where(function ($query) use ($request){
             $query->where("email", $request->get("options"));
-            $query->orWhere("username", $request->get("options"));
             $query->orWhere("phone", $request->get("options"));
         })->where("password_reset_code", $request->get("code"))->exists())
             return $utils->message("error", "Code Does Not Exist", 404);
@@ -101,15 +100,15 @@ class AuthController extends Controller
     {
 
         $request->validate([
-            "username" => "required|string",
+            "email" => "required|string",
             "auth_type" => "required|string"
         ]);
 
         $auth_type = $request->get("auth_type");
-        $options = $request->get("username");
+        $options = $request->get("email");
 
         if (!User::where(function ($query) use ($options){
-            $query->where("username", $options);
+            $query->where("email", $options);
 //            $query->orWhere("phone", $options);
         })->exists())
             return $utils->message("error", "User Not Found", 404);
@@ -117,11 +116,11 @@ class AuthController extends Controller
 
         $password_reset_code = random_int(100000, 999999);
         User::where(function ($query) use ($options){
-            $query->where("username", $options);
+            $query->where("email", $options);
 //            $query->orWhere("phone", $options);
         })->update(["password_reset_code" => $password_reset_code]);
 
-        $mailData = [
+     return   $mailData = [
             'title' => 'Reset your password',
             'code' => $password_reset_code
         ];
@@ -482,17 +481,16 @@ class AuthController extends Controller
                 $patient->patient_id = $utils->generateKey();
                 $patient->dateOfBirth = $userRequest->get("date_of_birth");
                 $patient->gender = $userRequest->get("gender");
-                $patient->phone_no = $userRequest->get("phone");
                 $patient->next_of_kin_relationship = $userRequest->get("gender");
                 $patient->marital_status = $userRequest->get("marital_status");
                 $patient->ethnic = $userRequest->get("religion");
                 $patient->nationality = $userRequest->get("nationality");
                 $patient->next_of_kin = $userRequest->get("next_of_kin");
-//                $patient->address_of_next_of_kin = $userRequest->get("address_of_next_of_kin");
+                $patient->next_of_kin_address = $userRequest->get("address_of_next_of_kin");
                 $patient->next_of_kin_phoneno = $userRequest->get("next_of_kin_phone");
                 $patient->next_of_kin_relationship = $userRequest->get("nature_of_relationship");
                 $patient->state_of_residence = $userRequest->get("state_of_residence");
-//                $patient->address_of_residence = $userRequest->get("address_of_residence");
+                $patient->address = $userRequest->get("address_of_residence");
                 $patient->user_id = $user->id;
                 $patient->save();
 

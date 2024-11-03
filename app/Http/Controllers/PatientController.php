@@ -188,8 +188,8 @@ class PatientController extends Controller
 
                $user =  Patients::where("user_id", auth('sanctum')->id())->firstOrFail();
                if($user){
-                    $user->first_name = $request->get("first_name");
-                    $user->last_name = $request->get("last_name");
+                    $user->firstName = $request->get("first_name");
+                    $user->lastName = $request->get("last_name");
                     $user->phone = $request->get("phone");
                     $user->gender = $request->get("gender");
                     $user->marital_status = $request->get("marital_status");
@@ -198,10 +198,10 @@ class PatientController extends Controller
                     $user->next_of_kin = $request->get("next_of_kin");
                     $user->next_of_kin_phone = $request->get("next_of_kin_phone");
                     $user->address_of_next_of_kin = $request->get("address_of_next_of_kin");
-                    $user->nature_of_relationship = $request->get("nature_of_relationship");
-                    $user->date_of_birth = $request->get("date_of_birth");
+                    $user->next_of_kin_relationship = $request->get("nature_of_relationship");
+                    $user->dateOfBirth = $request->get("date_of_birth");
                     $user->state_of_residence = $request->get("state_of_residence");
-                    $user->address_of_residence = $request->get("address_of_residence");
+                    $user->address = $request->get("address_of_residence");
                     $user->update();
                }
 //               $user =  Patients::where("user_id", auth('sanctum')->id())->update([
@@ -263,41 +263,6 @@ class PatientController extends Controller
 
         }catch (Exception $exception){
             Log::error($exception->getMessage());
-        }
-    }
-    public function addPayment(Request $request, Utils $utils)
-    {
-        $request->validate([
-            "user_id" => "required|int",
-            "trx_id" => "required|string",
-            "booking_id" => "required|int",
-            "service_id" => "required|int",
-            "amount" => "required"
-        ]);
-
-        try {
-            $trx_id =  Str::random(20);
-            if (!Payments::where("trx_id", $trx_id)->exists()){
-                $user_id = $request->get("user_id");
-                $payments = new Payments();
-                $payments->user_id = $user_id;
-                $payments->merchant_trx_id = $request->get("trx_id");
-                $payments->booking_id = $request->get("booking_id");
-                $payments->amount = $request->get("amount");
-                $payments->trx_id = $trx_id;
-                $payments->service_id = $request->get("service_id");
-                $payments->patient_id = Patients::where("user_id", $user_id)->value("id");
-                $payments->save();
-                return $utils->message("success", $payments , 200);
-
-            }else{
-                return $utils->message("error", "Network Error. Please Try Again." , 400);
-
-            }
-
-        }catch (\Throwable $e) {
-            // Do something with your exception
-            return $utils->message("error", $e->getMessage() , 400);
         }
     }
 
