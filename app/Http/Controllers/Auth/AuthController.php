@@ -498,7 +498,7 @@ class AuthController extends Controller
 
                 if ($userRequest->get("auth_type") == "EMAIL") {
 
-                    $data = [
+                  return  $data = [
                         "code" => $verifyCode
                     ];
 //                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
