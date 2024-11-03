@@ -300,13 +300,6 @@ class BookingController extends Controller
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
-     *     @OA\Parameter(
-     *         name="unique_id",
-     *         in="query",
-     *         description="unique id",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
      *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
@@ -348,7 +341,6 @@ class BookingController extends Controller
 
             FlutterwavePayment::where("unique_id", $request->get("unique_id"))->update([
             "user_id" => $user_id ,
-            "unique_id" => $request->get("unique_id") ,
             "patient_id" => Patients::where("user_id", $user_id)->value("id"),
             "account_id" => $paymentData["data"]["account_id"],
             "amount" =>  $paymentData["data"]["amount"],
@@ -386,6 +378,7 @@ class BookingController extends Controller
                 return $utils->message("error","The session is already booked." , 400);
 
             $amount = Services::where("id", $request->get("service_id"))->value("amount");
+            $name = Services::where("id", $request->get("service_id"))->value("name");
             $service_id = $request->get("service_id");
             $recipient_id = $request->get("booked_by_id");
             $booking = new Bookings();
@@ -399,7 +392,7 @@ class BookingController extends Controller
             $booking->save();
 
             $flutterwave_id = FlutterwavePayment::where("unique_id", $request->get("unique_id"))->value("id");
-            $this->addPayment($utils, $user_id, $flutterwave_id , $booking->id, $amount, $service_id);
+            $this->addPayment($utils, $user_id, $flutterwave_id , $booking->id, $amount, $service_id, $name);
             return $utils->message("success", $booking , 200);
 
         }catch (\Throwable $e) {
@@ -408,7 +401,7 @@ class BookingController extends Controller
         }
     }
 
-    public function addPayment(Utils $utils, $user_id, $trx_id, $booking_id, $amount, $service_id)
+    public function addPayment(Utils $utils, $user_id, $trx_id, $booking_id, $amount, $service_id, $name)
     {
 
         try {
@@ -419,6 +412,7 @@ class BookingController extends Controller
                 $payments->merchant_trx_id = $trx_id;
                 $payments->booking_id = $booking_id;
                 $payments->amount = $amount;
+                $payments->name = $name;
                 $payments->trx_id = $trx_id;
                 $payments->service_id = $service_id;
                 $payments->patient_id = Patients::where("user_id", $user_id)->value("id");

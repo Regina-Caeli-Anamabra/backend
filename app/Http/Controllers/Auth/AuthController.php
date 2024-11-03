@@ -473,7 +473,6 @@ class AuthController extends Controller
                 $user->save();
 
                 $patient = new Patients();
-
                 $patient->firstName = $userRequest->get("first_name");
                 $patient->lastName = $userRequest->get("last_name");
                 $patient->user_id = $user->id;
@@ -501,7 +500,7 @@ class AuthController extends Controller
                     $data = [
                         "code" => $verifyCode
                     ];
-//                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
+                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
                 }else{
 
                 }
