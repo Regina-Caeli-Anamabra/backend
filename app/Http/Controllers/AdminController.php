@@ -125,11 +125,9 @@ class AdminController extends Controller
             return $utils->message("error", $e->getMessage() , 400);
         }
     }
-    public function getPatients(Utils $utils): JsonResponse
+    public function getPatients(Utils $utils)
     {
-
         try {
-
             $patients = User::with(['patient'])->orderBy("created_at", "DESC")->get();
             $patients = PatientResource::collection($patients);
             return $utils->message("success", $patients  , 200);
