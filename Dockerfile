@@ -15,6 +15,8 @@ COPY . .
 RUN ls -l ./docker/entrypoint.sh
 RUN  chmod +x ./docker/entrypoint.sh
 
+RUN echo "max_execution_time = 300" >> /usr/local/etc/php/php.ini
+
 
 COPY --from=composer:2.7.4 /usr/bin/composer /usr/bin/composer
 

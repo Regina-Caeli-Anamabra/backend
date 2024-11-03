@@ -33,18 +33,30 @@ Route::get('/re-arrange/category', function(){
     }
 });
 
-Route::get('/add-patient-to-users', function(){
-    $patients = \App\Models\Patients::all();
-    foreach($patients as $patient){
-        echo $patient->phone_no . "<br />";
-        $user = new \App\Models\User();
-        $user->phone = $patient->phone_no;
-        $user->password = Hash::make("12345");
-        $user->verified = 1;
-        $user->save();
+Route::get('/update-password', function(){
+    set_time_limit(-1);
+    $chunkSize = 1000; // Adjust based on memory and performance requirements
+    DB::table('userst')->orderBy('id')->chunk($chunkSize, function ($records) {
+        foreach ($records as $record) {
+            DB::transaction(function () use ($record) {
+                // Insert data into the target table
+                $insertedId = DB::table('userst')->where('id', $record->id)
+                ->update([
+                    'password' => Hash::make("12345"),
+                    'verified' => 1,
+                ]);
 
-        \App\Models\Patients::where("id", $user->id)->update(["user_id" => $user->id]);
-    }
+                // Use data from the inserted row to update another table (mytable)
+                DB::table('patient')
+                    ->where('id', $record->id) // Update based on a related field or condition
+                    ->update([
+                        'user_id' => $insertedId, // Optionally store the new ID in mytable
+                        'updated_at' => now(),
+                    ]);
+            });
+        }
+    });
+
 });
 
 
