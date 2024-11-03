@@ -371,8 +371,8 @@ class BookingController extends Controller
 
 
             $booking_start = Carbon::parse($request->get("booking_start"));
-            $booking_start_formatted =  $booking_start->format("Y-m-d H:i:s");
-            $booking_end =  $booking_start->copy()->addMinute(45)->format("Y-m-d H:i:s");
+            $booking_start_formatted =  $booking_start->format("Y-m-d H:i");
+            $booking_end =  $booking_start->copy()->addMinute(45)->format("Y-m-d H:i");
 
             if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
                 return $utils->message("error","The session is already booked." , 400);
