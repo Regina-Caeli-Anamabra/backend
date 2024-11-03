@@ -313,8 +313,7 @@ class BookingController extends Controller
             "service_id" => "required|int",
             "booking_for_self" => "required|int",
             "transaction_id" => "required",
-            "payment_id" => "required",
-            "unique_id" => "required"
+            "payment_id" => "required"
         ]);
 
 
@@ -339,34 +338,33 @@ class BookingController extends Controller
                 return $utils->message("error","Invalid Transaction ID." , 401);
 
 
-            FlutterwavePayment::where("unique_id", $request->get("unique_id"))->update([
-            "user_id" => $user_id ,
-            "patient_id" => Patients::where("user_id", $user_id)->value("id"),
-            "account_id" => $paymentData["data"]["account_id"],
-            "amount" =>  $paymentData["data"]["amount"],
-            "amount_settled" =>  $paymentData["data"]["amount_settled"],
-            "app_fee" =>  $paymentData["data"]["app_fee"],
-            "charged_amount" =>  $paymentData["data"]["charged_amount"],
-            "country" =>  $paymentData["data"]["card"]["country"],
-            "expiry" => $paymentData["data"]["card"]["expiry"],
-            "first_6digits" =>  $paymentData["data"]["card"]["first_6digits"],
-            "issuer" => $paymentData["data"]["card"]["issuer"],
-            "last_4digits" => $paymentData["data"]["card"]["last_4digits"],
-            "card_token" =>  $paymentData["data"]["card"]["token"],
-            "card_type" =>   $paymentData["data"]["card"]["type"],
-            "email" =>  $paymentData["data"]["customer"]["email"],
-            "name" =>  $paymentData["data"]["customer"]["name"],
-            "phone_number" =>  $paymentData["data"]["customer"]["phone_number"],
-            "flw_ref" =>  $paymentData["data"]["flw_ref"],
-            "ip" =>  $paymentData["data"]["ip"],
-            "processor_response" =>  $paymentData["data"]["processor_response"],
-            "status" => $paymentData["data"]["status"],
-            "narration" =>  $paymentData["data"]["status"],
-            "merchant_fee" =>  $paymentData["data"]["merchant_fee"],
-            "tx_ref" =>  $paymentData["data"]["tx_ref"],
-            "service_id" => $request->get("service_id"),
-            ]);
-
+            $flutter = new FlutterwavePayment();
+            $flutter->user_id = $user_id ;
+            $flutter->patient_id = Patients::where("user_id", $user_id)->value("id");
+            $flutter->account_id = $paymentData["data"]["account_id"];
+            $flutter->amount =  $paymentData["data"]["amount"];
+            $flutter->amount_settled =  $paymentData["data"]["amount_settled"];
+            $flutter->app_fee =  $paymentData["data"]["app_fee"];
+            $flutter->charged_amount =  $paymentData["data"]["charged_amount"];
+            $flutter->country =  $paymentData["data"]["card"]["country"];
+            $flutter->expiry = $paymentData["data"]["card"]["expiry"];
+            $flutter->first_6digits =  $paymentData["data"]["card"]["first_6digits"];
+            $flutter->issuer = $paymentData["data"]["card"]["issuer"];
+            $flutter->last_4digits = $paymentData["data"]["card"]["last_4digits"];
+            $flutter->card_token =  $paymentData["data"]["card"]["token"];
+            $flutter->card_type =   $paymentData["data"]["card"]["type"];
+            $flutter->email =  $paymentData["data"]["customer"]["email"];
+           $flutter->name =  $paymentData["data"]["customer"]["name"];
+            $flutter->phone_number =  $paymentData["data"]["customer"]["phone_number"];
+            $flutter->flw_ref =  $paymentData["data"]["flw_ref"];
+            $flutter->ip =  $paymentData["data"]["ip"];
+            $flutter->processor_response =  $paymentData["data"]["processor_response"];
+            $flutter->status = $paymentData["data"]["status"];
+            $flutter->narration =  $paymentData["data"]["status"];
+            $flutter->merchant_fee =  $paymentData["data"]["merchant_fee"];
+            $flutter->tx_ref =  $paymentData["data"]["tx_ref"];
+            $flutter->service_id = $request->get("service_id");
+            $flutter->save();
             Log::info("Flutterwave Completed", $paymentData);
 
 
