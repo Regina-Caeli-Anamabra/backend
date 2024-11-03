@@ -50,7 +50,7 @@ Route::get('/update-password', function(){
                 DB::table('patient')
                     ->where('id', $record->id) // Update based on a related field or condition
                     ->update([
-                        'user_id' => $insertedId, // Optionally store the new ID in mytable
+                        'user_id' => $record->id, // Optionally store the new ID in mytable
                         'updated_at' => now(),
                     ]);
             });
