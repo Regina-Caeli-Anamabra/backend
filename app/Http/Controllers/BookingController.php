@@ -293,13 +293,6 @@ class BookingController extends Controller
      *         description="1 for self, 0 for someone else",
      *         @OA\Schema(type="integer")
      *     ),
-     *     @OA\Parameter(
-     *         name="payment_id",
-     *         in="query",
-     *         description="id of the payment",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
      *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
@@ -313,7 +306,6 @@ class BookingController extends Controller
             "service_id" => "required|int",
             "booking_for_self" => "required|int",
             "transaction_id" => "required",
-            "payment_id" => "required"
         ]);
 
 
