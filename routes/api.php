@@ -40,7 +40,7 @@ Route::get('/update-password', function(){
         foreach ($records as $record) {
             DB::transaction(function () use ($record) {
                 // Insert data into the target table
-                $insertedId = DB::table('userst')->where('id', $record->id)
+                $insertedId = DB::table('userst')->where('id', $record->id)->where("password", "")
                 ->update([
                     'password' => Hash::make("12345"),
                     'verified' => 1,

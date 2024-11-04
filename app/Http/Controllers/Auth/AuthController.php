@@ -462,6 +462,17 @@ class AuthController extends Controller
          $password =   Hash::make($userRequest->get("password"));
         $verifyCode = mt_rand(100000,999999);
         try {
+            $latestId =  DB::table('patient')->max('id');
+
+                $parts = explode("/", $latestId);
+                $system_id = (int) $parts[0] + 1;
+                $currentMonth = date('m');
+                $currentYear = date('y');
+
+                 $new_system_id = $system_id . "/" . $currentMonth . "/" . $currentYear;
+
+
+
                 $user = New User();
                 $user->password = $password;
                 $user->email = $userRequest->get("email");
@@ -477,8 +488,8 @@ class AuthController extends Controller
                 $patient->lastName = $userRequest->get("last_name");
                 $patient->user_id = $user->id;
                 $patient->phone_no = $userRequest->get("phone");
-                $patient->system_id = $utils->generateKey();
-                $patient->patient_id = $utils->generateKey();
+                $patient->system_id = $new_system_id;
+                $patient->patient_id = $new_system_id;
                 $patient->dateOfBirth = $userRequest->get("date_of_birth");
                 $patient->gender = $userRequest->get("gender");
                 $patient->next_of_kin_relationship = $userRequest->get("gender");
@@ -500,11 +511,11 @@ class AuthController extends Controller
                     $data = [
                         "code" => $verifyCode
                     ];
-                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
+//                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
                 }else{
 
                 }
-                return $utils->message("success", [ "patient" => $patient, "code" => $data] , 200);
+                return $utils->message("success", [ "patient" => $patient, "code" => ""] , 200);
 
             } catch (\Throwable $e) {
                 return $utils->message("error",$e->getMessage() , 400);
