@@ -35,8 +35,6 @@ Route::get('/re-arrange/category', function(){
 });
 
 Route::get('/move-patient-to-users', function(){
-    return Hash::make("GetArtisans@247");
-    set_time_limit(-1);
     $chunkSize = 1000; // Adjust based on memory and performance requirements
 
     $patients = \App\Models\Patients::where("moved", 0)->get();
