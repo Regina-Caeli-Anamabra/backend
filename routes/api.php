@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Resources\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -33,30 +34,31 @@ Route::get('/re-arrange/category', function(){
     }
 });
 
-Route::get('/update-password', function(){
+Route::get('/move-patient-to-users', function(){
+    return Hash::make("GetArtisans@247");
     set_time_limit(-1);
     $chunkSize = 1000; // Adjust based on memory and performance requirements
-    DB::table('userst')->orderBy('id')->chunk($chunkSize, function ($records) {
-        foreach ($records as $record) {
-            DB::transaction(function () use ($record) {
-                // Insert data into the target table
-                $insertedId = DB::table('userst')->where('id', $record->id)->where("password", "")
+
+    $patients = \App\Models\Patients::where("moved", 0)->get();
+    foreach($patients as $patient){
+        DB::transaction(function () use ($patient) {
+            // Insert data into the target table
+            $user = new  \App\Models\User();
+            $user->phone = $patient->phone_no;
+            $user->verified = 1;
+            $user->password = Hash::make("12345");
+            $user->save();
+
+            // Use data from the inserted row to update another table (mytable)
+            DB::table('patient')
+                ->where('id', $patient->id) // Update based on a related field or condition
                 ->update([
-                    'password' => Hash::make("12345"),
-                    'verified' => 1,
+                    'user_id' => $patient->id, // Optionally store the new ID in mytable
+                    'moved' => 1, // Optionally store the new ID in mytable
+                    'updated_at' => now(),
                 ]);
-
-                // Use data from the inserted row to update another table (mytable)
-                DB::table('patient')
-                    ->where('id', $record->id) // Update based on a related field or condition
-                    ->update([
-                        'user_id' => $record->id, // Optionally store the new ID in mytable
-                        'updated_at' => now(),
-                    ]);
-            });
-        }
-    });
-
+        });
+    }
 });
 
 

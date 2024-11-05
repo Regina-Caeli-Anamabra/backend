@@ -28,7 +28,7 @@ class PasswordResetMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('regina@raffle-draw.name.ng', 'Regina Caeli'),
+            from: new Address('info@gounithacct.com', 'Regina Caeli'),
             subject: 'Password Reset Mail',
         );
     }

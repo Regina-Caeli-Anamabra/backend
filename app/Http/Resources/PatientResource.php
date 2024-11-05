@@ -16,7 +16,7 @@ class PatientResource extends JsonResource
     {
         return [
             "name" => $this->patient ? $this->patient->firstName . " " . $this->patient->lastName : null,
-            "phone_no" => $this->patient->phone ?? null,
+            "phone_no" => $this->phone ?? null,
             "gender" => $this->patient->gender ?? null,
             "marital_status" => $this->patient->marital_status ?? null,
             "address_of_residence" => $this->patient->address ?? null

@@ -472,12 +472,12 @@ class AuthController extends Controller
                  $new_system_id = $system_id . "/" . $currentMonth . "/" . $currentYear;
 
 
-
+                $phone = $userRequest->get("phone");
                 $user = New User();
                 $user->password = $password;
                 $user->email = $userRequest->get("email");
                 $user->username = $userRequest->get("username");
-                $user->phone = $userRequest->get("phone");
+                $user->phone = $phone;
                 $user->authentication_type = $userRequest->get("auth_type");
                 $user->register_for_self = $userRequest->get("register_for_self");
                 $user->vCode = $verifyCode;
@@ -487,7 +487,7 @@ class AuthController extends Controller
                 $patient->firstName = $userRequest->get("first_name");
                 $patient->lastName = $userRequest->get("last_name");
                 $patient->user_id = $user->id;
-                $patient->phone_no = $userRequest->get("phone");
+                $patient->phone_no = $phone;
                 $patient->system_id = $new_system_id;
                 $patient->patient_id = $new_system_id;
                 $patient->dateOfBirth = $userRequest->get("date_of_birth");
@@ -511,8 +511,17 @@ class AuthController extends Controller
                     $data = [
                         "code" => $verifyCode
                     ];
-//                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
+                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
                 }else{
+                    // Define the URL and data you want to send
+                    $url = 'https://portal.nigeriabulksms.com/api/?username=damian.ihemadu@gmail.com&password=Iwas@work@7&message=verification code is $verifyCode&sender=Regina ceali&mobiles=$phone';
+                    $data = [
+                        'field1' => 'value1',
+                        'field2' => 'value2',
+                    ];
+
+                    // Send the POST request
+                    $response = Http::post($url, $data);
 
                 }
                 return $utils->message("success", [ "patient" => $patient, "code" => ""] , 200);
