@@ -36,6 +36,21 @@ use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 class AuthController extends Controller
 {
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/resend-email",
+     *      tags={"Auth"},
+     *     @OA\Parameter(
+     *         name="options",
+     *         in="query",
+     *         description="email",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Verification successful"),
+     *     @OA\Response(response="404", description="Code Not Found")
+     * )
+     */
     public function resendEmail(Request $request, Utils $utils)
     {
 
@@ -55,16 +70,29 @@ class AuthController extends Controller
                 "code" => $verifyCode
             ];
             Mail::to($email)->send(new VerificationMail($data));
-            return $utils->message("success","Verification Code sent Successfully", 200);
+            return $utils->message("success","Verification sent Successfully", 200);
 
         }catch (Exception $e){
             return $utils->message("error", $e->getMessage() , 200);
         }
-
-
-
-
     }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/send-sms",
+     *      tags={"Auth"},
+     *     @OA\Parameter(
+     *         name="phone",
+     *         in="query",
+     *         description="phone",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="send sms"),
+     *     @OA\Response(response="404", description="Code Not Found")
+     * )
+     */
     public function sendSMS(Request $request, Utils $utils)
     {
         $request->validate([
@@ -80,14 +108,15 @@ class AuthController extends Controller
             "code" => $verifyCode
         ];
         // Define the URL and data you want to send
-        $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=verification code is ' .  $verifyCode . '&sender=damian&mobiles=' .$phone;
+        $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=verification code is ' .  $verifyCode . '&sender=' . env("SMS_SENDER") . '&mobiles=' .$phone;
 
         // Send the POST request
         $response = Http::get($url);
 
-        return $utils->message("success", $response , 200);
+        return $utils->message("success",["msg" => "Verification code sent Successfully", "response" => $response] , 200);
 
     }
+
     /**
      * @OA\Post(
      *     path="/api/v1/verify-password-reset-code",
@@ -513,11 +542,10 @@ class AuthController extends Controller
     {
 
         $phone = $userRequest->get("phone");
-        $phone = $userRequest->get("phone");
          $password =   Hash::make($userRequest->get("password"));
         $verifyCode = mt_rand(100000,999999);
         try {
-            $latestId =  DB::table('patient')->max('id');
+            $latestId =  DB::table('users')->max('id');
 
                 $parts = explode("/", $latestId);
                 $system_id = (int) $parts[0] + 1;
@@ -538,13 +566,23 @@ class AuthController extends Controller
                 $user->vCode = $verifyCode;
                 $user->save();
 
+
+                $latestUserId =  DB::table('patient')->max('id');
+
+                $userIdInfo = explode("/", $latestUserId);
+                $patientId = (int) $userIdInfo[0] + 1;
+                $currentMonth = date('m');
+                $currentYear = date('y');
+
+                $new_patientId = $patientId . "/" . $currentMonth . "/" . $currentYear;
+
                 $patient = new Patients();
                 $patient->firstName = $userRequest->get("first_name");
                 $patient->lastName = $userRequest->get("last_name");
                 $patient->user_id = $user->id;
                 $patient->phone_no = $phone;
                 $patient->system_id = $new_system_id;
-                $patient->patient_id = $new_system_id;
+                $patient->patient_id = $new_patientId;
                 $patient->dateOfBirth = $userRequest->get("date_of_birth");
                 $patient->gender = $userRequest->get("gender");
                 $patient->next_of_kin_relationship = $userRequest->get("gender");
@@ -570,7 +608,7 @@ class AuthController extends Controller
                 }else{
 
                     // Define the URL and data you want to send
-                    $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=verification code is ' .  $verifyCode . '&sender=damian&mobiles=' .$phone;
+                    $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=verification code is ' .  $verifyCode . '&sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
 
                     // Send the POST request
                     $response = Http::get($url);
