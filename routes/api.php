@@ -63,7 +63,7 @@ Route::get('/move-patient-to-users', function(){
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], function () {
     Route::post('/send-payment', ['App\Http\Controllers\BookingController', 'sendPayment']);
-    Route::post('/next-appointment', ['App\Http\Controllers\BookingController', 'nextAppointment']);
+    Route::get('/next-appointment', ['App\Http\Controllers\BookingController', 'nextAppointment']);
     Route::post('/cancel-payment', ['App\Http\Controllers\BookingController', 'cancelPayment']);
     Route::post('/add-a-session', ['App\Http\Controllers\BookingController', 'store']);
     Route::get('/all-sessions', ['App\Http\Controllers\BookingController', 'index']);
