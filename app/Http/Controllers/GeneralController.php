@@ -126,7 +126,7 @@ class GeneralController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
             $services = Services::orderBy("id", "DESC")->get();
-            return $utils->message("success", Services::where("category_id", $request->get("category_id"))->orderBy("id", "DESC")->get()  , 200);
+            return $utils->message("success", Services::where("category_id", $request->get("category_id"))->get()  , 200);
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);
