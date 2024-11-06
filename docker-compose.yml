@@ -27,8 +27,6 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - CONTAINER_ROLE=app
     working_dir: /app
-    volumes:
-        - ./:/app
     ports:
       - 8030:8000
     depends_on:
