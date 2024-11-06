@@ -18,7 +18,9 @@ services:
       - ./mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
 
   backend:
-    image:  "${DOCKER_USERNAME}/${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}"
+    build:
+      context: .
+      target: php
     container_name: regina_laravel_app
     environment:
       - APP_ENV="${APP_ENV}"
