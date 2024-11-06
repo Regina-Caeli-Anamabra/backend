@@ -59,7 +59,6 @@ class AuthController extends Controller
         ]);
 
         try{
-
             $verifyCode = $utils->generateKey();
             $email = $request->get('email');
 
