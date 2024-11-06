@@ -37,7 +37,7 @@ class AuthController extends Controller
 {
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/resend-email",
      *      tags={"Auth"},
      *     @OA\Parameter(
@@ -78,7 +78,7 @@ class AuthController extends Controller
 
 
     /**
-     * @OA\Post(
+     * @OA\Get (
      *     path="/api/v1/send-sms",
      *      tags={"Auth"},
      *     @OA\Parameter(
