@@ -11,6 +11,7 @@ use PHPUnit\Util\Json;
 class Utils
 {
 
+
     public function generateKey($keyLength = 6) {
         // Set a blank variable to store the key in
         $key = "";

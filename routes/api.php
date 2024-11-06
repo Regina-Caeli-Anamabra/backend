@@ -84,6 +84,8 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('/verify-password-reset-code', ['App\Http\Controllers\Auth\AuthController', 'verifyPasswordCode']);
     Route::patch('/password/update', ['App\Http\Controllers\Auth\AuthController', 'updatePassword']);
 
+    Route::get('/resend-email', ['App\Http\Controllers\Auth\AuthController', 'resendEmail']);
+    Route::get('/send-sms', ['App\Http\Controllers\Auth\AuthController', 'sendSMS']);
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/category', ['App\Http\Controllers\GeneralController', 'category']);

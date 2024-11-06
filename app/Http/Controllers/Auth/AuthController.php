@@ -19,6 +19,7 @@ use App\Utils\Utils;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -29,10 +30,64 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Testing\Fluent\Concerns\Has;
+use mysql_xdevapi\Exception;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class AuthController extends Controller
 {
+
+    public function resendEmail(Request $request, Utils $utils)
+    {
+
+        $request->validate([
+            "email" => "required",
+        ]);
+
+        try{
+
+            $verifyCode = $utils->generateKey();
+            $email = $request->get('email');
+
+            $user = User::where("email", $email)->firstOrFail();
+            $user->vCode = $verifyCode;
+            $user->save();
+            $data = [
+                "code" => $verifyCode
+            ];
+            Mail::to($email)->send(new VerificationMail($data));
+            return $utils->message("success","Verification Code sent Successfully", 200);
+
+        }catch (Exception $e){
+            return $utils->message("error", $e->getMessage() , 200);
+        }
+
+
+
+
+    }
+    public function sendSMS(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "phone" => "required"
+        ]);
+        $verifyCode = $utils->generateKey();
+        $phone = $request->get('phone');
+
+        $user = User::where("phone", $phone)->firstOrFail();
+        $user->vCode = $verifyCode;
+        $user->save();
+        $data = [
+            "code" => $verifyCode
+        ];
+        // Define the URL and data you want to send
+        $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=verification code is ' .  $verifyCode . '&sender=damian&mobiles=' .$phone;
+
+        // Send the POST request
+        $response = Http::get($url);
+
+        return $utils->message("success", $response , 200);
+
+    }
     /**
      * @OA\Post(
      *     path="/api/v1/verify-password-reset-code",
@@ -513,15 +568,12 @@ class AuthController extends Controller
                     ];
                     Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
                 }else{
+
                     // Define the URL and data you want to send
-                    $url = 'https://portal.nigeriabulksms.com/api/?username=damian.ihemadu@gmail.com&password=Iwas@work@7&message=verification code is $verifyCode&sender=Regina ceali&mobiles=$phone';
-                    $data = [
-                        'field1' => 'value1',
-                        'field2' => 'value2',
-                    ];
+                    $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=verification code is ' .  $verifyCode . '&sender=damian&mobiles=' .$phone;
 
                     // Send the POST request
-                    $response = Http::post($url, $data);
+                    $response = Http::get($url);
 
                 }
                 return $utils->message("success", [ "patient" => $patient, "code" => ""] , 200);
