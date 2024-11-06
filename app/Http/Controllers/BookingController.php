@@ -21,6 +21,35 @@ use Illuminate\Support\Str;
 
 class BookingController extends Controller
 {
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/patient/next-appointment",
+     *      tags={"Booking"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Response(response="200", description="Next Appoint", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="Appointment Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     *     @OA\Response(response="400", description="Booking already exists", @OA\JsonContent())
+     * )
+     */
+    public function nextAppointment(Utils $utils)
+    {
+        try {
+            if(!auth('sanctum')->check())
+                return $utils->message("error","Unauthorized Access." , 401);
+
+            $user_id =  auth('sanctum')->user()->id;
+            $nextAppoitment = Bookings::orderBy("id","DESC")->where("user_id",$user_id)->limit(1)->get();
+
+            return $utils->message("success", $nextAppoitment, 401);
+
+        }catch (\Exception $exception){
+            return $utils->message("error",$exception->getMessage(), 401);
+        }
+    }
     public function donation(Request $request, Utils $utils)
     {
 

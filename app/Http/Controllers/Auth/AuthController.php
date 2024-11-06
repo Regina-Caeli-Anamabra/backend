@@ -78,8 +78,8 @@ class AuthController extends Controller
 
 
     /**
-     * @OA\Get (
-     *     path="/api/v1/send-sms",
+     * @OA\Get(
+     *     path="/api/v1/resend-sms",
      *      tags={"Auth"},
      *     @OA\Parameter(
      *         name="phone",

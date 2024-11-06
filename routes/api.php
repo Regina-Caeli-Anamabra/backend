@@ -63,6 +63,7 @@ Route::get('/move-patient-to-users', function(){
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], function () {
     Route::post('/send-payment', ['App\Http\Controllers\BookingController', 'sendPayment']);
+    Route::post('/next-appointment', ['App\Http\Controllers\BookingController', 'nextAppointment']);
     Route::post('/cancel-payment', ['App\Http\Controllers\BookingController', 'cancelPayment']);
     Route::post('/add-a-session', ['App\Http\Controllers\BookingController', 'store']);
     Route::get('/all-sessions', ['App\Http\Controllers\BookingController', 'index']);
@@ -85,7 +86,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::patch('/password/update', ['App\Http\Controllers\Auth\AuthController', 'updatePassword']);
 
     Route::get('/resend-email', ['App\Http\Controllers\Auth\AuthController', 'resendEmail']);
-    Route::get('/send-sms', ['App\Http\Controllers\Auth\AuthController', 'sendSMS']);
+    Route::get('/resend-sms', ['App\Http\Controllers\Auth\AuthController', 'sendSMS']);
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/category', ['App\Http\Controllers\GeneralController', 'category']);
