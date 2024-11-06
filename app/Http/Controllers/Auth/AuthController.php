@@ -587,9 +587,7 @@ class AuthController extends Controller
                 $patient->next_of_kin_relationship = $userRequest->get("gender");
                 $patient->marital_status = $userRequest->get("marital_status");
                 $patient->ethnic = $userRequest->get("religion");
-                $patient->nationality = $userRequest->get("nationality");
                 $patient->next_of_kin = $userRequest->get("next_of_kin");
-                $patient->next_of_kin_address = $userRequest->get("address_of_next_of_kin");
                 $patient->next_of_kin_phoneno = $userRequest->get("next_of_kin_phone");
                 $patient->next_of_kin_relationship = $userRequest->get("nature_of_relationship");
                 $patient->state_of_residence = $userRequest->get("state_of_residence");

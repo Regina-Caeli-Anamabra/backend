@@ -87,23 +87,9 @@ class PatientController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="phone",
-     *         in="query",
-     *         description="phone",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="email",
      *         in="query",
      *         description="email",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="gender",
-     *         in="query",
-     *         description="gender",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -122,13 +108,6 @@ class PatientController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="nationality",
-     *         in="query",
-     *         description="nationality",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="next_of_kin",
      *         in="query",
      *         description="next_of_kin",
@@ -138,18 +117,6 @@ class PatientController extends Controller
      *         name="next_of_kin_phone",
      *         in="query",
      *         description="next_of_kin_phone",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="nature_of_relationship",
-     *         in="query",
-     *         description="nature_of_relationship",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="date_of_birth",
-     *         in="query",
-     *         description="date_of_birth",
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
@@ -190,16 +157,11 @@ class PatientController extends Controller
                if($user){
                     $user->firstName = $request->get("first_name");
                     $user->lastName = $request->get("last_name");
-                    $user->phone = $request->get("phone");
-                    $user->gender = $request->get("gender");
                     $user->marital_status = $request->get("marital_status");
-                    $user->religion = $request->get("religion");
-                    $user->nationality = $request->get("nationality");
+                    $user->ethnic = $request->get("religion");
                     $user->next_of_kin = $request->get("next_of_kin");
                     $user->next_of_kin_phone = $request->get("next_of_kin_phone");
                     $user->address_of_next_of_kin = $request->get("address_of_next_of_kin");
-                    $user->next_of_kin_relationship = $request->get("nature_of_relationship");
-                    $user->dateOfBirth = $request->get("date_of_birth");
                     $user->state_of_residence = $request->get("state_of_residence");
                     $user->address = $request->get("address_of_residence");
                     $user->update();
