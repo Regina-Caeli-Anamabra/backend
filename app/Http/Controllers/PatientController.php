@@ -94,13 +94,6 @@ class PatientController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="marital_status",
-     *         in="query",
-     *         description="marital_status",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="religion",
      *         in="query",
      *         description="religion",
@@ -157,7 +150,6 @@ class PatientController extends Controller
                if($user){
                     $user->firstName = $request->get("first_name");
                     $user->lastName = $request->get("last_name");
-                    $user->marital_status = $request->get("marital_status");
                     $user->ethnic = $request->get("religion");
                     $user->next_of_kin = $request->get("next_of_kin");
                     $user->next_of_kin_phone = $request->get("next_of_kin_phone");
