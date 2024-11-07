@@ -41,7 +41,7 @@ class AuthController extends Controller
      *     path="/api/v1/resend-email",
      *      tags={"Auth"},
      *     @OA\Parameter(
-     *         name="options",
+     *         name="email",
      *         in="query",
      *         description="email",
      *         required=true,
