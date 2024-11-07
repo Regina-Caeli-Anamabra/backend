@@ -673,7 +673,7 @@ class AuthController extends Controller
      *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
      * )
      */
-    public function login(LoginRequest $loginRequest, Utils $utils, Execs $execs)
+    public function login(Request $loginRequest, Utils $utils, Execs $execs)
     {
 
         if (auth()->attempt($loginRequest->only(['phone', 'password'])) ){
