@@ -35,14 +35,6 @@ class UserRequest extends FormRequest
             "state" => "required|string",
             "state_of_residence" => "required|string",
             "address_of_residence" => "required|string",
-//            "password" => [
-//                'required',
-//                'min:8',
-//                'regex:/[a-z]/',      // must contain at least one lowercase letter
-//                'regex:/[A-Z]/',      // must contain at least one uppercase letter
-//                'regex:/[0-9]/',      // must contain at least one digit
-//                'regex:/[@$!%*#?&.]/'
-//            ],
         ];
     }
 
