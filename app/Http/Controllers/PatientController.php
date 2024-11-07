@@ -25,7 +25,7 @@ class PatientController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
-            $patient = FlutterwavePayment::with(["services", "patients"])->orderBy("created_at", "DESC")->get();
+            $patient = FlutterwavePayment::orderBy("created_at", "DESC")->get();
              $data = [
                  "payments" => PaymentResource::collection($patient),
                  "total" => number_format(FlutterwavePayment::sum("amount_settled"), 2)
