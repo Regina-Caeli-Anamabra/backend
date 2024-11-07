@@ -148,40 +148,18 @@ class PatientController extends Controller
 
                $user =  Patients::where("user_id", auth('sanctum')->id())->firstOrFail();
                if($user){
+
                     $user->firstName = $request->get("first_name");
                     $user->lastName = $request->get("last_name");
                     $user->ethnic = $request->get("religion");
                     $user->next_of_kin = $request->get("next_of_kin");
-                    $user->next_of_kin_phone = $request->get("next_of_kin_phone");
-                    $user->address_of_next_of_kin = $request->get("address_of_next_of_kin");
-                    $user->state_of_residence = $request->get("state_of_residence");
-                    $user->address = $request->get("address_of_residence");
+                    $user->next_of_kin_phoneno = $request->get("next_of_kin_phone");
+//                    $user->address_of_next_of_kin = $request->get("address_of_next_of_kin");
+//                    $user->state_of_residence = $request->get("state_of_residence");
+//                    $user->address = $request->get("address_of_residence");
                     $user->update();
                }
-//               $user =  Patients::where("user_id", auth('sanctum')->id())->update([
-//                            "first_name" => $request->get("first_name"),
-//                            "last_name" => $request->get("last_name"),
-//                            "phone" => $request->get("phone"),
-//                            "gender" => $request->get("gender"),
-//                            "marital_status" => $request->get("marital_status"),
-//                            "religion" => $request->get("religion"),
-//                            "preferred_language" => $request->get("preferred_language"),
-//                            "nationality" => $request->get("nationality"),
-//                            "state" => $request->get("state"),
-//                            "lga" => $request->get("lga"),
-//                            "town" => $request->get("town"),
-//                            "card_number" => $request->get("card_number"),
-//                            "next_of_kin" => $request->get("next_of_kin"),
-//                            "next_of_kin_phone" => $request->get("next_of_kin_phone"),
-//                            "nature_of_relationship" => $request->get("nature_of_relationship"),
-//                            "date_of_birth" => $request->get("date_of_birth"),
-//                            "insurance_number" => $request->get("insurance_number"),
-//                            "ward" => $request->get("ward"),
-//                            "state_of_residence" => $request->get("state_of_residence"),
-//                            "address_of_residence" => $request->get("address_of_residence")
-//                    ]);
-
-            return $utils->message("success", $user , 200);
+            return $utils->message("success", "User updated successfully.." , 200);
 
         }catch (\Exception $exception){
             Log::error($exception->getMessage());
