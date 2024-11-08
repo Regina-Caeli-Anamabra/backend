@@ -89,6 +89,12 @@ Route::group(['prefix' => 'v1'], function () {
     Route::get('/resend-sms', ['App\Http\Controllers\Auth\AuthController', 'sendSMS']);
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
+        Route::get('/get-live-encryption-key', ['App\Http\Controllers\GeneralController', 'getLiveEncryptionKey']);
+        Route::get('/get-live-secret-key', ['App\Http\Controllers\GeneralController', 'getLiveSecretKey']);
+        Route::get('/get-live-public-key', ['App\Http\Controllers\GeneralController', 'getLivePublicKey']);
+        Route::get('/get-test-public-key', ['App\Http\Controllers\GeneralController', 'getTestPublicKey']);
+        Route::get('/get-test-secret-key', ['App\Http\Controllers\GeneralController', 'getTestSecretKey']);
+        Route::get('/get-test-encryption-key', ['App\Http\Controllers\GeneralController', 'getTestEncryptionKey']);
         Route::get('/category', ['App\Http\Controllers\GeneralController', 'category']);
         Route::get('/services', ['App\Http\Controllers\GeneralController', 'services']);
         Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);

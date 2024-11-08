@@ -6,6 +6,7 @@ use App\Http\Resources\Bank;
 use App\Http\Resources\BankResource;
 use App\Models\Categories;
 use App\Models\Countries;
+use App\Models\FlutterwaveKeys;
 use App\Models\Patients;
 use App\Models\Services;
 use App\Models\States;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class GeneralController extends Controller
 {
+
 
     /**
      * @OA\Get(
@@ -39,6 +41,136 @@ class GeneralController extends Controller
             return $utils->message("error", $e->getMessage() , 400);
         }
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/get-test-encryption-key",
+     *      tags={"General"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Response(response="200", description="successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="States Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     * )
+     */
+    public function getTestEncryptionKey(Utils $utils): JsonResponse
+    {
+        try {
+            return $utils->message("success", FlutterwaveKeys::where("id", 4)->get()  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/get-test-public-key",
+     *      tags={"General"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Response(response="200", description="successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="States Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     * )
+     */
+    public function getTestPublicKey(Utils $utils): JsonResponse
+    {
+        try {
+            return $utils->message("success", FlutterwaveKeys::where("id", 5)->get()  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/get-test-secret-key",
+     *      tags={"General"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Response(response="200", description="successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="States Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     * )
+     */
+    public function getTestSecretKey(Utils $utils): JsonResponse
+    {
+        try {
+            return $utils->message("success", FlutterwaveKeys::where("id", 6)->get()  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/get-live-secret-key",
+     *      tags={"General"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Response(response="200", description="successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="States Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     * )
+     */
+    public function getLiveSecretKey(Utils $utils): JsonResponse
+    {
+        try {
+            return $utils->message("success", FlutterwaveKeys::where("id", 3)->get()  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/get-live-encryption-key",
+     *      tags={"General"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Response(response="200", description="successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="States Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     * )
+     */
+    public function getLiveEncryptionKey(Utils $utils): JsonResponse
+    {
+
+        try {
+            return $utils->message("success", FlutterwaveKeys::where("id", 1)->get()  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/get-live-public-key",
+     *      tags={"General"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Response(response="200", description="successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="States Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     * )
+     */
+    public function getLivePublicKey(Utils $utils): JsonResponse
+    {
+        try {
+            return $utils->message("success", FlutterwaveKeys::where("id", 2)->get()  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+
+
     /**
      * @OA\Get(
      *     path="/api/v1/countries",
