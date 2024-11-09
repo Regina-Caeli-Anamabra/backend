@@ -3,8 +3,10 @@
 namespace App\Utils;
 
 
+use App\Models\User;
 use http\Env\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Util\Json;
 
@@ -12,6 +14,23 @@ class Utils
 {
 
 
+    public function sendOTPToSMS($phone)
+    {
+        $verifyCode = $this->generateKey();
+
+        $user = User::where("phone", $phone)->firstOrFail();
+        $user->vCode = $verifyCode;
+        $user->save();
+        $data = [
+            "code" => $verifyCode
+        ];
+        // Define the URL and data you want to send
+        $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=verification code is ' .  $verifyCode . '&sender=' . env("SMS_SENDER") . '&mobiles=' .$phone;
+
+        // Send the POST request
+      return  $response = Http::get($url);
+
+    }
     public function generateKey($keyLength = 6) {
         // Set a blank variable to store the key in
         $key = "";

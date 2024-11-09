@@ -97,21 +97,8 @@ class AuthController extends Controller
         $request->validate([
             "phone" => "required"
         ]);
-        $verifyCode = $utils->generateKey();
-        $phone = $request->get('phone');
 
-        $user = User::where("phone", $phone)->firstOrFail();
-        $user->vCode = $verifyCode;
-        $user->save();
-        $data = [
-            "code" => $verifyCode
-        ];
-        // Define the URL and data you want to send
-        $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=verification code is ' .  $verifyCode . '&sender=' . env("SMS_SENDER") . '&mobiles=' .$phone;
-
-        // Send the POST request
-        $response = Http::get($url);
-
+        $response = $utils->sendOTPToSMS($request->get("phone"));
         return $utils->message("success",["msg" => "Verification code sent Successfully", "response" => $response] , 200);
 
     }
@@ -123,7 +110,7 @@ class AuthController extends Controller
      *     @OA\Parameter(
      *         name="options",
      *         in="query",
-     *         description="username",
+     *         description="email or phone",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -146,10 +133,10 @@ class AuthController extends Controller
             "options" => "required|string"
         ]);
 
-
-        if(!User::where(function ($query) use ($request){
-            $query->where("email", $request->get("options"));
-            $query->orWhere("phone", $request->get("options"));
+        $options = $request->get("options");
+        if(!User::where(function ($query) use ($options){
+            $query->where("email", $options);
+            $query->orWhere("phone", $options);
         })->where("password_reset_code", $request->get("code"))->exists())
             return $utils->message("error", "Code Does Not Exist", 404);
 
@@ -164,7 +151,7 @@ class AuthController extends Controller
      *     @OA\Parameter(
      *         name="username",
      *         in="query",
-     *         description="username",
+     *         description="email or phone",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -183,16 +170,16 @@ class AuthController extends Controller
     {
 
         $request->validate([
-            "email" => "required|string",
+            "options" => "required|string",
             "auth_type" => "required|string"
         ]);
 
         $auth_type = $request->get("auth_type");
-        $options = $request->get("email");
+        $options = $request->get("options");
 
         if (!User::where(function ($query) use ($options){
             $query->where("email", $options);
-//            $query->orWhere("phone", $options);
+            $query->orWhere("phone", $options);
         })->exists())
             return $utils->message("error", "User Not Found", 404);
 
@@ -200,19 +187,23 @@ class AuthController extends Controller
         $password_reset_code = random_int(100000, 999999);
         User::where(function ($query) use ($options){
             $query->where("email", $options);
-//            $query->orWhere("phone", $options);
+            $query->orWhere("phone", $options);
         })->update(["password_reset_code" => $password_reset_code]);
 
-     return   $mailData = [
+        $mailData = [
             'title' => 'Reset your password',
             'code' => $password_reset_code
         ];
 
 
-        if ($auth_type == "EMAIL")
-            Mail::to(User::where("username", $options)->value("email"))->send(new PasswordResetMail($mailData));
+        if ($auth_type == "EMAIL"){
+            Mail::to($options)->send(new PasswordResetMail($mailData));
+            return $utils->message("success", "OTP Sent. Check your mailbox or phone", 200);
+        }else{
+            $utils->sendOTPToSMS($options);
+            return $utils->message("success", "OTP Sent. Check your mailbox or phone", 200);
+        }
 
-        return $utils->message("success", "Email Sent. Check your mailbox", 200);
 
     }
 
@@ -266,9 +257,9 @@ class AuthController extends Controller
      *     path="/api/v1/password/update",
      *      tags={"Auth"},
      *     @OA\Parameter(
-     *         name="email",
+     *         name="options",
      *         in="query",
-     *         description="email",
+     *         description="options",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -299,10 +290,23 @@ class AuthController extends Controller
         $request->validate([
             'password' => "required|string|required_with:confirm_password|same:confirm_password",
             'confirm_password' => "required|string",
-            'email' => "required|string"
+            'options' => "required|string"
         ]);
 
-        User::where("email", $request->get("email"))->update(["password" => Hash::make($request->get("password"))]);
+        $options = $request->get("options");
+        $password = $request->get("password");
+        if(!User::where(function ($query) use ($options){
+            $query->where("email", $options);
+            $query->orWhere("phone", $options);
+        })->exists())
+        return $utils->message("error", "User Not Found", 404);
+
+        User::where(function ($query) use ($options){
+            $query->where("email", $options);
+            $query->orWhere("phone", $options);
+        })->update(["password" => Hash::make($password)]);
+
+
         return $utils->message("success", "Password Updated Successfully.", 200);
 
 
@@ -673,7 +677,7 @@ class AuthController extends Controller
      *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
      * )
      */
-    public function login(Request $loginRequest, Utils $utils, Execs $execs)
+    public function login(LoginRequest $loginRequest, Utils $utils, Execs $execs)
     {
 
         if (auth()->attempt($loginRequest->only(['phone', 'password'])) ){
@@ -686,6 +690,8 @@ class AuthController extends Controller
             $success['first_name'] =  Patients::where("user_id", $authUser->id)->value("firstName");
             $success['last_name'] =  Patients::where("user_id", $authUser->id)->value("lastName");
             return $utils->message("success", $success, 200);
+
+
         }else{
             return $utils->message( "error", "Invalid Email/Password", 401);
         }
