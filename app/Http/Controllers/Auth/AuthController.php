@@ -149,7 +149,7 @@ class AuthController extends Controller
      *     path="/api/v1/send-forgot-password-code",
      *      tags={"Auth"},
      *     @OA\Parameter(
-     *         name="username",
+     *         name="phone",
      *         in="query",
      *         description="email or phone",
      *         required=true,
