@@ -700,13 +700,6 @@ class AuthController extends Controller
      *        security={
      *             {"sanctum": {}},
      *         },
-     *     @OA\Parameter(
-     *         name="refresh_token",
-     *         in="query",
-     *         description="refresh_token",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
      *     @OA\Response(response="200", description="Verification successful"),
      *     @OA\Response(response="404", description="Code Not Found")
      * )
