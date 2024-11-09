@@ -697,6 +697,9 @@ class AuthController extends Controller
      * @OA\Get (
      *     path="/api/v1/refresh-token",
      *      tags={"Auth"},
+     *        security={
+     *             {"sanctum": {}},
+     *         },
      *     @OA\Parameter(
      *         name="refresh_token",
      *         in="query",
