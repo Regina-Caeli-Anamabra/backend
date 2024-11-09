@@ -44,7 +44,7 @@ class BookingController extends Controller
             $user_id =  auth('sanctum')->user()->id;
             $nextAppoitment = Bookings::orderBy("id","DESC")->where("user_id",$user_id)->limit(1)->get();
 
-            return $utils->message("success", $nextAppoitment, 401);
+            return $utils->message("success", $nextAppoitment, 200);
 
         }catch (\Exception $exception){
             return $utils->message("error",$exception->getMessage(), 401);
