@@ -541,7 +541,7 @@ class AuthController extends Controller
      *
      * )
      */
-    public function registerUser(Request $userRequest, Utils $utils, Execs $execs)
+    public function registerUser(UserRequest $userRequest, Utils $utils, Execs $execs)
     {
 
         $phone = $userRequest->get("phone");

@@ -41,13 +41,15 @@ class AdminController extends Controller
 
         $booking = Bookings::count();
         $services = Services::count();
-        $patient = Patients::count();
+        $patient = DB::table('patient')->count();
+        $payments = Payments::sum("amount");
         $recentBookings =  Bookings::with("patient")->get();
 
         $data = [
-            "bookings" => $booking,
-            "services" => $services,
-            "patients" => $patient,
+            "bookings" => number_format($booking, 0),
+            "services" => number_format($services, 2),
+            "patients" => number_format($patient, 0),
+            "payments" => number_format($payments, 2),
             "recentBookings" => BookingResource::collection($recentBookings)
         ];
 

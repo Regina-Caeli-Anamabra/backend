@@ -121,5 +121,7 @@ Route::group(['prefix' => 'v1/admin'], function () {
         Route::post('/create-service', ['App\Http\Controllers\AdminController', 'createService']);
         Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
         Route::get('/get-payments', ['App\Http\Controllers\PatientController', 'getPayments']);
+        Route::post('/search-patient', ['App\Http\Controllers\PatientController', 'searchPatient']);
+        Route::post('/search-booking', ['App\Http\Controllers\PatientController', 'searchBooking']);
     });
 });

@@ -19,4 +19,8 @@ class User extends Authenticatable
     {
         return $this->hasOne(Patients::class, 'user_id');
     }
+
+    protected $hidden = [
+        "password"
+    ];
 }

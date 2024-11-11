@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PatientResource;
 use App\Http\Resources\PaymentResource;
 use App\Http\Resources\PaymentsResource;
+use App\Http\Resources\SearchBookingResource;
+use App\Http\Resources\SearchPatientResource;
 use App\Models\Bookings;
 use App\Models\FlutterwavePayment;
 use App\Models\Patients;
@@ -18,6 +21,46 @@ use Mockery\Exception;
 
 class PatientController extends Controller
 {
+    public function searchPatient(Request $request, Utils $utils)
+    {
+
+        $search_item = $request->get("search_item");
+        try {
+            $patients = Patients::where(function ($query) use ($search_item) {
+                $query->where("phone_no", 'like', "%{$search_item}%");
+                $query->orWhere("firstName", 'like', "%{$search_item}%");
+                $query->orWhere("lastName", 'like', "%{$search_item}%");
+                $query->orWhere("middleName", 'like', "%{$search_item}%");
+                $query->orWhere("system_id", 'like', "%{$search_item}%");
+                $query->orWhere("patient_id", 'like', "%{$search_item}%");
+            })->get();
+            $patients = SearchPatientResource::collection($patients);
+            return $utils->message("success", $patients  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+    public function searchBooking(Request $request, Utils $utils)
+    {
+
+        $search_item = $request->get("search_item");
+        try {
+            $patients = Bookings::with("patient")->orWhereHas('patient', function ($query) use ($search_item) {
+                $query->where("phone_no", 'like', "%{$search_item}%");
+                $query->orWhere("firstName", 'like', "%{$search_item}%");
+                $query->orWhere("lastName", 'like', "%{$search_item}%");
+                $query->orWhere("middleName", 'like', "%{$search_item}%");
+                $query->orWhere("system_id", 'like', "%{$search_item}%");
+                $query->orWhere("patient_id", 'like', "%{$search_item}%");
+            })->get();
+            $patients = SearchBookingResource::collection($patients);
+            return $utils->message("success", $patients  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
     public function getPayments(Request $request, Utils $utils)
     {
         try {
@@ -25,10 +68,10 @@ class PatientController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
-            $patient = FlutterwavePayment::all();
+            $patient = Payments::with("patients")->get();
              $data = [
                  "payments" => PaymentResource::collection($patient),
-                 "total" => number_format(FlutterwavePayment::sum("amount_settled"), 2)
+                 "total" => number_format(Payments::sum("amount"), 2)
              ];
             return $utils->message("success",$data , 200);
 
