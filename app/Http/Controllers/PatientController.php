@@ -68,7 +68,7 @@ class PatientController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
             $patient = Payments::with("patients")->get();
-            return PaymentResource::collection($patient);
+             PaymentResource::collection($patient);
              $data = [
                  "payments" => PaymentResource::collection($patient),
                  "total" => number_format(Payments::sum("amount"), 2)
