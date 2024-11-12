@@ -137,6 +137,13 @@ class BookingController extends Controller
      *      security={
      *           {"sanctum": {}},
      *       },
+     *      @OA\Parameter(
+     *          name="trx_id                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ",
+     *          in="query",
+     *          description="trx_id",
+     *          required=true,
+     *          @OA\Schema(type="string")
+     *      ),
      *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
