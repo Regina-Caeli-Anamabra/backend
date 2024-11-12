@@ -138,7 +138,7 @@ class BookingController extends Controller
      *           {"sanctum": {}},
      *       },
      *      @OA\Parameter(
-     *          name="trx_id                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ",
+     *          name="trx_id"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ",
      *          in="query",
      *          description="trx_id",
      *          required=true,
@@ -156,7 +156,12 @@ class BookingController extends Controller
         if(!auth('sanctum')->check())
             return $utils->message("error","Unauthorized Access." , 401);
 
+        $request->validate([
+            "trx_id" => "required",
+        ]);
+
         $user_id =  auth('sanctum')->user()->id;
+
 
         try {
             return $utils->message("success", "Transaction Completed..." , 200);
