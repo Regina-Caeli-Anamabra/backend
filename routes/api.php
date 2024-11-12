@@ -67,6 +67,7 @@ Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], funct
     Route::post('/cancel-payment', ['App\Http\Controllers\BookingController', 'cancelPayment']);
     Route::post('/add-a-session', ['App\Http\Controllers\BookingController', 'store']);
     Route::get('/all-sessions', ['App\Http\Controllers\BookingController', 'index']);
+    Route::get('/transaction-completed', ['App\Http\Controllers\BookingController', 'transactionCompleted']);
     Route::post('/add-payment', ['App\Http\Controllers\PatientController', 'addPayment']);
     Route::get('/get-users-created', ['App\Http\Controllers\PatientController', 'getAllRegisteredByUser']);
     Route::get('/profile', ['App\Http\Controllers\PatientController', 'profile']);
@@ -84,7 +85,6 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('/send-forgot-password-code', ['App\Http\Controllers\Auth\AuthController', 'forgotPassword']);
     Route::post('/verify-password-reset-code', ['App\Http\Controllers\Auth\AuthController', 'verifyPasswordCode']);
     Route::patch('/password/update', ['App\Http\Controllers\Auth\AuthController', 'updatePassword']);
-
     Route::get('/resend-email', ['App\Http\Controllers\Auth\AuthController', 'resendEmail']);
     Route::get('/resend-sms', ['App\Http\Controllers\Auth\AuthController', 'sendSMS']);
 
