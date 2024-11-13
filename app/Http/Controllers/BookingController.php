@@ -437,7 +437,7 @@ class BookingController extends Controller
                 $service_id = $request->get("service_id");
                 $recipient_id = $request->get("booked_by_id");
                 $booking = new Bookings();
-                $booking->payment_id = $payment_id;
+                $booking->flutterwave_id = $payment_id;
                 $booking->session_start = $booking_start_formatted;
                 $booking->service_id = $service_id;
                 $booking->price = $amount;
@@ -464,7 +464,7 @@ class BookingController extends Controller
             $trx_id =  Str::random(20);
                 $payments = new Payments();
                 $payments->user_id = $user_id;
-                $payments->payment_id = $payment_id;
+                $payments->flutterwave_id = $payment_id;
                 $payments->merchant_trx_id = $trx_id;
                 $payments->booking_id = $booking_id;
                 $payments->amount = $amount;
