@@ -334,7 +334,7 @@ class BookingController extends Controller
              $service_id = $request->get("service_id");
 
 //            $trx_id = 5804669;
-            $trx_id = "TX-" . round(microtime(true) * 1000) . "". $utils->generateCode(20);
+            $trx_id = "TX-" .  $utils->generateCode(20);
             $logged_data = [
                 "trx_id" => $trx_id,
                 "service_id" => $service_id,
