@@ -413,6 +413,12 @@ class BookingController extends Controller
      *         description="1 for self, 0 for someone else",
      *         @OA\Schema(type="integer")
      *     ),
+     *     @OA\Parameter(
+     *         name="trx_id",
+     *         in="query",
+     *         description="trx_id",
+     *         @OA\Schema(type="integer")
+     *     ),
      *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
@@ -426,6 +432,7 @@ class BookingController extends Controller
             "service_id" => "required|int",
             "booking_for_self" => "required|int",
             "payment_id" => "required",
+            "trx_id" => "required"
         ]);
 
 
@@ -442,25 +449,73 @@ class BookingController extends Controller
 //                if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
 //                    return $utils->message("error","The session is already booked." , 400);
 
-                $amount = Services::where("id", $request->get("service_id"))->value("amount");
-                $name = Services::where("id", $request->get("service_id"))->value("name");
-                $service_id = $request->get("service_id");
-                $recipient_id = $request->get("booked_by_id");
-                $booking = new Bookings();
-                $booking->flutterwave_id = $payment_id;
-                $booking->session_start = $booking_start_formatted;
-                $booking->service_id = $service_id;
-                $booking->price = $amount;
-                $booking->session_end = $booking_end;
-                $booking->user_id =  $user_id;
-                $booking->booking_for_self = $request->get("booking_for_self");
-                $booking->recipient_id = $recipient_id;
-                $booking->save();
+            $user_id =  $request->get("user_id");
+            $transaction_id = $request->get("trx_id");
+                $paymentData =  $utils->validatePayment($transaction_id);
+                $data = [
+                    "transaction_id" => $request->get("transaction_id"),
+                    "user_id" => $user_id,
+                    "first_name" => Patients::where("user_id", $user_id)->value("firstName"),
+                    "last_name" => Patients::where("user_id", $user_id)->value("lastName"),
+                    "payment_info" => $paymentData,
+                ];
+                Log::info("Payment Completed", $data);
+                if(empty($paymentData["data"]))
+                    return $utils->message("error","Invalid Transaction ID." , 400);
+
+                if ($paymentData["data"]["status"] == "successful") {
+
+                    $flutter = FlutterwavePayment::where("id", $payment_id)->firstOrFail();
+                    $flutter->user_id = $user_id;
+                    $flutter->trx_id = $transaction_id;
+                    $flutter->patient_id = Patients::where("user_id", $user_id)->value("id");
+                    $flutter->account_id = $paymentData["data"]["account_id"];
+                    $flutter->amount = $paymentData["data"]["amount"];
+                    $flutter->amount_settled = $paymentData["data"]["amount_settled"];
+                    $flutter->app_fee = $paymentData["data"]["app_fee"];
+                    $flutter->charged_amount = $paymentData["data"]["charged_amount"];
+                    $flutter->country = $paymentData["data"]["card"]["country"];
+                    $flutter->expiry = $paymentData["data"]["card"]["expiry"];
+                    $flutter->first_6digits = $paymentData["data"]["card"]["first_6digits"];
+                    $flutter->issuer = $paymentData["data"]["card"]["issuer"];
+                    $flutter->last_4digits = $paymentData["data"]["card"]["last_4digits"];
+                    $flutter->card_token = $paymentData["data"]["card"]["token"];
+                    $flutter->card_type = $paymentData["data"]["card"]["type"];
+                    $flutter->email = $paymentData["data"]["customer"]["email"];
+                    $flutter->name = $paymentData["data"]["customer"]["name"];
+                    $flutter->phone_number = $paymentData["data"]["customer"]["phone_number"];
+                    $flutter->flw_ref = $paymentData["data"]["flw_ref"];
+                    $flutter->ip = $paymentData["data"]["ip"];
+                    $flutter->processor_response = $paymentData["data"]["processor_response"];
+                    $flutter->status = $paymentData["data"]["status"];
+                    $flutter->narration = $paymentData["data"]["status"];
+                    $flutter->merchant_fee = $paymentData["data"]["merchant_fee"];
+                    $flutter->tx_ref = $paymentData["data"]["tx_ref"];
+                    $flutter->service_id = $request->get("service_id");
+                    $flutter->update();
+
+                    Log::info("Flutterwave Completed", $paymentData);
 
 
-                $this->addPayment($utils, $user_id, $payment_id , $booking->id, $amount, $service_id, $name);
-                return $utils->message("success", $booking , 200);
+                    $amount = Services::where("id", $request->get("service_id"))->value("amount");
+                    $name = Services::where("id", $request->get("service_id"))->value("name");
+                    $service_id = $request->get("service_id");
+                    $recipient_id = $request->get("booked_by_id");
+                    $booking = new Bookings();
+                    $booking->flutterwave_id = $payment_id;
+                    $booking->session_start = $booking_start_formatted;
+                    $booking->service_id = $service_id;
+                    $booking->price = $amount;
+                    $booking->session_end = $booking_end;
+                    $booking->user_id = $user_id;
+                    $booking->booking_for_self = $request->get("booking_for_self");
+                    $booking->recipient_id = $recipient_id;
+                    $booking->save();
 
+
+                    $this->addPayment($utils, $user_id, $payment_id, $booking->id, $amount, $service_id, $name);
+                    return $utils->message("success", $booking, 200);
+                }
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);
