@@ -427,6 +427,7 @@ class BookingController extends Controller
      */
     public function store(Request $request, Utils $utils)
     {
+        $request->all();
         $request->validate([
             "booking_start" => "required",
             "service_id" => "required|int",
@@ -502,7 +503,7 @@ class BookingController extends Controller
                     $service_id = $request->get("service_id");
                     $recipient_id = $request->get("booked_by_id");
                     $booking = new Bookings();
-                    $booking->flutterwave_id = $flutter->id;
+                    $booking->flutterwave_id = $payment_id;
                     $booking->session_start = $booking_start_formatted;
                     $booking->service_id = $service_id;
                     $booking->price = $amount;
@@ -512,7 +513,8 @@ class BookingController extends Controller
                     $booking->recipient_id = $recipient_id;
                     $booking->save();
 
-                    $this->addPayment($utils, $user_id, $flutter->id, $booking->id, $amount, $service_id, $name);
+
+                    $this->addPayment($utils, $user_id, $payment_id, $booking->id, $amount, $service_id, $name);
                     return $utils->message("success", $booking, 200);
                 }
         }catch (\Throwable $e) {
