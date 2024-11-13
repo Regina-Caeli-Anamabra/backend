@@ -449,7 +449,6 @@ class BookingController extends Controller
 //                if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
 //                    return $utils->message("error","The session is already booked." , 400);
 
-            $user_id =  $request->get("user_id");
             $transaction_id = $request->get("trx_id");
                 $paymentData =  $utils->validatePayment($transaction_id);
                 $data = [
@@ -467,6 +466,7 @@ class BookingController extends Controller
 
                     $flutter = FlutterwavePayment::where("id", $payment_id)->firstOrFail();
                     $flutter->user_id = $user_id;
+                    $flutter->patient_id = Patients::where("user_id", $user_id)->first()->id;
                     $flutter->trx_id = $transaction_id;
                     $flutter->patient_id = Patients::where("user_id", $user_id)->value("id");
                     $flutter->account_id = $paymentData["data"]["account_id"];
