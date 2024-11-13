@@ -300,7 +300,7 @@ class BookingController extends Controller
 
 
     /**
-     * @OA\Post(
+     * @OA\Get (
      *     path="/api/v1/patient/generate-url",
      *      tags={"Booking"},
      *      security={
