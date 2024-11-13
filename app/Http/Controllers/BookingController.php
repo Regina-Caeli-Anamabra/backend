@@ -427,7 +427,7 @@ class BookingController extends Controller
      */
     public function store(Request $request, Utils $utils)
     {
-        $request->all();
+      return  $request->all();
         $request->validate([
             "booking_start" => "required",
             "service_id" => "required|int",
