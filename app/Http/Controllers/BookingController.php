@@ -343,7 +343,7 @@ class BookingController extends Controller
              $amount = $request->get("amount");
 
 //            $trx_id = 5804669;
-            $trx_id = "TX-" .  $utils->generateCode(20);
+            $trx_id =  $utils->generateCode(20);
             $logged_data = [
                 "trx_id" => $trx_id,
                 "service_id" => $service_id,
