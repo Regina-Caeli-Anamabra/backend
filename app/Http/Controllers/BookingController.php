@@ -497,7 +497,6 @@ class BookingController extends Controller
 
                     Log::info("Flutterwave Completed", $paymentData);
 
-                    $id_from_payment = $this->addPayment($utils, $user_id, $payment_id, $booking->id, $amount, $service_id, $name);
 
                     $amount = Services::where("id", $request->get("service_id"))->value("amount");
                     $name = Services::where("id", $request->get("service_id"))->value("name");
@@ -505,7 +504,6 @@ class BookingController extends Controller
                     $recipient_id = $request->get("booked_by_id");
                     $booking = new Bookings();
                     $booking->flutterwave_id = $payment_id;
-                    $booking->payment_id = $id_from_payment;
                     $booking->session_start = $booking_start_formatted;
                     $booking->service_id = $service_id;
                     $booking->price = $amount;
@@ -514,6 +512,7 @@ class BookingController extends Controller
                     $booking->booking_for_self = $request->get("booking_for_self");
                     $booking->recipient_id = $recipient_id;
                     $booking->save();
+                    $id_from_payment = $this->addPayment($utils, $user_id, $payment_id, $booking->id, $amount, $service_id, $name);
 
 
                     return $utils->message("success", $booking, 200);
