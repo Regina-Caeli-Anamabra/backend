@@ -457,7 +457,7 @@ class BookingController extends Controller
                     "first_name" => Patients::where("user_id", $user_id)->value("firstName"),
                     "last_name" => Patients::where("user_id", $user_id)->value("lastName"),
                     "payment_info" => $paymentData,
-                ];
+                ]; #######
                 Log::info("Payment Completed", $data);
                 if(empty($paymentData["data"]))
                     return $utils->message("error","Invalid Transaction ID." , 400);
