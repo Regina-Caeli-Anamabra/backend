@@ -13,7 +13,13 @@ use PHPUnit\Util\Json;
 class Utils
 {
 
-
+    function generateCode($limit)
+    {
+        $mt = explode(' ', microtime());
+        $rand = time() . rand(10, 99);
+        $time = ((int)$mt[1]) * 1000000 + ((int)round($mt[0] * 1000000));
+        return    $generated = $rand . $time;
+    }
     public function sendOTPToSMS($phone)
     {
         $verifyCode = $this->generateKey();

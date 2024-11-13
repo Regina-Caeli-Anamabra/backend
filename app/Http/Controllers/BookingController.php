@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 class BookingController extends Controller
@@ -132,34 +133,74 @@ class BookingController extends Controller
 
     /**
      * @OA\Get (
-     *     path="/api/v1/patient/transaction-completed",
+     *     path="/api/v1/patient/verify-payment",
      *      tags={"Booking"},
      *      security={
      *           {"sanctum": {}},
      *       },
-     *      @OA\Parameter(
-     *          name="trx_id                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ",
-     *          in="query",
-     *          description="trx_id",
-     *          required=true,
-     *          @OA\Schema(type="string")
-     *      ),
      *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Booking already exists", @OA\JsonContent())
      * )
      */
-    public function transactionCompleted(Request $request, Utils $utils)
+    public function verifyPayment(Request $request, Utils $utils)
     {
 
-        if(!auth('sanctum')->check())
-            return $utils->message("error","Unauthorized Access." , 401);
+        if (!$request->hasValidSignature())
+            return $utils->message("error","Invalid or expired URL." , 401);
 
-        $user_id =  auth('sanctum')->user()->id;
-
+        $user_id =  $request->get("user_id");
+        $transaction_id = $request->get("trx_id");
         try {
-            return $utils->message("success", "Transaction Completed..." , 200);
+            $paymentData =  $utils->validatePayment($transaction_id);
+            $data = [
+                "transaction_id" => $request->get("transaction_id"),
+                "user_id" => $user_id,
+                "first_name" => Patients::where("user_id", $user_id)->value("firstName"),
+                "last_name" => Patients::where("user_id", $user_id)->value("lastName"),
+                "payment_info" => $paymentData,
+            ];
+            Log::info("Payment Completed", $data);
+            if(empty($paymentData["data"]))
+                return $utils->message("error","Invalid Transaction ID." , 401);
+
+            if ($paymentData["data"]["status"] == "successful"){
+
+                $flutter = FlutterwavePayment::where("trx_id", $transaction_id)->firstOrFail();
+                $flutter->user_id = $user_id ;
+                $flutter->patient_id = Patients::where("user_id", $user_id)->value("id");
+                $flutter->account_id = $paymentData["data"]["account_id"];
+                $flutter->amount =  $paymentData["data"]["amount"];
+                $flutter->amount_settled =  $paymentData["data"]["amount_settled"];
+                $flutter->app_fee =  $paymentData["data"]["app_fee"];
+                $flutter->charged_amount =  $paymentData["data"]["charged_amount"];
+                $flutter->country =  $paymentData["data"]["card"]["country"];
+                $flutter->expiry = $paymentData["data"]["card"]["expiry"];
+                $flutter->first_6digits =  $paymentData["data"]["card"]["first_6digits"];
+                $flutter->issuer = $paymentData["data"]["card"]["issuer"];
+                $flutter->last_4digits = $paymentData["data"]["card"]["last_4digits"];
+                $flutter->card_token =  $paymentData["data"]["card"]["token"];
+                $flutter->card_type =   $paymentData["data"]["card"]["type"];
+                $flutter->email =  $paymentData["data"]["customer"]["email"];
+                $flutter->name =  $paymentData["data"]["customer"]["name"];
+                $flutter->phone_number =  $paymentData["data"]["customer"]["phone_number"];
+                $flutter->flw_ref =  $paymentData["data"]["flw_ref"];
+                $flutter->ip =  $paymentData["data"]["ip"];
+                $flutter->processor_response =  $paymentData["data"]["processor_response"];
+                $flutter->status = $paymentData["data"]["status"];
+                $flutter->narration =  $paymentData["data"]["status"];
+                $flutter->merchant_fee =  $paymentData["data"]["merchant_fee"];
+                $flutter->tx_ref =  $paymentData["data"]["tx_ref"];
+                $flutter->service_id = $request->get("service_id");
+                $flutter->update();
+
+                Log::info("Flutterwave Completed", $paymentData);
+
+
+                return $utils->message("success", $flutter , 200);
+
+            }
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);
@@ -260,63 +301,60 @@ class BookingController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/patient/send-payment",
+     *     path="/api/v1/patient/generate-url",
      *      tags={"Booking"},
      *      security={
      *           {"sanctum": {}},
      *       },
-     *     @OA\Parameter(
-     *         name="service_id",
-     *         in="query",
-     *         description="2024-04-29 18:00:00",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="unique_id",
-     *         in="query",
-     *         description="15 random unique string",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
      *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Booking already exists", @OA\JsonContent())
      * )
      */
-    public function sendPayment(Request $request, Utils $utils)
+    public function generateUrl(Request $request, Utils $utils)
     {
         try {
 
             $request->validate([
-                "service_id" => "required|int",
-                "unique_id" => "required|string",
+                "service_id" => "required|int"
             ]);
 
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
              $user_id =  auth('sanctum')->user()->id;
+             $service_id = $request->get("service_id");
 
-
-            $data = [
+//            $trx_id = 5804669;
+            $trx_id = "TX-" . round(microtime(true) * 1000) . "". $utils->generateCode(20);
+            $logged_data = [
+                "trx_id" => $trx_id,
+                "service_id" => $service_id,
                 "user_id" => $user_id,
-                "service" => Services::where("id", $request->get("service_id"))->value("name"),
+                "service" => Services::where("id", $service_id)->value("name"),
                 "first_name" => Patients::where("user_id", $user_id)->value("firstName"),
                 "last_name" => Patients::where("user_id", $user_id)->value("lastName")
             ];
-            Log::info("transaction Started", $data);
+            Log::info("transaction Started", $logged_data);
 
             $payment = new FlutterwavePayment();
             $payment->status = "pending";
-            $payment->service_id = $request->get("service_id");
+            $payment->service_id = $service_id;
             $payment->user_id = $user_id;
-            $payment->unique_id = $request->get("unique_id");
+            $payment->trx_id = $trx_id;
             $payment->patient_id =  Patients::where('user_id', $user_id)->first()->id;
             $payment->status = "pending";
             $payment->save();
-            return $utils->message("success", $payment , 200);
+
+            // Generate a signed URL
+            $signedUrl = URL::signedRoute('flutterwave.callback', [
+                'trx_id' => $trx_id,
+                'user_id' => $user_id,
+                "service_id" => $service_id
+            ]);
+
+            return $utils->message("success", ["url"  => $signedUrl, "payment_id" => $payment->id ] , 200);
 
         }catch (\Throwable $e) {
         // Do something with your exception
@@ -339,9 +377,9 @@ class BookingController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="transaction_id",
+     *         name="payment_id",
      *         in="query",
-     *         description="Transaction id",
+     *         description="Payment id",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -370,7 +408,7 @@ class BookingController extends Controller
             "booking_start" => "required",
             "service_id" => "required|int",
             "booking_for_self" => "required|int",
-            "transaction_id" => "required",
+            "payment_id" => "required",
         ]);
 
 
@@ -378,77 +416,33 @@ class BookingController extends Controller
             return $utils->message("error","Unauthorized Access." , 401);
 
         $user_id =  auth('sanctum')->user()->id;
-        $transaction_id = $request->get("transaction_id");
         try {
-            $paymentData =  $utils->validatePayment($transaction_id);
-            $data = [
-                "transaction_id" => $request->get("transaction_id"),
-                "user_id" => $user_id,
-                "first_name" => Patients::where("user_id", $user_id)->value("firstName"),
-                "last_name" => Patients::where("user_id", $user_id)->value("lastName"),
-                "payment_info" => $paymentData,
-            ];
-            Log::info("Payment Completed", $data);
+                $payment_id = $request->get("payment_id");
+                $booking_start = Carbon::parse($request->get("booking_start"));
+                $booking_start_formatted =  $booking_start->format("Y-m-d H:i");
+                $booking_end =  $booking_start->copy()->addMinute(45)->format("Y-m-d H:i");
+
+//                if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
+//                    return $utils->message("error","The session is already booked." , 400);
+
+                $amount = Services::where("id", $request->get("service_id"))->value("amount");
+                $name = Services::where("id", $request->get("service_id"))->value("name");
+                $service_id = $request->get("service_id");
+                $recipient_id = $request->get("booked_by_id");
+                $booking = new Bookings();
+                $booking->payment_id = $payment_id;
+                $booking->session_start = $booking_start_formatted;
+                $booking->service_id = $service_id;
+                $booking->price = $amount;
+                $booking->session_end = $booking_end;
+                $booking->user_id =  $user_id;
+                $booking->booking_for_self = $request->get("booking_for_self");
+                $booking->recipient_id = $recipient_id;
+                $booking->save();
 
 
-            if(empty($paymentData["data"]))
-                return $utils->message("error","Invalid Transaction ID." , 401);
-
-
-            $flutter = new FlutterwavePayment();
-            $flutter->user_id = $user_id ;
-            $flutter->patient_id = Patients::where("user_id", $user_id)->value("id");
-            $flutter->account_id = $paymentData["data"]["account_id"];
-            $flutter->amount =  $paymentData["data"]["amount"];
-            $flutter->amount_settled =  $paymentData["data"]["amount_settled"];
-            $flutter->app_fee =  $paymentData["data"]["app_fee"];
-            $flutter->charged_amount =  $paymentData["data"]["charged_amount"];
-            $flutter->country =  $paymentData["data"]["card"]["country"];
-            $flutter->expiry = $paymentData["data"]["card"]["expiry"];
-            $flutter->first_6digits =  $paymentData["data"]["card"]["first_6digits"];
-            $flutter->issuer = $paymentData["data"]["card"]["issuer"];
-            $flutter->last_4digits = $paymentData["data"]["card"]["last_4digits"];
-            $flutter->card_token =  $paymentData["data"]["card"]["token"];
-            $flutter->card_type =   $paymentData["data"]["card"]["type"];
-            $flutter->email =  $paymentData["data"]["customer"]["email"];
-           $flutter->name =  $paymentData["data"]["customer"]["name"];
-            $flutter->phone_number =  $paymentData["data"]["customer"]["phone_number"];
-            $flutter->flw_ref =  $paymentData["data"]["flw_ref"];
-            $flutter->ip =  $paymentData["data"]["ip"];
-            $flutter->processor_response =  $paymentData["data"]["processor_response"];
-            $flutter->status = $paymentData["data"]["status"];
-            $flutter->narration =  $paymentData["data"]["status"];
-            $flutter->merchant_fee =  $paymentData["data"]["merchant_fee"];
-            $flutter->tx_ref =  $paymentData["data"]["tx_ref"];
-            $flutter->service_id = $request->get("service_id");
-            $flutter->save();
-            Log::info("Flutterwave Completed", $paymentData);
-
-
-            $booking_start = Carbon::parse($request->get("booking_start"));
-            $booking_start_formatted =  $booking_start->format("Y-m-d H:i");
-            $booking_end =  $booking_start->copy()->addMinute(45)->format("Y-m-d H:i");
-
-            if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
-                return $utils->message("error","The session is already booked." , 400);
-
-            $amount = Services::where("id", $request->get("service_id"))->value("amount");
-            $name = Services::where("id", $request->get("service_id"))->value("name");
-            $service_id = $request->get("service_id");
-            $recipient_id = $request->get("booked_by_id");
-            $booking = new Bookings();
-            $booking->session_start = $booking_start_formatted;
-            $booking->service_id = $service_id;
-            $booking->price = $amount;
-            $booking->session_end = $booking_end;
-            $booking->user_id =  $user_id;
-            $booking->booking_for_self = $request->get("booking_for_self");
-            $booking->recipient_id = $recipient_id;
-            $booking->save();
-
-            $flutterwave_id = FlutterwavePayment::where("unique_id", $request->get("unique_id"))->value("id");
-            $this->addPayment($utils, $user_id, $flutterwave_id , $booking->id, $amount, $service_id, $name);
-            return $utils->message("success", $booking , 200);
+                $this->addPayment($utils, $user_id, $payment_id , $booking->id, $amount, $service_id, $name);
+                return $utils->message("success", $booking , 200);
 
         }catch (\Throwable $e) {
             // Do something with your exception
@@ -456,14 +450,14 @@ class BookingController extends Controller
         }
     }
 
-    public function addPayment(Utils $utils, $user_id, $trx_id, $booking_id, $amount, $service_id, $name)
+    public function addPayment(Utils $utils, $user_id, $payment_id, $booking_id, $amount, $service_id, $name)
     {
 
         try {
             $trx_id =  Str::random(20);
-            if (!Payments::where("trx_id", $trx_id)->exists()){
                 $payments = new Payments();
                 $payments->user_id = $user_id;
+                $payments->payment_id = $payment_id;
                 $payments->merchant_trx_id = $trx_id;
                 $payments->booking_id = $booking_id;
                 $payments->amount = $amount;
@@ -474,10 +468,6 @@ class BookingController extends Controller
                 $payments->save();
                 return $utils->message("success", $payments , 200);
 
-            }else{
-                return $utils->message("error", "Network Error. Please Try Again." , 400);
-
-            }
 
         }catch (\Throwable $e) {
             // Do something with your exception

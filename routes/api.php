@@ -19,8 +19,6 @@ use App\Models\Services;
 |
 */
 
-// welcome @@######@@@###....#***
-Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'index']);
 
 Route::get('/re-arrange/category', function(){
     $categories = Category::all();
@@ -62,12 +60,11 @@ Route::get('/move-patient-to-users', function(){
 
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], function () {
-    Route::post('/send-payment', ['App\Http\Controllers\BookingController', 'sendPayment']);
+    Route::get('/generate-url', ['App\Http\Controllers\BookingController', 'generateUrl']);
     Route::get('/next-appointment', ['App\Http\Controllers\BookingController', 'nextAppointment']);
     Route::post('/cancel-payment', ['App\Http\Controllers\BookingController', 'cancelPayment']);
     Route::post('/add-a-session', ['App\Http\Controllers\BookingController', 'store']);
     Route::get('/all-sessions', ['App\Http\Controllers\BookingController', 'index']);
-    Route::get('/transaction-completed', ['App\Http\Controllers\BookingController', 'transactionCompleted']);
     Route::post('/add-payment', ['App\Http\Controllers\PatientController', 'addPayment']);
     Route::get('/get-users-created', ['App\Http\Controllers\PatientController', 'getAllRegisteredByUser']);
     Route::get('/profile', ['App\Http\Controllers\PatientController', 'profile']);
@@ -87,7 +84,8 @@ Route::group(['prefix' => 'v1'], function () {
     Route::patch('/password/update', ['App\Http\Controllers\Auth\AuthController', 'updatePassword']);
     Route::get('/resend-email', ['App\Http\Controllers\Auth\AuthController', 'resendEmail']);
     Route::get('/resend-sms', ['App\Http\Controllers\Auth\AuthController', 'sendSMS']);
-
+    Route::get('patient/verify-payment', ['App\Http\Controllers\BookingController', 'verifyPayment'])->name("flutterwave.callback")
+        ->middleware('signed');
     Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/get-live-encryption-key', ['App\Http\Controllers\GeneralController', 'getLiveEncryptionKey']);
         Route::get('/get-live-secret-key', ['App\Http\Controllers\GeneralController', 'getLiveSecretKey']);
