@@ -316,7 +316,7 @@ class BookingController extends Controller
      *      @OA\Parameter(
      *          name="amount",
      *          in="query",
-     *          description="integer",
+     *          description="amount",
      *          required=true,
      *          @OA\Schema(type="string")
      *      ),
@@ -371,7 +371,7 @@ class BookingController extends Controller
                 "service_id" => $service_id
             ]);
 
-            return $utils->message("success", ["url"  => $signedUrl, "payment_id" => $payment->id ] , 200);
+            return $utils->message("success", ["url"  => $signedUrl, "payment_id" => $payment->id,  'trx_id' => $trx_id] , 200);
 
         }catch (\Throwable $e) {
         // Do something with your exception
