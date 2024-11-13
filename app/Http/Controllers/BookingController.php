@@ -313,6 +313,13 @@ class BookingController extends Controller
      *          required=true,
      *          @OA\Schema(type="string")
      *      ),
+     *      @OA\Parameter(
+     *          name="amount",
+     *          in="query",
+     *          description="integer",
+     *          required=true,
+     *          @OA\Schema(type="string")
+     *      ),
      *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
@@ -324,7 +331,8 @@ class BookingController extends Controller
         try {
 
             $request->validate([
-                "service_id" => "required|int"
+                "service_id" => "required|int",
+                "amount" => "required|int"
             ]);
 
             if(!auth('sanctum')->check())
@@ -332,6 +340,7 @@ class BookingController extends Controller
 
              $user_id =  auth('sanctum')->user()->id;
              $service_id = $request->get("service_id");
+             $amount = $request->get("amount");
 
 //            $trx_id = 5804669;
             $trx_id = "TX-" .  $utils->generateCode(20);
@@ -349,6 +358,7 @@ class BookingController extends Controller
             $payment->status = "pending";
             $payment->service_id = $service_id;
             $payment->user_id = $user_id;
+            $payment->amount = $amount;
             $payment->trx_id = $trx_id;
             $payment->patient_id =  Patients::where('user_id', $user_id)->first()->id;
             $payment->status = "pending";
