@@ -18,7 +18,7 @@ use App\Models\Services;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-###################################
+#######################################
 
 Route::get('/re-arrange/category', function(){
     $categories = Category::all();
