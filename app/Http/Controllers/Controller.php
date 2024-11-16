@@ -8,7 +8,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 
 /**
- * @OA\Info(title="Regina caeli API", version="1.0.0")
+ * @OA\Info(title="Regina caeli API", version="1.0.0"),
  *
  * @OA\SecurityScheme(
  *      type="http",
