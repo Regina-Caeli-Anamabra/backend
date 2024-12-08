@@ -555,7 +555,6 @@ class AuthController extends Controller
                 $currentMonth = date('m');
                 $currentYear = date('y');
 
-                 $new_system_id = $system_id . "/" . $currentMonth . "/" . $currentYear;
 
 
                 $phone = $userRequest->get("phone");
@@ -584,7 +583,7 @@ class AuthController extends Controller
                 $patient->lastName = $userRequest->get("last_name");
                 $patient->user_id = $user->id;
                 $patient->phone_no = $phone;
-                $patient->system_id = $new_system_id;
+                $patient->system_id = $new_patientId;
                 $patient->patient_id = $new_patientId;
                 $patient->dateOfBirth = $userRequest->get("date_of_birth");
                 $patient->gender = $userRequest->get("gender");
