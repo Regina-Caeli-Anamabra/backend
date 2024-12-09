@@ -514,7 +514,7 @@ class AuthController extends Controller
                     $response = Http::get($url);
 
                 }
-                return $utils->message("success", [ "patient" => $new_patientId, "code" => ""] , 200);
+                return $utils->message("success", [ "reg_id" => $new_patientId, "code" => ""] , 200);
 
             } catch (\Throwable $e) {
                 return $utils->message("error",$e->getMessage() , 400);
