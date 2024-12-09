@@ -395,152 +395,52 @@ class AuthController extends Controller
         }
     }
 
+
     /**
      * @OA\Post(
      *     path="/api/v1/register",
-     *      tags={"Auth"},
-     *     @OA\Parameter(
-     *         name="username",
-     *         in="query",
-     *         description="username",
+     *     tags={"Auth"},
+     *     summary="User Registration",
+     *     description="Registers a new user with the provided information.",
+     *     @OA\RequestBody(
      *         required=true,
-     *         @OA\Schema(type="string")
+     *         description="User registration data",
+     *         @OA\JsonContent(
+     *             required={
+     *                 "username", "password", "first_name", "last_name", "phone",
+     *                 "email", "gender", "marital_status", "religion",
+     *                 "nationality", "state", "state_of_residence",
+     *                 "address_of_residence", "address_of_next_of_kin",
+     *                 "register_for_self", "auth_type"
+     *             },
+     *             @OA\Property(property="username", type="string", description="Username", example="johndoe"),
+     *             @OA\Property(property="password", type="string", description="Password", example="strongpassword123"),
+     *             @OA\Property(property="first_name", type="string", description="First Name", example="John"),
+     *             @OA\Property(property="last_name", type="string", description="Last Name", example="Doe"),
+     *             @OA\Property(property="phone", type="string", description="Phone number", example="+1234567890"),
+     *             @OA\Property(property="email", type="string", description="Email", example="johndoe@example.com"),
+     *             @OA\Property(property="gender", type="string", description="Gender", example="Male"),
+     *             @OA\Property(property="marital_status", type="string", description="Marital Status", example="Single"),
+     *             @OA\Property(property="religion", type="string", description="Religion", example="Christianity"),
+     *             @OA\Property(property="nationality", type="string", description="Nationality", example="Nigerian"),
+     *             @OA\Property(property="state", type="string", description="State of Origin", example="Lagos"),
+     *             @OA\Property(property="next_of_kin", type="string", description="Next of Kin", example="Jane Doe", nullable=true),
+     *             @OA\Property(property="next_of_kin_phone", type="string", description="Next of Kin Phone", example="+2348012345678", nullable=true),
+     *             @OA\Property(property="nature_of_relationship", type="string", description="Nature of Relationship", example="Sister", nullable=true),
+     *             @OA\Property(property="date_of_birth", type="string", format="date", description="Date of Birth", example="1990-01-01", nullable=true),
+     *             @OA\Property(property="state_of_residence", type="string", description="State of Residence", example="Lagos"),
+     *             @OA\Property(property="address_of_residence", type="string", description="Address of Residence", example="123 Main Street, Lagos"),
+     *             @OA\Property(property="address_of_next_of_kin", type="string", description="Address of Next of Kin", example="456 Another Street, Lagos"),
+     *             @OA\Property(property="register_for_self", type="boolean", description="1 = register for self, 0 = register for another person", example=true),
+     *             @OA\Property(property="auth_type", type="string", description="Auth type, either EMAIL or SMS", example="EMAIL")
+     *         )
      *     ),
-     *     @OA\Parameter(
-     *         name="password",
-     *         in="query",
-     *         description="Password",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="first_name",
-     *         in="query",
-     *         description="first_name",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="last_name",
-     *         in="query",
-     *         description="last_name",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="phone",
-     *         in="query",
-     *         description="phone",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="email",
-     *         in="query",
-     *         description="email",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="gender",
-     *         in="query",
-     *         description="gender",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="marital_status",
-     *         in="query",
-     *         description="marital_status",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="religion",
-     *         in="query",
-     *         description="religion",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="nationality",
-     *         in="query",
-     *         description="nationality",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="state",
-     *         in="query",
-     *         description="state",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="next_of_kin",
-     *         in="query",
-     *         description="next_of_kin",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="next_of_kin_phone",
-     *         in="query",
-     *         description="next_of_kin_phone",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="nature_of_relationship",
-     *         in="query",
-     *         description="nature_of_relationship",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="date_of_birth",
-     *         in="query",
-     *         description="date_of_birth",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="state_of_residence",
-     *         in="query",
-     *         required=true,
-     *         description="state_of_residence",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="address_of_residence",
-     *         in="query",
-     *         required=true,
-     *         description="address_of_residence",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="address_of_next_of_kin",
-     *         in="query",
-     *         required=true,
-     *         description="address_of_next_of_kin",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="register_for_self",
- *             required=true,
-     *         in="query",
-     *         description="1 = register for self, 0 = register for another person",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="auth_type",
- *             required=true,
-     *         in="query",
-     *         description="EMAIL OR SMS",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
-     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
-     *
+     *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent(example={"message": "Registration successful"})),
+     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent(example={"error": "Invalid credentials"})),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent(example={"error": "Validation failed", "details": {"username": "This field is required"}}))
      * )
      */
+
     public function registerUser(UserRequest $userRequest, Utils $utils, Execs $execs)
     {
 
@@ -614,7 +514,7 @@ class AuthController extends Controller
                     $response = Http::get($url);
 
                 }
-                return $utils->message("success", [ "patient" => $patient, "code" => ""] , 200);
+                return $utils->message("success", [ "patient" => $new_patientId, "code" => ""] , 200);
 
             } catch (\Throwable $e) {
                 return $utils->message("error",$e->getMessage() , 400);
