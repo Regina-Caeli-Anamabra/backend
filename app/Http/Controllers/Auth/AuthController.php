@@ -416,13 +416,14 @@ class AuthController extends Controller
      *             @OA\Property(property="username", type="string", description="Username", example="johndoe"),
      *             @OA\Property(property="password", type="string", description="Password", example="strongpassword123"),
      *             @OA\Property(property="first_name", type="string", description="First Name", example="John"),
+     *             @OA\Property(property="middle_name", type="string", description="Middle Name", example="Victor"),
      *             @OA\Property(property="last_name", type="string", description="Last Name", example="Doe"),
      *             @OA\Property(property="phone", type="string", description="Phone number", example="+1234567890"),
      *             @OA\Property(property="email", type="string", description="Email", example="johndoe@example.com"),
      *             @OA\Property(property="gender", type="string", description="Gender", example="Male"),
      *             @OA\Property(property="marital_status", type="string", description="Marital Status", example="Single"),
      *             @OA\Property(property="religion", type="string", description="Religion", example="Christianity"),
-     *             @OA\Property(property="nationality", type="string", description="Nationality", example="Nigerian"),
+     *             @OA\Property(property="nationality", type="string", description="Nationality", example="161"),
      *             @OA\Property(property="state", type="string", description="State of Origin", example="Lagos"),
      *             @OA\Property(property="next_of_kin", type="string", description="Next of Kin", example="Jane Doe", nullable=true),
      *             @OA\Property(property="next_of_kin_phone", type="string", description="Next of Kin Phone", example="+2348012345678", nullable=true),
@@ -456,19 +457,6 @@ class AuthController extends Controller
                 $currentYear = date('y');
 
 
-
-                $phone = $userRequest->get("phone");
-                $user = New User();
-                $user->password = $password;
-                $user->email = $userRequest->get("email");
-                $user->username = $userRequest->get("username");
-                $user->phone = $phone;
-                $user->authentication_type = $userRequest->get("auth_type");
-                $user->register_for_self = $userRequest->get("register_for_self");
-                $user->vCode = $verifyCode;
-                $user->save();
-
-
                 $latestUserId =  DB::table('patient')->max('id');
 
                 $userIdInfo = explode("/", $latestUserId);
@@ -478,9 +466,25 @@ class AuthController extends Controller
 
                 $new_patientId = $patientId . "/" . $currentMonth . "/" . $currentYear;
 
+
+                $phone = $userRequest->get("phone");
+                $user = New User();
+                $user->password = $password;
+                $user->email = $userRequest->get("email");
+                $user->username = $userRequest->get("username");
+                $user->phone = $phone;
+                $user->authentication_type = $userRequest->get("auth_type");
+                $user->register_for_self = $userRequest->get("register_for_self");
+                $user->register_for_self = $userRequest->get("register_for_self");
+                $user->vCode = $verifyCode;
+                $user->reg_id = $new_patientId;
+                $user->save();
+
+
                 $patient = new Patients();
                 $patient->firstName = $userRequest->get("first_name");
                 $patient->lastName = $userRequest->get("last_name");
+                $patient->middleName = $userRequest->get("middle_name");
                 $patient->user_id = $user->id;
                 $patient->phone_no = $phone;
                 $patient->system_id = $new_patientId;

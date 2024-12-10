@@ -221,7 +221,7 @@ class GeneralController extends Controller
             "country_id" => "required",
         ]);
         try {
-            return $utils->message("success", States::where('country_id', $request->get("country_id"))->orderBy("name", "DESC")->get(["name", "id"])  , 200);
+            return $utils->message("success", States::where('country_id', $request->get("country_id"))->orderBy("name", "ASC")->get(["name", "id"])  , 200);
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);
