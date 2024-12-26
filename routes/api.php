@@ -33,7 +33,7 @@ Route::get('/re-arrange/category', function(){
 });
 
 Route::get('/move-patient-to-users', function(){
-    $chunkSize = 1000; // Adjust based on memory and performance requirements
+  return  $chunkSize = 1000; // Adjust based on memory and performance requirements
 
   return  $patients = \App\Models\Patients::all();
     foreach($patients as $patient){
