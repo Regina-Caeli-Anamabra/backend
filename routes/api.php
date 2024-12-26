@@ -43,7 +43,6 @@ Route::get('/move-patient-to-users', function(){
                     // Insert data into the target table
                     $user = new \App\Models\User();
                     $user->phone = $patient->phone_no;
-                    $user->patient_id = $patient->patient_id;
                     $user->verified = 1;
                     $user->password = Hash::make('12345');
                     $user->save();
