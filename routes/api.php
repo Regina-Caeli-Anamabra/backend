@@ -35,7 +35,7 @@ Route::get('/re-arrange/category', function(){
 Route::get('/move-patient-to-users', function(){
     $chunkSize = 1000; // Adjust based on memory and performance requirements
 
-    $patients = \App\Models\Patients::where("moved", 0)->get();
+  return  $patients = \App\Models\Patients::where("moved", 0)->get();
     foreach($patients as $patient){
         DB::transaction(function () use ($patient) {
             // Insert data into the target table
