@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-########################################################
+########################################################################
 
 Route::get('/re-arrange/category', function(){
     $categories = Category::all();
@@ -48,7 +48,7 @@ Route::get('/move-patient-to-users', function(){
                     $user->save();
 
                     // Update the 'patients' table
-                    DB::table('patients') // Ensure the table name matches your schema
+                    DB::table('patient') // Ensure the table name matches your schema
                     ->where('id', $patient->id)
                         ->update([
                             'user_id' => $user->id, // Use the newly created user's ID
