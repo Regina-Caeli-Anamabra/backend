@@ -13,12 +13,27 @@ use PHPUnit\Util\Json;
 class Utils
 {
 
-    function generateCode($limit)
+    public static function generateCode($type)
     {
         $mt = explode(' ', microtime());
         $rand = time() . rand(10, 99);
         $time = ((int)$mt[1]) * 1000000 + ((int)round($mt[0] * 1000000));
-        return    $generated = $rand . $time;
+        $generated = $rand . $time;
+
+        switch ($type) {
+            case "bookings" :
+                return "3060" . $generated;
+                break;
+            case "post" :
+                return "3061" . $generated;
+                break;
+            case "user" :
+                return "3062" . $generated;
+                break;
+            default:
+                return "3069" . $generated;
+                break;
+        }
     }
     public function sendOTPToSMS($phone)
     {

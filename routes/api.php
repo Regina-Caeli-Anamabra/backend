@@ -18,7 +18,7 @@ use App\Models\Services;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-#######################################
+########################################################
 
 Route::get('/re-arrange/category', function(){
     $categories = Category::all();
@@ -62,6 +62,8 @@ Route::get('/move-patient-to-users', function(){
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], function () {
     Route::get('/generate-url', ['App\Http\Controllers\BookingController', 'generateUrl']);
+    Route::get('/cancelled', ['App\Http\Controllers\BookingController', 'cancelAppointment']);
+    Route::get('/get-payment', ['App\Http\Controllers\BookingController', 'getPayment']);
     Route::get('/next-appointment', ['App\Http\Controllers\BookingController', 'nextAppointment']);
     Route::post('/cancel-payment', ['App\Http\Controllers\BookingController', 'cancelPayment']);
     Route::post('/add-a-session', ['App\Http\Controllers\BookingController', 'store']);
@@ -85,8 +87,6 @@ Route::group(['prefix' => 'v1'], function () {
     Route::patch('/password/update', ['App\Http\Controllers\Auth\AuthController', 'updatePassword']);
     Route::get('/resend-email', ['App\Http\Controllers\Auth\AuthController', 'resendEmail']);
     Route::get('/resend-sms', ['App\Http\Controllers\Auth\AuthController', 'sendSMS']);
-    Route::get('patient/verify-payment', ['App\Http\Controllers\BookingController', 'verifyPayment'])->name("flutterwave.callback")
-        ->middleware('signed');
     Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/get-live-encryption-key', ['App\Http\Controllers\GeneralController', 'getLiveEncryptionKey']);
         Route::get('/get-live-secret-key', ['App\Http\Controllers\GeneralController', 'getLiveSecretKey']);
@@ -97,7 +97,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/category', ['App\Http\Controllers\GeneralController', 'category']);
         Route::get('/services', ['App\Http\Controllers\GeneralController', 'services']);
         Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
-        Route::get('/payments', ['App\Http\Controllers\PatientController', 'payments']);
     });
 
     Route::middleware('auth:sanctum', 'ability:' . \App\Enums\TokenAbility::ISSUE_ACCESS_TOKEN->value)->group(function () {
