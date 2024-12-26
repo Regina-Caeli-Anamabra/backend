@@ -8,6 +8,7 @@ use App\Http\Controller\CustomerStakeController;
 use App\Models\Category;
 use App\Models\Categories;
 use App\Models\Services;
+use Illuminate\Support\Facades\DB;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -35,27 +36,29 @@ Route::get('/re-arrange/category', function(){
 Route::get('/move-patient-to-users', function(){
     $chunkSize = 1000; // Adjust based on memory and performance requirements
 
-  return  $patients = \App\Models\Patients::where("moved", 0)->limit(100)->get();
-    foreach($patients as $patient){
-        DB::transaction(function () use ($patient) {
-            // Insert data into the target table
-            $user = new  \App\Models\User();
-            $user->phone = $patient->phone_no;
-            $user->patient_id  = $patient->patient_id ;
-            $user->verified = 1;
-            $user->password = Hash::make("12345");
-            $user->save();
+    \App\Models\Patients::where('moved', 0)
+        ->chunk($chunkSize, function ($patients) {
+            foreach ($patients as $patient) {
+                DB::transaction(function () use ($patient) {
+                    // Insert data into the target table
+                    $user = new \App\Models\User();
+                    $user->phone = $patient->phone_no;
+                    $user->patient_id = $patient->patient_id;
+                    $user->verified = 1;
+                    $user->password = Hash::make('12345');
+                    $user->save();
 
-            // Use data from the inserted row to update another table (mytable)
-            DB::table('patient')
-                ->where('id', $patient->id) // Update based on a related field or condition
-                ->update([
-                    'user_id' => $patient->id, // Optionally store the new ID in mytable
-                    'moved' => 1, // Optionally store the new ID in mytable
-                    'updated_at' => now(),
-                ]);
+                    // Update the 'patients' table
+                    DB::table('patients') // Ensure the table name matches your schema
+                    ->where('id', $patient->id)
+                        ->update([
+                            'user_id' => $user->id, // Use the newly created user's ID
+                            'moved' => 1,
+                            'updated_at' => now(),
+                        ]);
+                });
+            }
         });
-    }
 });
 
 
