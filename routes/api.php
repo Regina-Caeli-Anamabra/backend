@@ -34,7 +34,7 @@ Route::get('/re-arrange/category', function(){
 });
 
 Route::get('/move-patient-to-users', function(){
-    \App\Jobs\MovePatientsToUsers::class::dispatch();
+    \App\Jobs\MovePatientsToUsers::dispatch();
     return 'Data move process started in the background!';
 });
 
