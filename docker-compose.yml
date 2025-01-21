@@ -35,6 +35,8 @@ services:
       - mysql_db
 
 
+
+
   phpmyadmin:
       image: phpmyadmin
       restart: always
