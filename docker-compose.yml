@@ -34,7 +34,21 @@ services:
     depends_on:
       - mysql_db
 
-
+  queue-worker:
+      build:
+          context: .
+          target: php
+      container_name: regina_laravel_queue_worker
+      environment:
+          - APP_ENV="${APP_ENV}"
+          - DB_DATABASE=${DB_DATABASE}
+          - DB_PASSWORD=${DB_PASSWORD}
+          - DB_USERNAME=${DB_USERNAME}
+          - CONTAINER_ROLE=queue
+      working_dir: /app
+      depends_on:
+          - mysql_db
+      command: php artisan queue:work --sleep=3 --tries=3
 
 
   phpmyadmin:
