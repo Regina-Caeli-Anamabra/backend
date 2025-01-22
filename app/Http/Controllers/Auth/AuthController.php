@@ -445,6 +445,7 @@ class AuthController extends Controller
     public function registerUser(UserRequest $userRequest, Utils $utils, Execs $execs)
     {
 
+
         $phone = $userRequest->get("phone");
          $password =   Hash::make($userRequest->get("password"));
         $verifyCode = mt_rand(100000,999999);
