@@ -37,7 +37,7 @@ class MovePatientsToUsers implements ShouldQueue
             // Ensure the job logic is correct here
             Log::info("MovePatientsToUsers job started.");
             // Job processing logic goes here
-            Log::info("MovePatientsToUsers job completed.")
+            Log::info("MovePatientsToUsers job completed.");
 
 
 //            \App\Models\Patients::where('moved', 0)

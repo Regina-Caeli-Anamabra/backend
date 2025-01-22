@@ -38,7 +38,7 @@ services:
       build:
           context: .
           target: php
-      container_name: regina_laravel_queue_worker
+      container_name: laravel_queue_worker
       environment:
           - APP_ENV="${APP_ENV}"
           - DB_DATABASE=${DB_DATABASE}
@@ -49,6 +49,9 @@ services:
       depends_on:
           - mysql_db
       command: php artisan queue:work --sleep=3 --tries=3 --timeout=120
+      mem_limit: 1g
+      volumes:
+          - .:/app
       restart: always
 
 
