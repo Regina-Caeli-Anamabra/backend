@@ -12,6 +12,14 @@ else
     echo "env file exists."
 fi
 
+if [ "$role" = "queue" ]; then
+    echo "Running queue worker..."
+    php artisan queue:work --sleep=3 --tries=3 --timeout=120 --verbose
+else
+    echo "Not a queue worker. Exiting..."
+fi
+
+
 role=${CONTAINER_ROLE:-app}
 echo role
 if [ "$role" = "app" ]; then
