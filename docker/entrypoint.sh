@@ -15,13 +15,13 @@ fi
 role=${CONTAINER_ROLE:-app}
 echo role
 if [ "$role" = "app" ]; then
-    php artisan queue:table
     php artisan migrate
     php artisan key:generate
     php artisan cache:clear
     php artisan config:clear
     php artisan route:clear
     php artisan queue:work
+    php artisan queue:table
     php artisan l5-swagger:generate
     php artisan serve --port=$PORT --host=0.0.0.0 --env=.env
     exec docker-php-entrypoint "$@"

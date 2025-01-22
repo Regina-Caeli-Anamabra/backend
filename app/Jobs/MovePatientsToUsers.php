@@ -34,6 +34,7 @@ class MovePatientsToUsers implements ShouldQueue
         \App\Models\Patients::where('moved', 0)
             ->chunk($chunkSize, function ($patients) {
                 foreach ($patients as $patient) {
+                    echo "moved patient {$patient->id}\n";
                     DB::transaction(function () use ($patient) {
                         // Insert data into the target table
                         $user = new \App\Models\User();
