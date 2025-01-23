@@ -48,6 +48,7 @@ services:
       working_dir: /app
       depends_on:
           - mysql_db
+          - backend
       command: php artisan queue:work --sleep=3 --tries=3 --timeout=120
       mem_limit: 1g
       volumes:
