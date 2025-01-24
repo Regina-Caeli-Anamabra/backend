@@ -3,6 +3,7 @@
 use App\Http\Resources\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controller\CustomerStakeController;
 use App\Models\Category;
@@ -34,9 +35,33 @@ Route::get('/re-arrange/category', function(){
 });
 
 Route::get('/move-patient-to-users', function(){
-    echo "Starting to move patients";
-    \App\Jobs\MovePatientsToUsers::dispatch();
-    return 'Data move process started in the background!';
+    $chunkSize = 500; // Adjust based on memory and performance requirements
+
+    \App\Models\Patients::where('moved', 0)
+        ->chunk($chunkSize, function ($patients) {
+            foreach ($patients as $patient) {
+                Log::info("moved patient {$patient->id}");
+                DB::transaction(function () use ($patient) {
+                    // Insert data into the target table
+                    $user = new \App\Models\User();
+                    $user->phone = $patient->phone_no;
+                    $user->reg_id = $patient->patient_id;
+                    $user->verified = 1;
+                    $user->password = Hash::make('12345');
+                    $user->save();
+
+                    // Update the 'patients' table
+                    DB::table('patient') // Ensure the table name matches your schema
+                    ->where('id', $patient->id)
+                        ->update([
+                            'user_id' => $user->id, // Use the newly created user's ID
+                            'moved' => 1,
+                            'updated_at' => now(),
+                        ]);
+                });
+            }
+        });
+
 });
 
 
