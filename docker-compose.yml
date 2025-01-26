@@ -72,7 +72,7 @@ services:
     queue_worker:
         build:
             context: .  # Build the image from the Dockerfile in the current directory
-            dockerfile: Docker/Dockerfile # Use the Laravel app container for queue worker
+            dockerfile: docker/Dockerfile # Use the Laravel app container for queue worker
         container_name: regina_queue_worker
         command: queue_worker  # Tells entrypoint.sh to start the queue worker
         depends_on:
@@ -85,7 +85,7 @@ services:
     horizon:
         build:
             context: .  # Build the image from the Dockerfile in the current directory
-            dockerfile: Docker/Dockerfile
+            dockerfile: docker/Dockerfile
         container_name: laravel-horizon
         volumes:
             - .:/app
