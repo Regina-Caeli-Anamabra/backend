@@ -12,7 +12,6 @@
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
         "predis/predis": "^2.2",
-        "laravel/horizon": "5.30.2",
         "psr/simple-cache": "^2.0"
     },
     "require-dev": {
