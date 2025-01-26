@@ -3,7 +3,7 @@ version: '3'
 services:
     mysql_db:
         image: mysql:8.3
-        container_name: artisanoga_prod_mysql
+        container_name: regina_prod_mysql
         restart: unless-stopped
         ports:
             - 3361:3306
@@ -20,13 +20,13 @@ services:
         networks:
             - mysql_network
 
-    regina:
+    regina_app:
         build:
             context: .
             target: php
             args:
                 - APP_ENV="${APP_ENV}"
-        container_name: hms_laravel_app
+        container_name: regina_laravel_app
         environment:
             - APP_ENV="${APP_ENV}"
             - DB_DATABASE=${DB_DATABASE}
@@ -76,6 +76,7 @@ services:
         depends_on:
             - redis
             - mysql_db
+            - regina_app
         networks:
             - mysql_network
 
