@@ -12,21 +12,18 @@ else
     echo "env file exists."
 fi
 
-# Ensure Horizon is installed
-composer require laravel/horizon
+
 
 role=${CONTAINER_ROLE:-app}
 echo role
 if [ "$role" = "app" ]; then
     php artisan list
-    php artisan horizon:install
     php artisan migrate
     php artisan key:generate
     php artisan cache:clear
     php artisan config:clear
     php artisan route:clear
     php artisan l5-swagger:generate
-    php artisan horizon
     php artisan serve --port=$PORT --host=0.0.0.0 --env=.env
     exec docker-php-entrypoint "$@"
 fi
