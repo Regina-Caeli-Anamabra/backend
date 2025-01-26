@@ -33,7 +33,7 @@ class MovePatientsToUsers implements ShouldQueue
     {
 //        $chunkSize = 500; // Adjust based on memory and performance requirements
 
-            Log::info("moved patient ");
+            Log::info("moved patient to new site ");
         try {
 //            \App\Models\Patients::where('moved', 0)
 //                ->chunk($chunkSize, function ($patients) {

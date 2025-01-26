@@ -74,7 +74,7 @@ services:
             context: .  # Build the image from the Dockerfile in the current directory
             dockerfile: Dockerfile # Use the Laravel app container for queue worker
         container_name: regina_queue_worker
-        command: queue_worker  # Tells entrypoint.sh to start the queue worker
+        command: php artisan queue:work  # Tells entrypoint.sh to start the queue worker
         depends_on:
             - redis
             - mysql_db
