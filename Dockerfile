@@ -1,41 +1,36 @@
-# Use the official PHP image with FPM (FastCGI Process Manager)
-FROM php:8.1-fpm
+FROM php:8.2 as php
 
-# Install system dependencies and PHP extensions
-RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    zip \
-    git \
-    libmemcached-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql
+RUN apt-get update -y
+RUN apt-get install -y unzip libpq-dev libcurl4-gnutls-dev
+RUN docker-php-ext-install pdo pdo_mysql bcmath
 
-# Install Composer globally
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+#RUN pecl install -o -f redis \
+#    && rm -rf /tmp/pear \
+#    && docker-php-ext-enable redis
 
-# Set working directory
+
 WORKDIR /app
+COPY . .
 
-# Copy the composer files and install PHP dependencies
-COPY composer.json composer.lock /app/
-RUN composer install --no-dev --optimize-autoloader
+RUN ls -l ./docker/entrypoint.sh
+RUN  chmod +x ./docker/entrypoint.sh
 
-# Copy the rest of the application files
-COPY . /app
+RUN echo "max_execution_time = 300" >> /usr/local/etc/php/php.ini
 
-# Expose port 8000 to the outside world
-EXPOSE 8000
 
-# Copy the entrypoint script into the container
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY --from=composer:2.7.4 /usr/bin/composer /usr/bin/composer
 
-# Make the entrypoint script executable
-RUN chmod +x /usr/local/bin/entrypoint.sh
+ENV PORT=8000
+ENTRYPOINT [ "./docker/entrypoint.sh" ]
 
-# Set the entrypoint for the container
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-# The default command if no arguments are passed to the container
-CMD ["php-fpm"]
+# ==============================================================================
+#  node
+#FROM node:14-alpine as node
+#
+#WORKDIR /var/www
+#COPY . .
+#
+#RUN npm install --global cross-env
+#RUN npm install
+#
+#VOLUME /var/www/node_modules
