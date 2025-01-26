@@ -12,6 +12,9 @@ else
     echo "env file exists."
 fi
 
+# Ensure Horizon is installed
+composer require laravel/horizon
+
 role=${CONTAINER_ROLE:-app}
 echo role
 if [ "$role" = "app" ]; then
