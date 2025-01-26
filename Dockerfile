@@ -1,8 +1,11 @@
 FROM php:8.2 as php
 
 RUN apt-get update -y
-RUN apt-get install -y unzip libpq-dev libcurl4-gnutls-dev  libpcntl-dev
-RUN docker-php-ext-install pdo pdo_mysql bcmath pcntl
+RUN apt-get install -y unzip libpq-dev libcurl4-gnutls-dev
+RUN docker-php-ext-install pdo pdo_mysql bcmath
+RUN docker-php-ext-configure pcntl --enable-pcntl \
+  && docker-php-ext-install pcntl;
+
 
 #RUN pecl install -o -f redis \
 #    && rm -rf /tmp/pear \
