@@ -20,7 +20,7 @@ services:
         networks:
             - mysql_network
 
-    regina:
+    artisanoga_app:
         build:
             context: .
             target: php
@@ -62,7 +62,7 @@ services:
 
     redis:
         image: redis:alpine  # Added Redis service
-        container_name: regina_redis
+        container_name: artisanoga_redis
         restart: unless-stopped
         ports:
             - "6379:6379"
@@ -70,8 +70,8 @@ services:
             - mysql_network
 
     queue_worker:
-        image: regina_app  # Use the Laravel app container for queue worker
-        container_name: regina_queue_worker
+        image: artisanoga_app  # Use the Laravel app container for queue worker
+        container_name: artisanoga_queue_worker
         command: queue_worker  # Tells entrypoint.sh to start the queue worker
         depends_on:
             - redis
