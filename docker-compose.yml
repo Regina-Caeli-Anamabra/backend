@@ -23,7 +23,7 @@ services:
     regina_app:
         build:
             context: .
-            target: php
+            dockerfile: Dockerfile
             args:
                 - APP_ENV="${APP_ENV}"
         container_name: regina_laravel_app
