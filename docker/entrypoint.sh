@@ -1,28 +1,12 @@
 #!/bin/bash
 
-
-if [ ! -f "vendor/autoload.php" ]; then
-    composer install --no-progress --no-interaction
+# Check if the "queue_worker" argument is passed, and start the queue worker if so
+if [ "$1" = "queue_worker" ]; then
+    echo "Starting the Laravel Queue Worker..."
+    php artisan queue:work --tries=3
+    exit 0
 fi
 
-if [ ! -f ".env" ]; then
-    echo "Creating env file for env $APP_ENV"
-    cp .env.example .env
-else
-    echo "env file exists."
-fi
-
-
-
-role=${CONTAINER_ROLE:-app}
-echo role
-if [ "$role" = "app" ]; then
-    php artisan migrate
-    php artisan key:generate
-    php artisan cache:clear
-    php artisan config:clear
-    php artisan route:clear
-    php artisan l5-swagger:generate
-    php artisan serve --port=$PORT --host=0.0.0.0 --env=.env
-    exec docker-php-entrypoint "$@"
-fi
+# Otherwise, just run the default command (PHP-FPM)
+echo "Starting PHP-FPM..."
+exec "$@"
