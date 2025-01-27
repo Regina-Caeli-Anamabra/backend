@@ -40,7 +40,7 @@ services:
         volumes:
             - ./:/app
         ports:
-            - 8050:8000
+            - 8030:8000
         depends_on:
             - mysql_db
             - redis  # Added Redis dependency for the app
@@ -51,7 +51,7 @@ services:
         image: phpmyadmin
         restart: always
         ports:
-            - 9300:80
+            - 9000:80
         environment:
             - PMA_ARBITRARY=1
             - UPLOAD_LIMIT=100000000
