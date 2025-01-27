@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
 |
 */
 #########################
-
+################################################
 Route::get('/re-arrange/category', function(){
     $categories = Category::all();
     foreach($categories as $category){
