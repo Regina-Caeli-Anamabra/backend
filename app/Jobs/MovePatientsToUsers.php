@@ -31,34 +31,34 @@ class MovePatientsToUsers implements ShouldQueue
      */
     public function handle(): void
     {
-//        $chunkSize = 500; // Adjust based on memory and performance requirements
+        $chunkSize = 500; // Adjust based on memory and performance requirements
 
             Log::info("moved patient to new site ");
         try {
-//            \App\Models\Patients::where('moved', 0)
-//                ->chunk($chunkSize, function ($patients) {
-//                    foreach ($patients as $patient) {
-//                        Log::info("moved patient {$patient->id}");
-//                        DB::transaction(function () use ($patient) {
-//                            // Insert data into the target table
-//                            $user = new \App\Models\User();
-//                            $user->phone = $patient->phone_no;
-//                            $user->reg_id = $patient->patient_id;
-//                            $user->verified = 1;
-//                            $user->password = Hash::make('12345');
-//                            $user->save();
-//
-//                            // Update the 'patients' table
-//                            DB::table('patient') // Ensure the table name matches your schema
-//                            ->where('id', $patient->id)
-//                                ->update([
-//                                    'user_id' => $user->id, // Use the newly created user's ID
-//                                    'moved' => 1,
-//                                    'updated_at' => now(),
-//                                ]);
-//                        });
-//                    }
-//                });
+            \App\Models\Patients::where('moved', 0)
+                ->chunk($chunkSize, function ($patients) {
+                    foreach ($patients as $patient) {
+                        Log::info("moved patient {$patient->id}");
+                        DB::transaction(function () use ($patient) {
+                            // Insert data into the target table
+                            $user = new \App\Models\User();
+                            $user->phone = $patient->phone_no;
+                            $user->reg_id = $patient->patient_id;
+                            $user->verified = 1;
+                            $user->password = Hash::make('12345');
+                            $user->save();
+
+                            // Update the 'patients' table
+                            DB::table('patient') // Ensure the table name matches your schema
+                            ->where('id', $patient->id)
+                                ->update([
+                                    'user_id' => $user->id, // Use the newly created user's ID
+                                    'moved' => 1,
+                                    'updated_at' => now(),
+                                ]);
+                        });
+                    }
+                });
 
             // Send a notification once the job is completed
             $recipientEmail = 'chuksdsilent@gmail.com'; // Specify the recipient email directly

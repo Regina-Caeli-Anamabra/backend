@@ -37,7 +37,7 @@ Route::get('/re-arrange/category', function(){
 Route::get('/move-patient-to-users', function(){
 
     echo "Starting Job Processing";
-    \App\Jobs\MovePatientsToUsers::dispatch();
+    \App\Jobs\MovePatientsToUsers::dispatch()->delay(\Carbon\Carbon::now()->addMinutes(5));;
     return response()->json(['message' => 'Patients are being processed']);
 
 
