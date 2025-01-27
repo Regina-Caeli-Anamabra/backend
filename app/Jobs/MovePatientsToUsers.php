@@ -31,13 +31,19 @@ class MovePatientsToUsers implements ShouldQueue
      */
     public function handle(): void
     {
-        $chunkSize = 500; // Adjust based on memory and performance requirements
+        $chunkSize = 2; // Adjust based on memory and performance requirements
+        $limit = 10;     // Total rows to process
+        $processed = 0;  // Counter for processed rows
 
-            Log::info("moved patient to new site ");
         try {
             \App\Models\Patients::where('moved', 0)
-                ->chunk($chunkSize, function ($patients) {
+                ->limit(20)
+                ->chunk($chunkSize, function ($patients)  use ($processed, $limit) {
                     foreach ($patients as $patient) {
+                        if ($processed >= $limit) {
+                            // Stop processing if we've reached the limit
+                            return false;
+                        }
                         Log::info("moved patient {$patient->id}");
                         DB::transaction(function () use ($patient) {
                             // Insert data into the target table
