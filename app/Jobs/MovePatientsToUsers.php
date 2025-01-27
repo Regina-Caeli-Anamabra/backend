@@ -40,10 +40,12 @@ class MovePatientsToUsers implements ShouldQueue
                 ->limit(20)
                 ->chunk($chunkSize, function ($patients)  use ($processed, $limit) {
                     foreach ($patients as $patient) {
-                        if ($processed >= $limit) {
-                            // Stop processing if we've reached the limit
-                            return false;
-                        }
+                        $processed += 1;
+
+//                        if ($processed >= $limit) {
+//                            // Stop processing if we've reached the limit
+//                            return false;
+//                        }
                         Log::info("moved patient {$patient->id}");
                         DB::transaction(function () use ($patient) {
                             // Insert data into the target table
