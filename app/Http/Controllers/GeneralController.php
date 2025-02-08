@@ -253,8 +253,7 @@ class GeneralController extends Controller
     public function services(Request $request, Utils $utils)
     {
         $request->validate([
-            "category_id" => "required",
-            "day" => "required"
+            "category_id" => "required"
         ]);
         try {
             $day = $request->get("day");
@@ -262,7 +261,7 @@ class GeneralController extends Controller
                 return $utils->message("error","Unauthorized Access." , 401);
 
             $services = DaysAvailable::with('services')
-                        ->where("days", $day)
+                        ->where("days", Carbon::now()->format('l'))
                         ->orderBy("services.service_name", "ASC")
                         ->get();
             return $utils->message("success", Services::where("category_id", $request->get("category_id"))->get()  , 200);
