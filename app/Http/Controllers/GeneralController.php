@@ -6,6 +6,7 @@ use App\Http\Resources\Bank;
 use App\Http\Resources\BankResource;
 use App\Models\Categories;
 use App\Models\Countries;
+use App\Models\DaysAvailable;
 use App\Models\FlutterwaveKeys;
 use App\Models\Patients;
 use App\Models\Services;
@@ -253,11 +254,17 @@ class GeneralController extends Controller
     {
         $request->validate([
             "category_id" => "required",
+            "day" => "required"
         ]);
         try {
+            $day = $request->get("day");
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
-            $services = Services::orderBy("id", "DESC")->get();
+
+            $services = DaysAvailable::with('services')
+                        ->where("days", $day)
+                        ->orderBy("services.service_name", "ASC")
+                        ->get();
             return $utils->message("success", Services::where("category_id", $request->get("category_id"))->get()  , 200);
         }catch (\Throwable $e) {
             // Do something with your exception

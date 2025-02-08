@@ -13,6 +13,11 @@ class Services extends Model
     use HasFactory;
 
     protected $guarded = [];
+    public function daysAvailable(): HasMany
+    {
+        return $this->hasMany(DaysAvailable::class, 'service_id');
+    }
+
     public function services(): HasMany
     {
         return $this->hasMany(Payments::class);
