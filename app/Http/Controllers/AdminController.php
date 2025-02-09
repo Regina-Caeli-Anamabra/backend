@@ -132,7 +132,6 @@ class AdminController extends Controller
         try {
             $query = DB::table('patient')
                     ->join('users', 'patient.user_id', '=', 'users.id')
-                    ->where("users.role", "!=", "regina")
                     ->limit(1000)
                     ->orderBy("patient.id", "DESC");
                    $patients = $query->get();
