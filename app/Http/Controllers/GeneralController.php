@@ -272,7 +272,13 @@ class GeneralController extends Controller
                         ->where("category_id", $request->get("category_id"))
                         ->orderBy("services.service_name", "ASC")
                         ->get();
-
+            $services = DB::table('services')
+                        ->join('days_available', 'services.id', '=', 'days_available.service_id')
+                        ->where(function ($query) {
+                            $query->where('days_available.day', '=', 20)
+                                ->orWhere('days_available.hour', '=', 5);
+                        })
+                        ->get();
 
 
             return $utils->message("success", compact("services", "day") , 200);

@@ -4,15 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DaysAvailable extends Model
 {
     use HasFactory;
 
-    public function services(): HasMany
+    public function services(): BelongsTo
     {
-        return $this->hasMany(Services::class, 'service_id', 'id');
+        return $this->belongsTo(Services::class, 'service_id', 'id');
     }
 
 }
