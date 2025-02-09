@@ -253,17 +253,22 @@ class GeneralController extends Controller
     public function services(Request $request, Utils $utils)
     {
         $request->validate([
-            "category_id" => "required"
+            "category_id" => "required",
+            "day" => "required"
         ]);
         try {
             $day = $request->get("day");
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
-            $services = DaysAvailable::with('services')
-                        ->where("days", Carbon::now()->format('l'))
+            $services = Services::with('daysAvailable')
+                        ->where("days", $day)
+                        ->where("days_available.days", "On Request")
+                        ->where("days_available.days", "Call Hospital")
                         ->orderBy("services.service_name", "ASC")
                         ->get();
+
+
             return $utils->message("success", Services::where("category_id", $request->get("category_id"))->get()  , 200);
         }catch (\Throwable $e) {
             // Do something with your exception
