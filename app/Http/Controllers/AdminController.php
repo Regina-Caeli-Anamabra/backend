@@ -130,7 +130,7 @@ class AdminController extends Controller
     public function getPatients(Utils $utils)
     {
         try {
-            $patients = DB::table('users')
+        return    $patients = DB::table('users')
                         ->join('patient', 'patient.user_id', '=', 'users.id')
                         ->where(function ($query) {
                             $query->where("users.username", "!=", "regina")
