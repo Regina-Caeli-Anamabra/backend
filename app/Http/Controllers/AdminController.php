@@ -130,8 +130,9 @@ class AdminController extends Controller
     public function getPatients(Utils $utils)
     {
         try {
-            $query = DB::table('users')
+           return $query = DB::table('users')
                     ->join('patient', 'patient.user_id', '=', 'users.id')
+                    ->where("role", "!=", "regina")
                     ->orderBy("users.id", "DESC");
                    $patients = $query->get();
 
