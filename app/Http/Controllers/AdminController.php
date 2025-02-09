@@ -130,7 +130,15 @@ class AdminController extends Controller
     public function getPatients(Utils $utils)
     {
         try {
-            $patients = User::with(['patient'])->where("username", "!=", "regina")->orderBy("created_at", "DESC")->limit(1000)->get();
+            $patients = DB::table('users')
+                        ->join('patient', 'patient.user_id', '=', 'users.id')
+                        ->where(function ($query) {
+                            $query->where("users.username", "!=", "regina");
+                        })
+                        ->orderBy("users.created_at", "DESC")
+                        ->limit(100)
+                        ->get();
+
             $patients = PatientResource::collection($patients);
             return $utils->message("success", $patients  , 200);
 
