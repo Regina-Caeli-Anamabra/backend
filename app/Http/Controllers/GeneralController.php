@@ -264,15 +264,14 @@ class GeneralController extends Controller
 
             $day = Carbon::now()->format('l');
             $services = Services::with('daysAvailable')
-                ->where("days", $day)
-                ->where(function($query) use ($day){
-                    $query->where("days_available.days", "On Request")
-                        ->orWhere("days_available.days",  $day)
-                        ->orWhere("days_available.days", "Call Hospital");
-                })
-                ->where("category_id", $request->get("category_id"))
-                ->orderBy("services.service_name", "ASC")
-                ->get();
+                        ->where(function($query) use ($day){
+                            $query->where("days_available.days", "On Request")
+                                ->orWhere("days_available.days",  $day)
+                                ->orWhere("days_available.days", "Call Hospital");
+                        })
+                        ->where("category_id", $request->get("category_id"))
+                        ->orderBy("services.service_name", "ASC")
+                        ->get();
 
 
 
