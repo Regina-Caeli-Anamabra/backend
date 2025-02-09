@@ -131,10 +131,10 @@ class AdminController extends Controller
     {
         try {
             $query = DB::table('users')
-                                ->join('patient', 'patient.user_id', '=', 'users.id')
+                    ->join('patient', 'patient.user_id', '=', 'users.id')
+                    ->orderBy("users.id", "DESC");
+                   $patients = $query->get();
 
-                                ->orderBy("users.id", "DESC");
-                               $patients = $query->get();
             $patients = PatientResource::collection($patients);
             return $utils->message("success", $patients  , 200);
 
