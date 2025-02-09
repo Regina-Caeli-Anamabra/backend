@@ -130,13 +130,14 @@ class AdminController extends Controller
     public function getPatients(Utils $utils)
     {
         try {
-                    $patients = DB::table('users')
-                        ->join('patient', 'patient.user_id', '=', 'users.id')
-                        ->where(function ($query) {
-                            $query->where("users.username", "!=", "regina");
-                        })
-                        ->orderBy("users.id", "DESC")
-                        ->get();
+            $query = DB::table('users')
+                                ->join('patient', 'patient.user_id', '=', 'users.id')
+                                ->where(function ($query) {
+                                    $query->where("users.username", "!=", "regina");
+                                })
+                                ->orderBy("users.id", "DESC");
+                               $patients = $query->get();
+                            dd($query->toSql(), $query->getBindings());
 
             $patients = PatientResource::collection($patients);
             return $utils->message("success", $patients  , 200);
