@@ -135,8 +135,7 @@ class AdminController extends Controller
                         ->where(function ($query) {
                             $query->where("users.username", "!=", "regina");
                         })
-                        ->orderBy("users.created_at", "DESC")
-                        ->limit(100)
+                        ->orderBy("users.id", "DESC")
                         ->get();
 
             $patients = PatientResource::collection($patients);
