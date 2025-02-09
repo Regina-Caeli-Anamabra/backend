@@ -133,8 +133,7 @@ class AdminController extends Controller
         return    $patients = DB::table('users')
                         ->join('patient', 'patient.user_id', '=', 'users.id')
                         ->where(function ($query) {
-                            $query->where("users.username", "!=", "regina")
-                                ->where("patient.moved", 1);
+                            $query->where("users.username", "!=", "regina");
                         })
                         ->orderBy("users.created_at", "DESC")
                         ->limit(100)
