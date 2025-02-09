@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class GeneralController extends Controller
@@ -261,15 +262,22 @@ class GeneralController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
+
+            $day = Carbon::now()->format('l');
             $services = Services::with('daysAvailable')
-                        ->where("days", $day)
-                        ->where("days_available.days", "On Request")
-                        ->where("days_available.days", "Call Hospital")
-                        ->orderBy("services.service_name", "ASC")
-                        ->get();
+                ->where("days", $day)
+                ->where(function($query) use ($day){
+                    $query->where("days_available.days", "On Request")
+                        ->orWhere("days_available.days",  $day)
+                        ->orWhere("days_available.days", "Call Hospital");
+                })
+                ->where("category_id", $request->get("category_id"))
+                ->orderBy("services.service_name", "ASC")
+                ->get();
 
 
-            return $utils->message("success", Services::where("category_id", $request->get("category_id"))->get()  , 200);
+
+            return $utils->message("success", compact("services", "day") , 200);
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);
