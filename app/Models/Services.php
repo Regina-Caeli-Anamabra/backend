@@ -31,7 +31,7 @@ class Services extends Model
 
     public function payments(): HasMany
     {
-        return $this->hasMany('App\Models\FlutterwavePayment');
+        return $this->hasMany('App\Models\Payments', 'service_id');
     }
 
 }
