@@ -59,39 +59,17 @@ services:
             - mysql_db
         networks:
             - mysql_network
-
-    redis:
-        image: redis:alpine  # Added Redis service
-        container_name: regina_redis
-        restart: unless-stopped
+    python_sync_database:
+        build: python/
         ports:
-            - "6379:6379"
-        networks:
-            - mysql_network
-
-    queue_worker:
-        build:
-            context: .  # Build the image from the Dockerfile in the current directory
-            dockerfile: Dockerfile # Use the Laravel app container for queue worker
-        container_name: regina_queue_worker
-        command: php artisan queue:work  # Tells entrypoint.sh to start the queue worker
+            - "5000:5000"
+        environment:
+            - MYSQL_DATABASE=${DB_DATABASE}
+            - MYSQL_ROOT_PASSWORD=${DB_MASTER_PASSWORD}
+            - MYSQL_USER=${DB_USERNAME}
+            - MYSQL_PASSWORD=${DB_PASSWORD}
         depends_on:
-            - redis
             - mysql_db
-            - regina_app
-        networks:
-            - mysql_network
-
-
-    horizon:
-        build:
-            context: .  # Build the image from the Dockerfile in the current directory
-            dockerfile: Dockerfile
-        container_name: laravel-horizon
-        volumes:
-            - .:/app
-        depends_on:
-            - redis
         networks:
             - mysql_network
 volumes:

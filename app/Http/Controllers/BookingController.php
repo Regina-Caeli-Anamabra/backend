@@ -507,6 +507,12 @@ class BookingController extends Controller
      *         description="trx_id",
      *         @OA\Schema(type="integer")
      *     ),
+     *     @OA\Parameter(
+     *         name="interval",
+     *         in="query",
+     *         description="interval",
+     *         @OA\Schema(type="integer")
+     *     ),
      *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
@@ -520,7 +526,8 @@ class BookingController extends Controller
             "booking_start" => "required",
             "booking_type" => "required",
             "service_id" => "required|int",
-            "booking_for_self" => "required|int"
+            "booking_for_self" => "required|int",
+            "interval" => "required|int"
         ]);
 
 
@@ -529,21 +536,23 @@ class BookingController extends Controller
 
         $user_id =  auth('sanctum')->user()->id;
         try {
-                $payment_id = $request->get("payment_id");
-                $booking_start = Carbon::parse($request->get("booking_start"));
-                $booking_start_formatted =  $booking_start->format("Y-m-d H:i");
-                $booking_end =  $booking_start->copy()->addMinute(45)->format("Y-m-d H:i");
+            $interval = $request->get("interval");
+            $payment_id = $request->get("payment_id");
+            $booking_start = Carbon::parse($request->get("booking_start"));
+            $booking_start_formatted =  $booking_start->format("Y-m-d H:i");
+            $booking_end =  $booking_start->copy()->addMinute($interval)->format("Y-m-d H:i");
 
 //                if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
 //                    return $utils->message("error","The session is already booked." , 400);
-
 
             $amount = Services::where("id", $request->get("service_id"))->value("amount");
             $name = Services::where("id", $request->get("service_id"))->value("name");
             $service_id = $request->get("service_id");
             $recipient_id = $request->get("booked_by_id");
+            $appointment_type = $request->get("booking_type");
 
-            if ($request->get("booking_type") == "New") {
+
+            if ($appointment_type== "New") {
                 $transaction_id = $request->get("trx_id");
                 $paymentData = $utils->validatePayment($transaction_id);
                 $data = [
@@ -602,6 +611,7 @@ class BookingController extends Controller
                     $booking->user_id = $user_id;
                     $booking->booking_for_self = $request->get("booking_for_self");
                     $booking->recipient_id = $recipient_id;
+                    $booking->appointment_type = $appointment_type;
                     $booking->save();
                     $id_from_payment = $this->addPayment($utils, $user_id, $payment_id, $booking->id, $amount, $service_id, $name);
 
@@ -620,6 +630,7 @@ class BookingController extends Controller
                 $booking->user_id = $user_id;
                 $booking->booking_for_self = $request->get("booking_for_self");
                 $booking->recipient_id = $recipient_id;
+                $booking->appointment_type = $appointment_type;
                 $booking->save();
             }
         }catch (\Throwable $e) {
