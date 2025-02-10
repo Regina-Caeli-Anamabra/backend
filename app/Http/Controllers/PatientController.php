@@ -72,7 +72,7 @@ class PatientController extends Controller
            return $payments = DB::table('flutterwave_payments')
                 ->join('services', 'flutterwave_payments.service_id', '=', 'services.id')
                 ->limit(1000)
-                ->orderBy("payments.id", "DESC")
+                ->orderBy("flutterwave_payments.id", "DESC")
                 ->get();
 
              $data = [
