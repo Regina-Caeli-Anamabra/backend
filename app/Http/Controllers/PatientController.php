@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Mockery\Exception;
@@ -67,10 +68,14 @@ class PatientController extends Controller
 
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
-            $patient = Payments::with("patients")->get();
-             PaymentResource::collection($patient);
+
+            $query = DB::table(' payments')
+                ->join('services', 'payment.service_id', '=', 'services.id')
+                ->limit(1000)
+                ->orderBy("payments.id", "DESC");
+            $payments = $query->get();
              $data = [
-                 "payments" => PaymentResource::collection($patient),
+                 "payments" => PaymentResource::collection($payments),
                  "total" => number_format(Payments::sum("amount"), 2)
              ];
 
