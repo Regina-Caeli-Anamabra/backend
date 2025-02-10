@@ -496,6 +496,12 @@ class BookingController extends Controller
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Parameter(
+     *         name="booking_type",
+     *         in="query",
+     *         description="New or Reschedule",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
      *         name="trx_id",
      *         in="query",
      *         description="trx_id",
@@ -512,10 +518,9 @@ class BookingController extends Controller
 
         $request->validate([
             "booking_start" => "required",
+            "booking_type" => "required",
             "service_id" => "required|int",
-            "booking_for_self" => "required|int",
-            "payment_id" => "required",
-            "trx_id" => "required"
+            "booking_for_self" => "required|int"
         ]);
 
 
@@ -532,8 +537,15 @@ class BookingController extends Controller
 //                if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
 //                    return $utils->message("error","The session is already booked." , 400);
 
-            $transaction_id = $request->get("trx_id");
-                $paymentData =  $utils->validatePayment($transaction_id);
+
+            $amount = Services::where("id", $request->get("service_id"))->value("amount");
+            $name = Services::where("id", $request->get("service_id"))->value("name");
+            $service_id = $request->get("service_id");
+            $recipient_id = $request->get("booked_by_id");
+
+            if ($request->get("booking_type") == "New") {
+                $transaction_id = $request->get("trx_id");
+                $paymentData = $utils->validatePayment($transaction_id);
                 $data = [
                     "transaction_id" => $request->get("transaction_id"),
                     "user_id" => $user_id,
@@ -542,8 +554,8 @@ class BookingController extends Controller
                     "payment_info" => $paymentData,
                 ]; #######
                 Log::info("Payment Completed", $data);
-                if(empty($paymentData["data"]))
-                    return $utils->message("error","Invalid Transaction ID." , 400);
+                if (empty($paymentData["data"]))
+                    return $utils->message("error", "Invalid Transaction ID.", 400);
 
                 if ($paymentData["data"]["status"] == "successful") {
 
@@ -580,10 +592,6 @@ class BookingController extends Controller
                     Log::info("Flutterwave Completed", $paymentData);
 
 
-                    $amount = Services::where("id", $request->get("service_id"))->value("amount");
-                    $name = Services::where("id", $request->get("service_id"))->value("name");
-                    $service_id = $request->get("service_id");
-                    $recipient_id = $request->get("booked_by_id");
                     $booking = new Bookings();
                     $booking->flutterwave_id = $payment_id;
                     $booking->session_start = $booking_start_formatted;
@@ -600,6 +608,20 @@ class BookingController extends Controller
 
                     return $utils->message("success", $booking, 200);
                 }
+            }else{
+
+                $booking = new Bookings();
+                $booking->flutterwave_id = $payment_id;
+                $booking->session_start = $booking_start_formatted;
+                $booking->service_id = $service_id;
+                $booking->identity = Utils::generateCode("bookings");
+                $booking->price = $amount;
+                $booking->session_end = $booking_end;
+                $booking->user_id = $user_id;
+                $booking->booking_for_self = $request->get("booking_for_self");
+                $booking->recipient_id = $recipient_id;
+                $booking->save();
+            }
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);

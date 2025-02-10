@@ -15,7 +15,6 @@ use App\Models\User;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Mockery\Exception;
@@ -68,15 +67,10 @@ class PatientController extends Controller
 
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
-
-            $payments = DB::table('flutterwave_payments')
-                ->join('services', 'flutterwave_payments.service_id', '=', 'services.id')
-                ->limit(1000)
-                ->orderBy("flutterwave_payments.id", "DESC")
-                ->get();
-
+            $patient = Payments::with("patients")->get();
+             PaymentResource::collection($patient);
              $data = [
-                 "payments" => PaymentResource::collection($payments),
+                 "payments" => PaymentResource::collection($patient),
                  "total" => number_format(Payments::sum("amount"), 2)
              ];
 
