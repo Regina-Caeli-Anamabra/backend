@@ -287,7 +287,7 @@ class GeneralController extends Controller
 
     /**
      * @OA\Get (
-     *     path="/api/v1/dashboard-services",
+     *     path="/api/v1/patient/dashboard-services",
      *      tags={"General"},
      *       security={
      *            {"sanctum": {}},
