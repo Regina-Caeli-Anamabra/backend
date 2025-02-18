@@ -318,6 +318,7 @@ class GeneralController extends Controller
                                 ->orWhere("days_available.days", "Call Hospital");
                         })
                         ->orderBy("services.id", "ASC")
+                        ->limit(3)
                         ->get();
 
 
