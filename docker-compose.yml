@@ -43,7 +43,6 @@ services:
             - 8030:8000
         depends_on:
             - mysql_db
-            - redis  # Added Redis dependency for the app
         networks:
             - mysql_network
 

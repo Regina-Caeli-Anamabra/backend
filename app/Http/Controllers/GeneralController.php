@@ -258,6 +258,8 @@ class GeneralController extends Controller
         ]);
         try {
             $day = $request->get("day");
+            $category_id = $request->get("category_id");
+            $serviceId = Categories::where("identity", $category_id)->value("id");
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
@@ -280,6 +282,8 @@ class GeneralController extends Controller
                                 ->orWhere("days_available.days",  $day)
                                 ->orWhere("days_available.days", "Call Hospital");
                         })
+                        ->where("service.id", $serviceId)
+                        ->orderBy("services.id", "ASC")
                         ->get();
 
 

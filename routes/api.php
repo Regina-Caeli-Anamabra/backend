@@ -22,7 +22,23 @@ use Illuminate\Support\Facades\DB;
 */
 #########################
 ################################################
+
+
+Route::get('/update-services-now', function(){
+
+    $categories = Services::all();
+    $util = new App\Utils\Utils();
+    foreach($categories as $category){
+        echo $category->id;
+        $service = Services::find($category->id);
+        $service->identity = $util->generateCramp("service");
+        $service->update();
+    }
+});
+
+
 Route::get('/re-arrange/category', function(){
+    return 1;
     $categories = Category::all();
     foreach($categories as $category){
         if (Categories::where("name", $category->name)->value("name") == $category->name) {
@@ -34,8 +50,9 @@ Route::get('/re-arrange/category', function(){
     }
 });
 
-Route::get('/move-patient-to-users', function(){
 
+Route::get('/move-patient-to-users', function(){
+return 1;
     echo "Starting Job Processing";
     \App\Jobs\MovePatientsToUsers::dispatch()->delay(\Carbon\Carbon::now()->addSecond(5));;
     return response()->json(['message' => 'Patients are being processed']);
@@ -106,5 +123,7 @@ Route::group(['prefix' => 'v1/admin'], function () {
         Route::get('/get-payments', ['App\Http\Controllers\PatientController', 'getPayments']);
         Route::post('/search-patient', ['App\Http\Controllers\PatientController', 'searchPatient']);
         Route::post('/search-booking', ['App\Http\Controllers\PatientController', 'searchBooking']);
+        Route::get('/get-service/{identity}', ['App\Http\Controllers\PatientController', 'getService']);
+        Route::post('/update-service', ['App\Http\Controllers\PatientController', 'updateService']);
     });
 });

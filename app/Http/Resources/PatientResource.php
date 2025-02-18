@@ -20,7 +20,8 @@ class PatientResource extends JsonResource
             "gender" => $this->gender ?? null,
             "patient_id" => $this->system_id ?? null,
             "marital_status" => $this->marital_status ?? null,
-            "address_of_residence" => $this->address ?? null
+            "address_of_residence" => $this->address ?? null,
+            "reg_id" => $this->reg_id ?? null
         ];
     }
 }

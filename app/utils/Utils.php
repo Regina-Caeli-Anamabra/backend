@@ -13,6 +13,28 @@ use PHPUnit\Util\Json;
 class Utils
 {
 
+    public static function generateCramp($type) :string
+    {
+        $mt = explode(' ', microtime());
+        $rand = time() . rand(10, 99);
+        $time = ((int)$mt[1]) * 1000000 + ((int)round($mt[0] * 1000000));
+        $generated = $rand . $time;
+
+        switch ($type) {
+            case "comments" :
+                return "3060" . $generated;
+                break;
+            case "service" :
+                return "3061" . $generated;
+                break;
+            case "user" :
+                return "3062" . $generated;
+                break;
+            default:
+                return "3069" . $generated;
+                break;
+        }
+    }
     public static function generateCode($type)
     {
         $mt = explode(' ', microtime());

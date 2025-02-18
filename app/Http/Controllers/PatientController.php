@@ -11,6 +11,7 @@ use App\Models\Bookings;
 use App\Models\FlutterwavePayment;
 use App\Models\Patients;
 use App\Models\Payments;
+use App\Models\Services;
 use App\Models\User;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
@@ -21,6 +22,29 @@ use Mockery\Exception;
 
 class PatientController extends Controller
 {
+    public function updateService(Request $request, Utils $utils)
+    {
+        $identity = $request->get("identity");
+        $name = $request->get("name");
+        $amount = $request->get("amount");
+
+        $services = Services::where("identity", $identity)->firstOrFail();
+        $services->service_name = $name;
+        $services->service_fee = $amount;
+        $services->update();
+        return $utils->message("success",$services , 200);
+    }
+    public function getService($identity, Request $request, Utils $utils)
+    {
+        try {
+            $services = Services::where("identity", $identity)->firstOrFail();
+
+            return $utils->message("success", $services  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
     public function searchPatient(Request $request, Utils $utils)
     {
 
