@@ -63,7 +63,6 @@ return 1;
 
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], function () {
-    Route::get('/dashboard-services', ['App\Http\Controllers\GeneralController', 'dashboardServices']);
     Route::get('/generate-url', ['App\Http\Controllers\BookingController', 'generateUrl']);
     Route::get('/cancelled', ['App\Http\Controllers\BookingController', 'cancelAppointment']);
     Route::get('/get-payment', ['App\Http\Controllers\BookingController', 'getPayment']);
@@ -90,6 +89,8 @@ Route::group(['prefix' => 'v1'], function () {
     Route::patch('/password/update', ['App\Http\Controllers\Auth\AuthController', 'updatePassword']);
     Route::get('/resend-email', ['App\Http\Controllers\Auth\AuthController', 'resendEmail']);
     Route::get('/resend-sms', ['App\Http\Controllers\Auth\AuthController', 'sendSMS']);
+    Route::get('/dashboard-services', ['App\Http\Controllers\GeneralController', 'dashboardServices']);
+
     Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/get-live-encryption-key', ['App\Http\Controllers\GeneralController', 'getLiveEncryptionKey']);
         Route::get('/get-live-secret-key', ['App\Http\Controllers\GeneralController', 'getLiveSecretKey']);
