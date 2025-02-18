@@ -300,9 +300,6 @@ class GeneralController extends Controller
      */
     public function dashboardServices(Request $request, Utils $utils)
     {
-        $request->validate([
-            "category_id" => "required"
-        ]);
         try {
             $day = $request->get("day");
             $category_id = $request->get("category_id");
