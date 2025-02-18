@@ -265,15 +265,6 @@ class GeneralController extends Controller
 
 
             $day = Carbon::now()->format('l');
-//            $services = Services::with('daysAvailable')
-//                        ->where(function($query) use ($day){
-//                            $query->where("days_available.days", "On Request")
-//                                ->orWhere("days_available.days",  $day)
-//                                ->orWhere("days_available.days", "Call Hospital");
-//                        })
-//                        ->where("category_id", $request->get("category_id"))
-//                        ->orderBy("services.service_name", "ASC")
-//                        ->get();
 
             $services = DB::table('services')
                         ->join('days_available', 'services.id', '=', 'days_available.service_id')
@@ -283,6 +274,52 @@ class GeneralController extends Controller
                                 ->orWhere("days_available.days", "Call Hospital");
                         })
                         ->where("services.id", $serviceId)  // Corrected 'services.id'
+                        ->orderBy("services.id", "ASC")
+                        ->get();
+
+
+            return $utils->message("success", compact("services", "day") , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/dashboard-services",
+     *      tags={"General"},
+     *       security={
+     *            {"sanctum": {}},
+     *        },
+     *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *
+     * )
+     */
+    public function dashboardServices(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "category_id" => "required"
+        ]);
+        try {
+            $day = $request->get("day");
+            $category_id = $request->get("category_id");
+            $serviceId = Categories::where("identity", $category_id)->value("id");
+            if(!auth('sanctum')->check())
+                return $utils->message("error","Unauthorized Access." , 401);
+
+
+            $day = Carbon::now()->format('l');
+
+            $services = DB::table('services')
+                        ->join('days_available', 'services.id', '=', 'days_available.service_id')
+                        ->where(function ($query) use ($day) {
+                            $query->where("days_available.days", "On Request")
+                                ->orWhere("days_available.days", $day)
+                                ->orWhere("days_available.days", "Call Hospital");
+                        })
                         ->orderBy("services.id", "ASC")
                         ->get();
 

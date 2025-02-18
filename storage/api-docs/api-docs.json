@@ -5,6 +5,96 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/v1/resend-email": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "5de46ede4850a0d33768340ac15e258e",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification successful"
+                    },
+                    "404": {
+                        "description": "Code Not Found"
+                    }
+                }
+            }
+        },
+        "/api/v1/resend-sms": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "b4efb1a0febf7958dbd3db91261b4512",
+                "parameters": [
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "description": "phone",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "send sms"
+                    },
+                    "404": {
+                        "description": "Code Not Found"
+                    }
+                }
+            }
+        },
+        "/api/v1/verify-password-reset-code": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "96d43d9da399da7320bedfa113ddb72f",
+                "parameters": [
+                    {
+                        "name": "options",
+                        "in": "query",
+                        "description": "email or phone",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "code",
+                        "in": "query",
+                        "description": "code",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification successful"
+                    },
+                    "404": {
+                        "description": "Code Not Found"
+                    }
+                }
+            }
+        },
         "/api/v1/send-forgot-password-code": {
             "post": {
                 "tags": [
@@ -15,7 +105,7 @@
                     {
                         "name": "options",
                         "in": "query",
-                        "description": "options",
+                        "description": "email or phone",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -63,7 +153,7 @@
                         "description": "code",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -77,13 +167,85 @@
                 }
             }
         },
-        "/api/v1/patient/password/update": {
+        "/api/v1/password/update": {
             "patch": {
                 "tags": [
                     "Auth"
                 ],
-                "operationId": "23c3fefdcf7f8361f081c009e6630bad",
+                "operationId": "0ff0aa2df41fc288ac2f147b2aaec840",
                 "parameters": [
+                    {
+                        "name": "options",
+                        "in": "query",
+                        "description": "options",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "password",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "confirm_password",
+                        "in": "query",
+                        "description": "confirm_password",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/patient/inner/password/update": {
+            "patch": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "f4cdfab65e2af067e7f3451563345855",
+                "parameters": [
+                    {
+                        "name": "old_password",
+                        "in": "query",
+                        "description": "password",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     {
                         "name": "password",
                         "in": "query",
@@ -141,250 +303,159 @@
                 "tags": [
                     "Auth"
                 ],
+                "summary": "User Registration",
+                "description": "Registers a new user with the provided information.",
                 "operationId": "3d19ea7b4db60be23e539bf19c4e1232",
-                "parameters": [
-                    {
-                        "name": "username",
-                        "in": "query",
-                        "description": "username",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "password",
-                        "in": "query",
-                        "description": "Password",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "first_name",
-                        "in": "query",
-                        "description": "first_name",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "last_name",
-                        "in": "query",
-                        "description": "last_name",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "phone",
-                        "in": "query",
-                        "description": "phone",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "email",
-                        "in": "query",
-                        "description": "email",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "address",
-                        "in": "query",
-                        "description": " address",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "gender",
-                        "in": "query",
-                        "description": "gender",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "marital_status",
-                        "in": "query",
-                        "description": "marital_status",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "religion",
-                        "in": "query",
-                        "description": "religion",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "preferred_language",
-                        "in": "query",
-                        "description": "religion",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "nationality",
-                        "in": "query",
-                        "description": "nationality",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "state",
-                        "in": "query",
-                        "description": "state",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "lga",
-                        "in": "query",
-                        "description": "lga",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "town",
-                        "in": "query",
-                        "description": "town",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "card_number",
-                        "in": "query",
-                        "description": "card_number",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "next_of_kin",
-                        "in": "query",
-                        "description": "next_of_kin",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "next_of_kin_phone",
-                        "in": "query",
-                        "description": "next_of_kin_phone",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "nature_of_relationship",
-                        "in": "query",
-                        "description": "nature_of_relationship",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "date_of_birth",
-                        "in": "query",
-                        "description": "date_of_birth",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "insurance_number",
-                        "in": "query",
-                        "description": "insurance_number",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "ward",
-                        "in": "query",
-                        "description": "ward",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "state_of_residence",
-                        "in": "query",
-                        "description": "state_of_residence",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "address_of_residence",
-                        "in": "query",
-                        "description": "address_of_residence",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "register_for_self",
-                        "in": "query",
-                        "description": "1 = register for self, 0 = register for another person",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "auth_type",
-                        "in": "query",
-                        "description": "EMAIL OR SMS",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "registerer_user_id",
-                        "in": "query",
-                        "description": "registerer_user_id",
-                        "schema": {
-                            "type": "string"
+                "requestBody": {
+                    "description": "User registration data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password",
+                                    "first_name",
+                                    "last_name",
+                                    "phone",
+                                    "email",
+                                    "gender",
+                                    "marital_status",
+                                    "religion",
+                                    "nationality",
+                                    "state",
+                                    "state_of_residence",
+                                    "address_of_residence",
+                                    "address_of_next_of_kin",
+                                    "register_for_self",
+                                    "auth_type"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "description": "Username",
+                                        "type": "string",
+                                        "example": "johndoe"
+                                    },
+                                    "password": {
+                                        "description": "Password",
+                                        "type": "string",
+                                        "example": "strongpassword123"
+                                    },
+                                    "first_name": {
+                                        "description": "First Name",
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "middle_name": {
+                                        "description": "Middle Name",
+                                        "type": "string",
+                                        "example": "Victor"
+                                    },
+                                    "last_name": {
+                                        "description": "Last Name",
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "phone": {
+                                        "description": "Phone number",
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    },
+                                    "email": {
+                                        "description": "Email",
+                                        "type": "string",
+                                        "example": "johndoe@example.com"
+                                    },
+                                    "gender": {
+                                        "description": "Gender",
+                                        "type": "string",
+                                        "example": "Male"
+                                    },
+                                    "marital_status": {
+                                        "description": "Marital Status",
+                                        "type": "string",
+                                        "example": "Single"
+                                    },
+                                    "religion": {
+                                        "description": "Religion",
+                                        "type": "string",
+                                        "example": "Christianity"
+                                    },
+                                    "nationality": {
+                                        "description": "Nationality",
+                                        "type": "string",
+                                        "example": "161"
+                                    },
+                                    "state": {
+                                        "description": "State of Origin",
+                                        "type": "string",
+                                        "example": "Lagos"
+                                    },
+                                    "next_of_kin": {
+                                        "description": "Next of Kin",
+                                        "type": "string",
+                                        "example": "Jane Doe",
+                                        "nullable": true
+                                    },
+                                    "next_of_kin_phone": {
+                                        "description": "Next of Kin Phone",
+                                        "type": "string",
+                                        "example": "+2348012345678",
+                                        "nullable": true
+                                    },
+                                    "nature_of_relationship": {
+                                        "description": "Nature of Relationship",
+                                        "type": "string",
+                                        "example": "Sister",
+                                        "nullable": true
+                                    },
+                                    "date_of_birth": {
+                                        "description": "Date of Birth",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "1990-01-01",
+                                        "nullable": true
+                                    },
+                                    "state_of_residence": {
+                                        "description": "State of Residence",
+                                        "type": "string",
+                                        "example": "Lagos"
+                                    },
+                                    "address_of_residence": {
+                                        "description": "Address of Residence",
+                                        "type": "string",
+                                        "example": "123 Main Street, Lagos"
+                                    },
+                                    "address_of_next_of_kin": {
+                                        "description": "Address of Next of Kin",
+                                        "type": "string",
+                                        "example": "456 Another Street, Lagos"
+                                    },
+                                    "register_for_self": {
+                                        "description": "1 = register for self, 0 = register for another person",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "auth_type": {
+                                        "description": "Auth type, either EMAIL or SMS",
+                                        "type": "string",
+                                        "example": "EMAIL"
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
-                ],
+                },
                 "responses": {
                     "200": {
                         "description": "Registration successful",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {},
+                                "example": {
+                                    "message": "Registration successful"
+                                }
                             }
                         }
                     },
@@ -392,15 +463,24 @@
                         "description": "Invalid credentials",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {},
+                                "example": {
+                                    "error": "Invalid credentials"
+                                }
                             }
                         }
                     },
                     "422": {
-                        "description": "validation Error",
+                        "description": "Validation Error",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {},
+                                "example": {
+                                    "error": "Validation failed",
+                                    "details": {
+                                        "username": "This field is required"
+                                    }
+                                }
                             }
                         }
                     }
@@ -421,7 +501,7 @@
                         "description": "code",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -462,9 +542,9 @@
                 "operationId": "15400f94bfe16d4952aa545606939fc2",
                 "parameters": [
                     {
-                        "name": "username",
+                        "name": "phone",
                         "in": "query",
-                        "description": "Username",
+                        "description": "Phone",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -508,6 +588,27 @@
                 }
             }
         },
+        "/api/v1/refresh-token": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "4a509a8aff1c73e351bf9aac3c97a854",
+                "responses": {
+                    "200": {
+                        "description": "Verification successful"
+                    },
+                    "404": {
+                        "description": "Code Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/logout": {
             "get": {
                 "tags": [
@@ -517,7 +618,7 @@
                 "operationId": "39f13ab593b99e98cae286d8e71e1444",
                 "responses": {
                     "200": {
-                        "description": "Login successful",
+                        "description": "logout successful",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -534,6 +635,219 @@
                     },
                     "422": {
                         "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/patient/reschedule": {
+            "get": {
+                "summary": "Reschedule",
+                "operationId": "9dd67c1464bcb697a3a2e8a34bd19d0c",
+                "parameters": [
+                    {
+                        "name": "identity",
+                        "in": "query",
+                        "description": "identity",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "83383738383"
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "description": "start Time",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "2024-12-02 10:02"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Reschedule Booking",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/patient/cancel-booking": {
+            "get": {
+                "summary": "Get States",
+                "operationId": "2db1e5fdb9fdf7f57e2e80fc2f78ef06",
+                "parameters": [
+                    {
+                        "name": "identity",
+                        "in": "query",
+                        "description": "identity",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "83383738383"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Cancel Booking [ 0 = Active, 1 = Cancelled]",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/patient/get-payment": {
+            "get": {
+                "summary": "Get States",
+                "operationId": "34d9df94aa90728558feb96b114ef877",
+                "parameters": [
+                    {
+                        "name": "identity",
+                        "in": "query",
+                        "description": "identity",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "83383738383"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Get Payment",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "States not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/patient/next-appointment": {
+            "get": {
+                "tags": [
+                    "Booking"
+                ],
+                "operationId": "73b4e6e68ee9bfb43d8bafd29612801f",
+                "responses": {
+                    "200": {
+                        "description": "Next Appoint",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Appointment Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Booking already exists",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -595,44 +909,18 @@
                 ]
             }
         },
-        "/api/v1/patient/add-a-session": {
+        "/api/v1/patient/cancel-payment": {
             "post": {
                 "tags": [
                     "Booking"
                 ],
-                "operationId": "502d9a7996aa3e2205330d074f8decfc",
+                "operationId": "502f2889092516450d516e49a77beb6d",
                 "parameters": [
                     {
-                        "name": "booking_start",
+                        "name": "payment_id                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ",
                         "in": "query",
-                        "description": "booking_start",
+                        "description": "2024-04-29 18:00:00",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "service_id",
-                        "in": "query",
-                        "description": "service_id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "booking_for_self",
-                        "in": "query",
-                        "description": "booking_for_self",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "booked_by_id",
-                        "in": "query",
-                        "description": "booked_by_id",
                         "schema": {
                             "type": "string"
                         }
@@ -679,12 +967,735 @@
                 ]
             }
         },
+        "/api/v1/patient/get-categories": {
+            "get": {
+                "tags": [
+                    "Booking"
+                ],
+                "operationId": "53bb3f59a92c64a8e8741c74f3f2486f",
+                "parameters": [
+                    {
+                        "name": "service_id",
+                        "in": "query",
+                        "description": "",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Booking successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Code Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Booking already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/patient/generate-url": {
+            "get": {
+                "tags": [
+                    "Booking"
+                ],
+                "operationId": "565c281f7e93d8cbb2565e36fbb9ea56",
+                "parameters": [
+                    {
+                        "name": "service_id",
+                        "in": "query",
+                        "description": "integer",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "description": "amount",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Booking successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Code Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Booking already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/patient/add-a-session": {
+            "post": {
+                "tags": [
+                    "Booking"
+                ],
+                "operationId": "502d9a7996aa3e2205330d074f8decfc",
+                "parameters": [
+                    {
+                        "name": "booking_start",
+                        "in": "query",
+                        "description": "2024-04-29 18:00:00",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "payment_id",
+                        "in": "query",
+                        "description": "Payment id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "service_id",
+                        "in": "query",
+                        "description": "service_id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "booking_for_self",
+                        "in": "query",
+                        "description": "1 for self, 0 for someone else",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "booking_type",
+                        "in": "query",
+                        "description": "New or Reschedule",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "trx_id",
+                        "in": "query",
+                        "description": "trx_id",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "description": "interval",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Booking successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Code Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Booking already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/category": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "145792fa2dbe0831d14d5846ba66f15f",
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "States Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-test-encryption-key": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "ad9cc94fac2db35ab6f62e6eb140dabd",
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "States Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-test-public-key": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "bd69ee4a836df2243cf665d12d281d8c",
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "States Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-test-secret-key": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "bb76806b4d984f6ddbb29987033a936b",
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "States Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-live-secret-key": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "90d4e85233aadcd06f1c2b5f18ef2234",
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "States Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-live-encryption-key": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "4e1ba4d7387034ac5f686c6ba68de2b9",
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "States Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-live-public-key": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "1a72da5b464abf495ec3fbe05521af91",
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "States Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/countries": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "0a2f4721c7272cd8ceeccb3a153e8992",
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "States Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/states": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "ee3df9ea2efacdebc39935cda599d058",
+                "parameters": [
+                    {
+                        "name": "country_id",
+                        "in": "query",
+                        "description": "country_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "States Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/services": {
             "get": {
                 "tags": [
                     "General"
                 ],
                 "operationId": "99f983c7719761d99d1c7c8dd11a9741",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "category_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/dashboard-services": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "6d804f2c519b5029a85adf42956232c7",
+                "responses": {
+                    "200": {
+                        "description": "Registration successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin-services": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "44145d34e17023deae94613fe6cf1678",
+                "responses": {
+                    "200": {
+                        "description": "Registration successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/patient/profile": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "3bbf0b94cad43fde01ec2c225b628bc3",
                 "responses": {
                     "200": {
                         "description": "Registration successful",
@@ -744,36 +1755,9 @@
                         }
                     },
                     {
-                        "name": "phone",
-                        "in": "query",
-                        "description": "phone",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
                         "name": "email",
                         "in": "query",
                         "description": "email",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "gender",
-                        "in": "query",
-                        "description": "gender",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "marital_status",
-                        "in": "query",
-                        "description": "marital_status",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -784,50 +1768,6 @@
                         "in": "query",
                         "description": "religion",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "preferred_language",
-                        "in": "query",
-                        "description": "religion",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "nationality",
-                        "in": "query",
-                        "description": "nationality",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "lga",
-                        "in": "query",
-                        "description": "lga",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "town",
-                        "in": "query",
-                        "description": "town",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "card_number",
-                        "in": "query",
-                        "description": "card_number",
                         "schema": {
                             "type": "string"
                         }
@@ -849,38 +1789,6 @@
                         }
                     },
                     {
-                        "name": "nature_of_relationship",
-                        "in": "query",
-                        "description": "nature_of_relationship",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "date_of_birth",
-                        "in": "query",
-                        "description": "date_of_birth",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "insurance_number",
-                        "in": "query",
-                        "description": "insurance_number",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "ward",
-                        "in": "query",
-                        "description": "ward",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
                         "name": "state_of_residence",
                         "in": "query",
                         "description": "state_of_residence",
@@ -893,6 +1801,15 @@
                         "name": "address_of_residence",
                         "in": "query",
                         "description": "address_of_residence",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "address_of_next_of_kin",
+                        "in": "query",
+                        "description": "address_of_next_of_kin",
                         "required": true,
                         "schema": {
                             "type": "string"
