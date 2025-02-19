@@ -430,7 +430,7 @@ class BookingController extends Controller
                 "trx_id" => $trx_id,
                 "service_id" => $service_id,
                 "user_id" => $user_id,
-                "service" => Services::where("id", $service_id)->value("name"),
+                "service" => Services::where("id", $service_id)->value("service_name"),
                 "first_name" => Patients::where("user_id", $user_id)->value("firstName"),
                 "last_name" => Patients::where("user_id", $user_id)->value("lastName")
             ];
