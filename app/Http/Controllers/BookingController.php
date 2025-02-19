@@ -537,7 +537,6 @@ class BookingController extends Controller
         $user_id =  auth('sanctum')->user()->id;
         try {
             $interval = $request->get("interval");
-            $payment_id = $request->get("payment_id");
             $booking_start = Carbon::parse($request->get("booking_start"));
             $booking_start_formatted =  $booking_start->format("Y-m-d H:i");
             $booking_end =  $booking_start->copy()->addMinute($interval)->format("Y-m-d H:i");
@@ -550,6 +549,7 @@ class BookingController extends Controller
             $service_id = $request->get("service_id");
             $recipient_id = $request->get("booked_by_id");
             $appointment_type = $request->get("booking_type");
+            $payment_id =  Bookings::where("identity", $request->get("identity"))->first();
 
             $identity =  $this->generateBookingCode("bookings");
             $booking = new Bookings();
