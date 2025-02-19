@@ -553,7 +553,7 @@ class BookingController extends Controller
 
             $identity =  $this->generateBookingCode("bookings");
             $booking = new Bookings();
-            $booking->flutterwave_id = $payment->id;
+            $booking->flutterwave_id = $payment->flutterwave_id;
             $booking->session_start = $booking_start_formatted;
             $booking->service_id = $service_id;
             $booking->identity = $identity;

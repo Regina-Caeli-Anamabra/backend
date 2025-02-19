@@ -709,6 +709,104 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "tags": [
+                    "Booking"
+                ],
+                "operationId": "61cf09a71b6a0686cdd291167a307e3b",
+                "parameters": [
+                    {
+                        "name": "identity",
+                        "in": "query",
+                        "description": "identity",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "booking_start",
+                        "in": "query",
+                        "description": "2024-04-29 18:00:00",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "service_id",
+                        "in": "query",
+                        "description": "service_id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "booking_for_self",
+                        "in": "query",
+                        "description": "1 for self, 0 for someone else",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "description": "interval",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "booking_type",
+                        "in": "query",
+                        "description": "New or Reschedule",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Booking successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Code Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Booking already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/patient/cancel-booking": {
@@ -1045,6 +1143,15 @@
                         "name": "amount",
                         "in": "query",
                         "description": "amount",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "description": "interval",
                         "required": true,
                         "schema": {
                             "type": "string"
