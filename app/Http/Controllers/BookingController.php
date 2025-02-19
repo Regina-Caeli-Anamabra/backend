@@ -556,7 +556,7 @@ class BookingController extends Controller
             $booking->flutterwave_id = $payment_id;
             $booking->session_start = $booking_start_formatted;
             $booking->service_id = $service_id;
-            $booking->identity = Utils::generateCode("bookings");
+            $booking->identity = $utils->generateBookingCode("bookings");
             $booking->price = $amount;
             $booking->session_end = $booking_end;
             $booking->user_id = $user_id;
