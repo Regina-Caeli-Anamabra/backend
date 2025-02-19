@@ -476,6 +476,112 @@ class BookingController extends Controller
      *           {"sanctum": {}},
      *       },
      *     @OA\Parameter(
+     *         name="identity",
+     *         in="query",
+     *         description="2024-04-29 18:00:00",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="booking_start",
+     *         in="query",
+     *         description="2024-04-29 18:00:00",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="service_id",
+     *         in="query",
+     *         description="service_id",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="booking_for_self",
+     *         in="query",
+     *         description="1 for self, 0 for someone else",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="interval",
+     *         in="query",
+     *         description="interval",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *      @OA\Parameter(
+     *          name="booking_type",
+     *          in="query",
+     *          description="New or Reschedule",
+     *          @OA\Schema(type="string")
+     *      ),
+     *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     *     @OA\Response(response="400", description="Booking already exists", @OA\JsonContent())
+     * )
+     */
+    public function reschedule(Request $request, Utils $utils)
+    {
+
+        $request->validate([
+            "booking_start" => "required",
+            "service_id" => "required|int",
+            "interval" => "required|int",
+            "identity" => "required|int"
+        ]);
+
+
+        if(!auth('sanctum')->check())
+            return $utils->message("error","Unauthorized Access." , 401);
+
+        $user_id =  auth('sanctum')->user()->id;
+        try {
+            $interval = $request->get("interval");
+            $payment_id = $request->get("payment_id");
+            $booking_start = Carbon::parse($request->get("booking_start"));
+            $booking_start_formatted =  $booking_start->format("Y-m-d H:i");
+            $booking_end =  $booking_start->copy()->addMinute($interval)->format("Y-m-d H:i");
+
+//                if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
+//                    return $utils->message("error","The session is already booked." , 400);
+
+            $amount = Services::where("id", $request->get("service_id"))->value("amount");
+            $name = Services::where("id", $request->get("service_id"))->value("name");
+            $service_id = $request->get("service_id");
+            $recipient_id = $request->get("booked_by_id");
+            $appointment_type = $request->get("booking_type");
+
+
+            $booking = new Bookings();
+            $booking->flutterwave_id = $payment_id;
+            $booking->session_start = $booking_start_formatted;
+            $booking->service_id = $service_id;
+            $booking->identity = Utils::generateCode("bookings");
+            $booking->price = $amount;
+            $booking->session_end = $booking_end;
+            $booking->user_id = $user_id;
+            $booking->booking_for_self = $request->get("booking_for_self");
+            $booking->recipient_id = $recipient_id;
+            $booking->appointment_type = $appointment_type;
+            $booking->save();
+
+            return $utils->message("success", $booking, 200);
+
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/patient/add-a-session",
+     *      tags={"Booking"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Parameter(
      *         name="booking_start",
      *         in="query",
      *         description="2024-04-29 18:00:00",
