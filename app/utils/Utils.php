@@ -57,28 +57,6 @@ class Utils
                 break;
         }
     }
-    public  function generateBookingCode($type)
-    {
-        $mt = explode(' ', microtime());
-        $rand = time() . rand(10, 99);
-        $time = ((int)$mt[1]) * 1000000 + ((int)round($mt[0] * 1000000));
-        $generated = $rand . $time;
-
-        switch ($type) {
-            case "bookings" :
-                return "3060" . $generated;
-                break;
-            case "post" :
-                return "3061" . $generated;
-                break;
-            case "user" :
-                return "3062" . $generated;
-                break;
-            default:
-                return "3069" . $generated;
-                break;
-        }
-    }
     public function sendOTPToSMS($phone)
     {
         $verifyCode = $this->generateKey();

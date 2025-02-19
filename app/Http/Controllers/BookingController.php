@@ -551,8 +551,7 @@ class BookingController extends Controller
             $recipient_id = $request->get("booked_by_id");
             $appointment_type = $request->get("booking_type");
 
-            $ut = new Utils();
-            $identity =  $ut->generateBookingCode("bookings");
+            $identity =  $this->generateBookingCode("bookings");
             $booking = new Bookings();
             $booking->flutterwave_id = $payment_id;
             $booking->session_start = $booking_start_formatted;
@@ -575,6 +574,28 @@ class BookingController extends Controller
     }
 
 
+    public  function generateBookingCode($type)
+    {
+        $mt = explode(' ', microtime());
+        $rand = time() . rand(10, 99);
+        $time = ((int)$mt[1]) * 1000000 + ((int)round($mt[0] * 1000000));
+        $generated = $rand . $time;
+
+        switch ($type) {
+            case "bookings" :
+                return "3060" . $generated;
+                break;
+            case "post" :
+                return "3061" . $generated;
+                break;
+            case "user" :
+                return "3062" . $generated;
+                break;
+            default:
+                return "3069" . $generated;
+                break;
+        }
+    }
     /**
      * @OA\Post(
      *     path="/api/v1/patient/add-a-session",
