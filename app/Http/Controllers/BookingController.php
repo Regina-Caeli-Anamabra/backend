@@ -478,7 +478,7 @@ class BookingController extends Controller
      *     @OA\Parameter(
      *         name="identity",
      *         in="query",
-     *         description="2024-04-29 18:00:00",
+     *         description="identity",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
