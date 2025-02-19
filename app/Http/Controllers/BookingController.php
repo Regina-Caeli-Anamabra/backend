@@ -697,7 +697,7 @@ class BookingController extends Controller
                     "payment_info" => $paymentData,
                 ]; #######
                 Log::info("Payment Completed", $data);
-                if (empty($paymentData["data"]))
+                if (empty($paymentData["data"]) || $paymentData["data"] == null)
                     return $utils->message("error", "Invalid Transaction ID.", 400);
 
                 if ($paymentData["data"]["status"] == "successful") {
@@ -706,6 +706,7 @@ class BookingController extends Controller
                     $flutter->user_id = $user_id;
                     $flutter->patient_id = Patients::where("user_id", $user_id)->first()->id;
                     $flutter->trx_id = $transaction_id;
+                    $flutter->identity = $this->generateBookingCode("bookings");
                     $flutter->patient_id = Patients::where("user_id", $user_id)->value("id");
                     $flutter->account_id = $paymentData["data"]["account_id"];
                     $flutter->amount = $paymentData["data"]["amount"];
@@ -752,6 +753,9 @@ class BookingController extends Controller
 
                     return $utils->message("success", $booking, 200);
                 }
+
+            return $utils->message("error", "Network Problem. Please Try Again.", 400);
+
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);
