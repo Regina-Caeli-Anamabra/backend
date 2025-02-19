@@ -86,6 +86,7 @@ class Utils
 
     public function validatePayment($transaction_id)
     {
+        $token = env("FLWSECK");
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://api.flutterwave.com/v3/transactions/". $transaction_id."/verify",
@@ -98,7 +99,7 @@ class Utils
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => array(
                 "Content-Type: application/json",
-                "Authorization: Bearer " . env("FLWSECK")
+                "Authorization: Bearer $token"
             ),
         ));
 

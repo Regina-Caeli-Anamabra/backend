@@ -1254,7 +1254,7 @@
                         "in": "query",
                         "description": "trx_id",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
