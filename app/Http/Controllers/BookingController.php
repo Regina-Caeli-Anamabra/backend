@@ -640,7 +640,7 @@ class BookingController extends Controller
      *         name="trx_id",
      *         in="query",
      *         description="trx_id",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
      *         name="interval",
@@ -687,7 +687,6 @@ class BookingController extends Controller
             $appointment_type = $request->get("booking_type");
 
 
-            if ($appointment_type== "New") {
                 $transaction_id = $request->get("trx_id");
                 $paymentData = $utils->validatePayment($transaction_id);
                 $data = [
@@ -740,7 +739,7 @@ class BookingController extends Controller
                     $booking->flutterwave_id = $payment_id;
                     $booking->session_start = $booking_start_formatted;
                     $booking->service_id = $service_id;
-                    $booking->identity = Utils::generateCode("bookings");
+                    $booking->identity = $this->generateBookingCode("bookings");
                     $booking->price = $amount;
                     $booking->session_end = $booking_end;
                     $booking->user_id = $user_id;
@@ -753,21 +752,6 @@ class BookingController extends Controller
 
                     return $utils->message("success", $booking, 200);
                 }
-            }else{
-
-                $booking = new Bookings();
-                $booking->flutterwave_id = $payment_id;
-                $booking->session_start = $booking_start_formatted;
-                $booking->service_id = $service_id;
-                $booking->identity = Utils::generateCode("bookings");
-                $booking->price = $amount;
-                $booking->session_end = $booking_end;
-                $booking->user_id = $user_id;
-                $booking->booking_for_self = $request->get("booking_for_self");
-                $booking->recipient_id = $recipient_id;
-                $booking->appointment_type = $appointment_type;
-                $booking->save();
-            }
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);

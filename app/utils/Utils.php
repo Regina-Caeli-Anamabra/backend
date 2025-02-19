@@ -98,7 +98,7 @@ class Utils
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => array(
                 "Content-Type: application/json",
-                "Authorization: Bearer FLWSECK_TEST-940432bfbcd581506e354f8597ca89ab-X"
+                "Authorization: Bearer " . env("FLWSECK")
             ),
         ));
 
