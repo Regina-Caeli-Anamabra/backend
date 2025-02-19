@@ -545,8 +545,8 @@ class BookingController extends Controller
 //                if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
 //                    return $utils->message("error","The session is already booked." , 400);
 
-            $amount = Services::where("id", $request->get("service_id"))->value("amount");
-            $name = Services::where("id", $request->get("service_id"))->value("name");
+            $amount = Services::where("id", $request->get("service_id"))->value("service_amount");
+            $name = Services::where("id", $request->get("service_id"))->value("service_name");
             $service_id = $request->get("service_id");
             $recipient_id = $request->get("booked_by_id");
             $appointment_type = $request->get("booking_type");
@@ -658,8 +658,8 @@ class BookingController extends Controller
 //                if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
 //                    return $utils->message("error","The session is already booked." , 400);
 
-            $amount = Services::where("id", $request->get("service_id"))->value("amount");
-            $name = Services::where("id", $request->get("service_id"))->value("name");
+            $amount = Services::where("id", $request->get("service_id"))->value("service_amount");
+            $name = Services::where("id", $request->get("service_id"))->value("service_name");
             $service_id = $request->get("service_id");
             $recipient_id = $request->get("booked_by_id");
             $appointment_type = $request->get("booking_type");
