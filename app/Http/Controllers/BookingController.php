@@ -470,7 +470,7 @@ class BookingController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/patient/add-a-session",
+     *     path="/api/v1/patient/reschedule",
      *      tags={"Booking"},
      *      security={
      *           {"sanctum": {}},
