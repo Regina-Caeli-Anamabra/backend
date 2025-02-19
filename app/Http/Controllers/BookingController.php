@@ -527,7 +527,7 @@ class BookingController extends Controller
             "booking_start" => "required",
             "service_id" => "required|int",
             "interval" => "required|int",
-            "identity" => "required|int"
+            "identity" => "required"
         ]);
 
 
