@@ -402,6 +402,13 @@ class BookingController extends Controller
      *          required=true,
      *          @OA\Schema(type="string")
      *      ),
+     *      @OA\Parameter(
+     *          name="interval",
+     *          in="query",
+     *          description="interval",
+     *          required=true,
+     *          @OA\Schema(type="string")
+     *      ),
      *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
@@ -435,7 +442,7 @@ class BookingController extends Controller
                 "last_name" => Patients::where("user_id", $user_id)->value("lastName")
             ];
             Log::info("transaction Started", $logged_data);
-
+             Patients::where('user_id', $user_id)->first();
             $payment = new FlutterwavePayment();
             $payment->status = "pending";
             $payment->service_id = $service_id;
