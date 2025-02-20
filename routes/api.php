@@ -23,7 +23,9 @@ use Illuminate\Support\Facades\DB;
 #########################
 ########################
 
-
+Route::get('/check-proxy', function () {
+    return request()->ip();  // This will show the IP Laravel detects
+});
 Route::get('/update-services-now', function(){
 
     $categories = Services::all();
