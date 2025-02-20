@@ -269,7 +269,7 @@ class GeneralController extends Controller
             $services = DB::table('services')
                         ->join('days_available', 'services.id', '=', 'days_available.service_id')
                         ->where(function ($query) use ($day) {
-                            $query->where("days_available.days", $day);
+                            $query->where("days_available.days", $day)
                                   ->orWhere("days_available.days", "On Request")
                                   ->orWhere("days_available.days", "Call Hospital");
                         })
