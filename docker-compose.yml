@@ -27,6 +27,7 @@ services:
             args:
                 - APP_ENV="${APP_ENV}"
         container_name: regina_laravel_app
+        restart: unless-stopped
         environment:
             - APP_ENV="${APP_ENV}"
             - DB_DATABASE=${DB_DATABASE}
