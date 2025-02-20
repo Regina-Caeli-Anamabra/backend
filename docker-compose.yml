@@ -41,7 +41,7 @@ services:
         volumes:
             - ./:/app
         ports:
-            - 8031:8000
+            - 8030:8000
         depends_on:
             - mysql_db
         networks:
@@ -72,22 +72,6 @@ services:
             - mysql_db
         networks:
             - mysql_network
-
-    nginx:
-        image: nginx:latest
-        container_name: nginx
-        restart: unless-stopped
-        volumes:
-            - ./nginx.conf:/etc/nginx/nginx.conf
-            - .:/var/www
-        ports:
-            - "80:80"
-            - "443:443"
-        networks:
-            - mysql_network
-        depends_on:
-            - regina_app
-
 volumes:
     db-data: null
 

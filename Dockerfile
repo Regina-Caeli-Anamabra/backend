@@ -1,28 +1,39 @@
-# Set the base image to PHP with required extensions
-FROM php:8.1-fpm
+FROM php:8.2 as php
 
-# Install dependencies for Laravel
-RUN apt-get update && apt-get install -y libpng-dev libjpeg-dev libfreetype6-dev zip git \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql bcmath opcache
+RUN apt-get update -y
+RUN apt-get install -y unzip libpq-dev libcurl4-gnutls-dev
+RUN docker-php-ext-install pdo pdo_mysql bcmath
+RUN docker-php-ext-configure pcntl --enable-pcntl \
+  && docker-php-ext-install pcntl;
 
-# Set the working directory inside the container
-WORKDIR /var/www
 
-# Copy the Laravel application files into the container
-COPY . /var/www
+#RUN pecl install -o -f redis \
+#    && rm -rf /tmp/pear \
+#    && docker-php-ext-enable redis
 
-# Install Composer to manage PHP dependencies
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Install Laravel dependencies
-RUN composer install --no-interaction
+WORKDIR /app
+COPY . .
 
-# Set permissions for Laravel's storage and cache
-RUN chown -R www-data:www-data /var/www && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+RUN ls -l ./docker/entrypoint.sh
+RUN  chmod +x ./docker/entrypoint.sh
 
-# Expose port 9000 to allow Nginx to communicate with the application
-EXPOSE 9000
+RUN echo "max_execution_time = 300" >> /usr/local/etc/php/php.ini
 
-# Command to run the PHP-FPM server
-CMD ["php-fpm"]
+
+COPY --from=composer:2.7.4 /usr/bin/composer /usr/bin/composer
+
+ENV PORT=8000
+ENTRYPOINT [ "./docker/entrypoint.sh" ]
+
+# ==============================================================================
+#  node
+#FROM node:14-alpine as node
+#
+#WORKDIR /var/www
+#COPY . .
+#
+#RUN npm install --global cross-env
+#RUN npm install
+#
+#VOLUME /var/www/node_modules
