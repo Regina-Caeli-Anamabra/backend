@@ -273,7 +273,7 @@ class GeneralController extends Controller
 //                                  ->orWhere("days_available.days", "On Request")
 //                                  ->orWhere("days_available.days", "Call Hospital");
                         })
-//                        ->where("services.category_id", $serviceId)  // Corrected 'services.id'
+                        ->where("services.category_id", $serviceId)  // Corrected 'services.id'
                         ->orderBy("services.id", "ASC")
                         ->get();
 
