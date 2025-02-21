@@ -12,7 +12,7 @@ use App\Models\Patients;
 use App\Models\Payments;
 use App\Models\r;
 use App\Models\Services;
-use App\Utilsa\Utils;
+use App\Utils\Utils;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;

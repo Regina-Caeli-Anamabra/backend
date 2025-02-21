@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Utilsa;
+namespace App\Utils;
 
 
 use App\Models\User;
@@ -13,7 +13,7 @@ use PHPUnit\Util\Json;
 class Utils
 {
 
-
+###################################
     public static function generateCramp($type) :string
     {
         $mt = explode(' ', microtime());

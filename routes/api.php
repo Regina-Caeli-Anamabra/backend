@@ -29,7 +29,7 @@ Route::get('/check-proxy', function () {
 Route::get('/update-services-now', function(){
 
     $categories = Services::all();
-    $util = new App\Utilsa\Utils();
+    $util = new App\Utils\Utils();
     foreach($categories as $category){
         echo $category->id;
         $service = Services::find($category->id);
