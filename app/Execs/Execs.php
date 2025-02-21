@@ -4,7 +4,7 @@ namespace App\Execs;
 
 use App\Models\Account;
 use App\Models\Agent;
-use App\Utils\Utils;
+use App\Utilsa\Utils;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;

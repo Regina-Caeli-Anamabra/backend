@@ -12,7 +12,7 @@ use App\Models\Patients;
 use App\Models\Services;
 use App\Models\States;
 use App\Models\User;
-use App\Utils\Utils;
+use App\Utilsa\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
