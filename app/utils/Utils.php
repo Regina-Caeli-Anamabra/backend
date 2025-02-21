@@ -9,7 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Util\Json;
-
+#########################
 class Utils
 {
     public static function generateCramp($type) :string
