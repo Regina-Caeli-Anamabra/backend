@@ -22,6 +22,52 @@ use Mockery\Exception;
 
 class PatientController extends Controller
 {
+
+    public function updatePatient(Request $request, Utils $utils)
+    {
+
+        $reg_id = $request->get("reg_id");
+        $phone = $request->get("phone_no");
+        $user = User::where("reg_id", $reg_id)->first();
+
+        if ($user) {
+            $patient = Patients::where("user_id", $user->id)->first();
+
+            if ($patient) {
+                $patient->firstName = $request->get("firstName");
+                $patient->lastName = $request->get("lastName");
+                $patient->middleName = $request->get("middleName");
+                $patient->phone_no = $phone;
+                $patient->dateOfBirth = $request->get("dateOfBirth");
+                $patient->next_of_kin_relationship = $request->get("next_of_kin_relationship");
+                $patient->marital_status = $request->get("marital_status");
+                $patient->next_of_kin = $request->get("next_of_kin");
+                $patient->state_of_origin = $request->get("state_of_Origin");
+                $patient->next_of_kin_phoneno = $request->get("next_of_kin_phoneno");
+                $patient->next_of_kin_address = $request->get("next_of_kin_address");
+                $patient->state_of_residence = $request->get("state_of_Residence");
+                $patient->permanent_address = $request->get("address");
+                $patient->title = $request->get("title");
+
+                $patient->update();
+
+                return $utils->message("error", $patient , 200);
+            } else {
+                return $utils->message("error", "Patient Not Found" , 400);
+            }
+        } else {
+            return $utils->message("error", "User Not Found" , 404);
+        }
+
+
+    }
+    public function getPatient(Request $request, Utils $utils)
+    {
+        $user =  User::where("reg_id", $request->input('reg_id'))->first();
+        $patient = Patients::where("user_id", $user->id)->first();
+        return $utils->message("success",$patient , 200);
+
+    }
     public function updateService(Request $request, Utils $utils)
     {
         $identity = $request->get("identity");

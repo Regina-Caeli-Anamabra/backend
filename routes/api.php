@@ -129,6 +129,8 @@ Route::group(['prefix' => 'v1/admin'], function () {
         Route::post('/search-patient', ['App\Http\Controllers\PatientController', 'searchPatient']);
         Route::post('/search-booking', ['App\Http\Controllers\PatientController', 'searchBooking']);
         Route::get('/get-service/{identity}', ['App\Http\Controllers\PatientController', 'getService']);
+        Route::get('/get-patient', ['App\Http\Controllers\PatientController', 'getPatient']);
         Route::post('/update-service', ['App\Http\Controllers\PatientController', 'updateService']);
+        Route::post('/update-patient', ['App\Http\Controllers\PatientController', 'updatePatient']);
     });
 });
