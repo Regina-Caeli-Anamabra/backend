@@ -189,7 +189,7 @@ class GeneralController extends Controller
     {
 
         try {
-            return $utils->message("success", Countries::orderBy("name", "ASC")->all()  , 200);
+            return $utils->message("success", Countries::orderBy("name", "ASC")->get()  , 200);
         }catch (\Throwable $e) {
             // Do something with your exception
             return $utils->message("error", $e->getMessage() , 400);
