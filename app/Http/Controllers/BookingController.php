@@ -351,27 +351,31 @@ class BookingController extends Controller
         }
     }
 
-
     /**
      * @OA\Post(
      *     path="/api/v1/patient/check-availability",
-     *      tags={"Booking"},
-     *      security={
-     *           {"sanctum": {}},
-     *       },
-     *     @OA\Parameter(
-     *         name="service_id",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ",
-     *         in="query",
-     *         example="2",
+     *     tags={"Booking"},
+     *     security={
+     *         {"sanctum": {}},
+     *     },
+     *     @OA\RequestBody(
      *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="day",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ",
-     *         in="query",
-     *         example="Monday",
-     *         required=true,
-     *         @OA\Schema(type="string")
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="service_id",
+     *                     type="string",
+     *                     example="2"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="day",
+     *                     type="string",
+     *                     example="Monday"
+     *                 )
+     *             )
+     *         )
      *     ),
      *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
@@ -379,6 +383,7 @@ class BookingController extends Controller
      *     @OA\Response(response="400", description="Booking already exists", @OA\JsonContent())
      * )
      */
+
     public function checkAvailability(Request $request, Utils $utils)
     {
         try {
