@@ -12,7 +12,7 @@ class DaysAvailable extends Model
 {
     use HasFactory;
 
-    protected $table = 'days_availables';
+    protected $table = 'days_available';
     public function services(): BelongsTo
     {
         return $this->belongsTo(Services::class, 'service_id', 'id');
