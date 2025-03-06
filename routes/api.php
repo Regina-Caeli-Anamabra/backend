@@ -20,8 +20,8 @@ use Illuminate\Support\Facades\DB;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-#########################################################################
-########################
+
+
 
 Route::get('/check-proxy', function () {
     return request()->ip();  // This will show the IP Laravel detects
@@ -68,6 +68,7 @@ Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], funct
     Route::get('/generate-url', ['App\Http\Controllers\BookingController', 'generateUrl']);
     Route::get('/cancelled', ['App\Http\Controllers\BookingController', 'cancelAppointment']);
     Route::get('/get-payment', ['App\Http\Controllers\BookingController', 'getPayment']);
+    Route::post('/check-availability', ['App\Http\Controllers\BookingController', 'checkAvailability']);
     Route::get('/next-appointment', ['App\Http\Controllers\BookingController', 'nextAppointment']);
     Route::post('/cancel-payment', ['App\Http\Controllers\BookingController', 'cancelPayment']);
     Route::post('/add-a-session', ['App\Http\Controllers\BookingController', 'store'])->name('flutterwave.callback');

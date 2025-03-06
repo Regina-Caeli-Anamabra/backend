@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CategoryResource;
 use App\Models\Bookings;
 use App\Models\Categories;
+use App\Models\DaysAvailable;
 use App\Models\DonationPayment;
 use App\Models\Donations;
 use App\Models\FlutterwavePayment;
@@ -349,6 +350,60 @@ class BookingController extends Controller
             return $utils->message("error", $e->getMessage() , 400);
         }
     }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/patient/check-availability",
+     *      tags={"Booking"},
+     *      security={
+     *           {"sanctum": {}},
+     *       },
+     *     @OA\Parameter(
+     *         name="service_id"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ",
+     *         in="query",
+     *         example="2",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="day"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ",
+     *         in="query",
+     *         example="Monday",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Booking successful", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="Code Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized Access", @OA\JsonContent()),
+     *     @OA\Response(response="400", description="Booking already exists", @OA\JsonContent())
+     * )
+     */
+    public function checkAvailability(Request $request, Utils $utils)
+    {
+        try {
+
+            $request->validate([
+                "day" => "required|string",
+                "service_id" => "required|string",
+            ]);
+
+            if(!auth('sanctum')->check())
+                return $utils->message("error","Unauthorized Access." , 401);
+
+
+            if (DaysAvailable::where("service_id", $request->get("service_id"))->where("day", $request->get("day"))->exists())
+                return $utils->message("success", true , 200);
+
+            return $utils->message("success", false , 404);
+
+        }catch (\Throwable $e) {
+        // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+
+
     /**
      * @OA\Get (
      *     path="/api/v1/patient/get-categories",

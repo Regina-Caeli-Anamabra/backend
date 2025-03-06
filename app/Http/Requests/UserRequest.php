@@ -23,12 +23,11 @@ class UserRequest extends FormRequest
     public function rules(): array
     {
         return [
-
             "phone" => "required|string|unique:users",
             "first_name" => "required|string",
             "last_name" => "required|string",
             "gender" => "required|string",
-            "email" => "required|string",
+            "email" => "required||max:255|unique:users",
             "marital_status" => "required|string",
             "religion" => "required|string",
             "nationality" => "required|string",
@@ -42,8 +41,7 @@ class UserRequest extends FormRequest
     {
         // use trans instead on Lang
         return [
-            'password.min' => 'Password must be greater then 8 Characters',
-            'password.regex' => 'Password must contain a capital letter, a number and a special character'
+            'password.min' => 'Password must be greater then 8 Characters'
         ];
     }
 }
