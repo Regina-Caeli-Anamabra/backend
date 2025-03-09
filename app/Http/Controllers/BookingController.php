@@ -397,7 +397,7 @@ class BookingController extends Controller
                 return $utils->message("error","Unauthorized Access." , 401);
 
 
-            if (DaysAvailable::where("service_id", $request->get("service_id"))->where("days", $request->get("day"))->exists())
+            if (DaysAvailable::where("service_id", $request->get("service_id"))->exists())
                 return $utils->message("success", true , 200);
 
             return $utils->message("success", false , 404);
