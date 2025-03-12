@@ -117,6 +117,7 @@ class BookingController extends Controller
      * @OA\Get (
      *     path="/api/v1/patient/get-session",
      *     summary="Get Session",
+     *       tags={"Booking"},
      *      @OA\Parameter(
      *          name="identity",
      *          in="query",
