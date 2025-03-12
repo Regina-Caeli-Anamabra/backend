@@ -118,6 +118,9 @@ class BookingController extends Controller
      *     path="/api/v1/patient/get-session",
      *     summary="Get Session",
      *       tags={"Booking"},
+     *        security={
+     *             {"sanctum": {}},
+     *         },
      *      @OA\Parameter(
      *          name="identity",
      *          in="query",
