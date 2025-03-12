@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
@@ -104,6 +105,52 @@ class BookingController extends Controller
             $booking->save();
 
             return $utils->message("success", $booking, 200);
+
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/patient/get-session",
+     *     summary="Get Session",
+     *      @OA\Parameter(
+     *          name="identity",
+     *          in="query",
+     *          description="identity",
+     *          required=true,
+     *          example="83383738383",
+     *          @OA\Schema(type="string")
+     *      ),
+     *     @OA\Response(response="201", description="Reschedule Booking", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="Booking not Found", @OA\JsonContent()),
+     *     @OA\Response(response="500", description="Server Error", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent()),
+     *
+     * )
+     * **/
+    public function getSession(Request $request, Utils $utils)
+    {
+
+        $request->validate([
+            "identity" => "required|string"
+        ]);
+
+        if(!auth('sanctum')->check())
+            return $utils->message("error","Unauthorized Access." , 401);
+
+        $user_id =  auth('sanctum')->user()->id;
+
+
+        try {
+            if (!Bookings::where("identity", $request->get("identity"))->exists())
+                return $utils->message("error", "Session Not Found" , 404);
+
+            $session = Bookings::where("identity", $request->get("identity"))->get();
+            return $utils->message("success", $session, 200);
 
         }catch (\Throwable $e) {
             // Do something with your exception

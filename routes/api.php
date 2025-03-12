@@ -74,6 +74,7 @@ Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], funct
     Route::post('/add-a-session', ['App\Http\Controllers\BookingController', 'store'])->name('flutterwave.callback');
     Route::post('/reschedule', ['App\Http\Controllers\BookingController', 'reschedule']);
     Route::get('/all-sessions', ['App\Http\Controllers\BookingController', 'index']);
+    Route::get('/get-session', ['App\Http\Controllers\BookingController', 'getSession']);
     Route::post('/add-payment', ['App\Http\Controllers\PatientController', 'addPayment']);
     Route::get('/get-users-created', ['App\Http\Controllers\PatientController', 'getAllRegisteredByUser']);
     Route::get('/profile', ['App\Http\Controllers\PatientController', 'profile']);
