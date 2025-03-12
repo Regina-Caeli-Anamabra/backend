@@ -122,7 +122,7 @@ class BookingController extends Controller
      *          in="query",
      *          description="identity",
      *          required=true,
-     *          example="83383738383",
+     *          example="30601739987470311739987470547047",
      *          @OA\Schema(type="string")
      *      ),
      *     @OA\Response(response="201", description="Reschedule Booking", @OA\JsonContent()),
@@ -149,7 +149,7 @@ class BookingController extends Controller
             if (!Bookings::where("identity", $request->get("identity"))->exists())
                 return $utils->message("error", "Session Not Found" , 404);
 
-            $session = Bookings::where("identity", $request->get("identity"))->get();
+            $session = Bookings::where("identity", $request->get("identity"))->where("user_id", $user_id)->get();
             return $utils->message("success", $session, 200);
 
         }catch (\Throwable $e) {
