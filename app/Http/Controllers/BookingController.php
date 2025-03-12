@@ -153,7 +153,7 @@ class BookingController extends Controller
             if (!Bookings::where("identity", $request->get("identity"))->exists())
                 return $utils->message("error", "Session Not Found" , 404);
 
-            $session = Bookings::where("identity", $request->get("identity"))->where("user_id", $user_id)->get();
+            $session = Bookings::with("services")->where("identity", $request->get("identity"))->where("user_id", $user_id)->get();
             return $utils->message("success", $session, 200);
 
         }catch (\Throwable $e) {
@@ -261,7 +261,7 @@ class BookingController extends Controller
                 return $utils->message("error","Unauthorized Access." , 401);
 
             $user_id =  auth('sanctum')->user()->id;
-            $nextAppointment = Bookings::orderBy("id","DESC")->where("user_id",$user_id)->limit(1)->get();
+            $nextAppointment = Bookings::with("services")->orderBy("id","DESC")->where("user_id",$user_id)->limit(1)->get();
 
             return $utils->message("success", $nextAppointment, 200);
 
