@@ -23,6 +23,40 @@ use Mockery\Exception;
 class PatientController extends Controller
 {
 
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/patient/get-details",
+     *     summary="Get Patient Details",
+     *     tags={"Patients"},
+     *     @OA\Parameter(
+     *         name="phone",
+     *         in="query",
+     *         description="Patient",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Patient Details", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
+     * )
+     */
+    public function getDetails(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "reg_no" => "required|string"
+        ]);
+
+        if (!Patients::where("patient_id", $request->get("reg_no"))->exists())
+            return $utils->message("error", "Patient Not Found" , 200);
+
+        $patient = Patients::where("patient_id", $request->get("reg_no"))->first();
+
+        return $utils->message("error", $patient , 200);
+
+
+    }
+
     public function updatePatient(Request $request, Utils $utils)
     {
 
