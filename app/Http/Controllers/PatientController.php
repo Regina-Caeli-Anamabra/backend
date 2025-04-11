@@ -24,6 +24,44 @@ use Mockery\Exception;
 class PatientController extends Controller
 {
 
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/service-charge-payment",
+     *     summary="Create Password",
+     *     tags={"Patients"},
+     *     @OA\Parameter(
+     *         name="patient_id",
+     *         in="query",
+     *         description="Patient ID",
+     *         example="94901/03/24",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="trx_id",
+     *         in="query",
+     *         description="TRX ID",
+     *         example="232234",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Create Password", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
+     * )
+     */
+    public function serviceChargePayment(Request $request)
+    {
+        $request->validate([
+            "patient_id" => "required",
+            "trx_id" => "required",
+        ]);
+
+
+    }
+
+
     /**
      * @OA\Post(
      *     path="/api/v1/create-password",
@@ -33,6 +71,7 @@ class PatientController extends Controller
      *         name="patient_id",
      *         in="query",
      *         description="Patient ID",
+     *         exmple="94901/03/24"
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -40,6 +79,7 @@ class PatientController extends Controller
      *         name="password",
      *         in="query",
      *         description="Password",
+     *          exmple="sam12345"
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -47,6 +87,7 @@ class PatientController extends Controller
      *         name="password_confirmation",
      *         in="query",
      *         description="password confirmation",
+     *          exmple="sam12345"
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),

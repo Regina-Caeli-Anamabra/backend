@@ -97,6 +97,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::get('/dashboard-services', ['App\Http\Controllers\GeneralController', 'dashboardServices']);
     Route::post('/get-details', ['App\Http\Controllers\PatientController', 'getDetails']);
     Route::post('/create-password', ['App\Http\Controllers\PatientController', 'createPassword']);
+    Route::post('/service-charge-payment', ['App\Http\Controllers\PatientController', 'serviceChargePayment']);
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/get-live-encryption-key', ['App\Http\Controllers\GeneralController', 'getLiveEncryptionKey']);
