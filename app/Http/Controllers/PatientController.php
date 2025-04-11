@@ -30,9 +30,9 @@ class PatientController extends Controller
      *     summary="Get Patient Details",
      *     tags={"Patients"},
      *     @OA\Parameter(
-     *         name="phone",
+     *         name="patient_id",
      *         in="query",
-     *         description="Patient",
+     *         description="Patient ID",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
