@@ -72,7 +72,7 @@ class PatientController extends Controller
                         "password" => Hash::make($request->get("password"))
                     ]);
 
-        return $utils->message("success", $patient , 200);
+        return $utils->message("success", "Password Updated Successfully." , 200);
 
     }
 
