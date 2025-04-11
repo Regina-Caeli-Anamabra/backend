@@ -43,12 +43,14 @@ class PatientController extends Controller
      */
     public function getDetails(Request $request, Utils $utils)
     {
+        return $request->all();
+
         $request->validate([
             "reg_no" => "required|string"
         ]);
 
         if (!Patients::where("patient_id", $request->get("reg_no"))->exists())
-            return $utils->message("error", "Patient Not Found" , 200);
+            return $utils->message("error", "Patient Not Found" , 404);
 
         $patient = Patients::where("patient_id", $request->get("reg_no"))->first();
 
