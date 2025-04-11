@@ -26,7 +26,7 @@ class PatientController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/patient/get-details",
+     *     path="/api/v1/get-details",
      *     summary="Get Patient Details",
      *     tags={"Patients"},
      *     @OA\Parameter(
@@ -43,8 +43,6 @@ class PatientController extends Controller
      */
     public function getDetails(Request $request, Utils $utils)
     {
-        return $request->all();
-
         $request->validate([
             "reg_no" => "required|string"
         ]);

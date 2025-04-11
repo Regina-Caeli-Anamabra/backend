@@ -78,7 +78,6 @@ Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], funct
     Route::post('/add-payment', ['App\Http\Controllers\PatientController', 'addPayment']);
     Route::get('/get-users-created', ['App\Http\Controllers\PatientController', 'getAllRegisteredByUser']);
     Route::get('/profile', ['App\Http\Controllers\PatientController', 'profile']);
-    Route::post('/get-details', ['App\Http\Controllers\PatientController', 'getDetails']);
     Route::patch('/profile/update', ['App\Http\Controllers\PatientController', 'updateProfile']);
     Route::patch('/inner/password/update', ['App\Http\Controllers\Auth\AuthController', 'innerUpdatePassword']);
     Route::get('/get-categories', ['App\Http\Controllers\BookingController', 'getCategories']);
@@ -96,6 +95,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::get('/resend-email', ['App\Http\Controllers\Auth\AuthController', 'resendEmail']);
     Route::get('/resend-sms', ['App\Http\Controllers\Auth\AuthController', 'sendSMS']);
     Route::get('/dashboard-services', ['App\Http\Controllers\GeneralController', 'dashboardServices']);
+    Route::post('/get-details', ['App\Http\Controllers\PatientController', 'getDetails']);
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/get-live-encryption-key', ['App\Http\Controllers\GeneralController', 'getLiveEncryptionKey']);
