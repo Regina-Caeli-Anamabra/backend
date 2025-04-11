@@ -22,7 +22,7 @@ use Mockery\Exception;
 
 class PatientController extends Controller
 {
-####################################
+
 
     /**
      * @OA\Post(
@@ -44,7 +44,7 @@ class PatientController extends Controller
     public function getDetails(Request $request, Utils $utils)
     {
         $request->validate([
-            "reg_no" => "required|string"
+            "patient_id" => "required|string"
         ]);
 
         if (!Patients::where("patient_id", $request->get("reg_no"))->exists())
