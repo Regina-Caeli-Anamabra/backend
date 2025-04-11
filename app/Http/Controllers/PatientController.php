@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Mockery\Exception;
@@ -23,6 +24,57 @@ use Mockery\Exception;
 class PatientController extends Controller
 {
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/create-password",
+     *     summary="Create Password",
+     *     tags={"Patients"},
+     *     @OA\Parameter(
+     *         name="patient_id",
+     *         in="query",
+     *         description="Patient ID",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="password",
+     *         in="query",
+     *         description="Password",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="password_confirmation",
+     *         in="query",
+     *         description="password confirmation",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Create Password", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
+     * )
+     */
+    public function createPassword(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "patient_id" => "required|string",
+            "password" => "required|string|min:8|confirmed"
+        ], [
+            'password.confirmed' => 'The password confirmation does not match.',
+        ]);
+
+        if (!Patients::where("patient_id", $request->get("patient_id"))->exists())
+            return $utils->message("error", "Patient Not Found" , 404);
+
+        $patient =  Patients::where("patient_id", $request->get("patient_id"))
+                    ->update([
+                        "password" => Hash::make($request->get("password"))
+                    ]);
+
+        return $utils->message("success", $patient , 200);
+
+    }
 
     /**
      * @OA\Post(
@@ -52,7 +104,7 @@ class PatientController extends Controller
 
         $patient = Patients::where("patient_id", $request->get("patient_id"))->first();
 
-        return $utils->message("error", $patient , 200);
+        return $utils->message("success", $patient , 200);
 
 
     }
