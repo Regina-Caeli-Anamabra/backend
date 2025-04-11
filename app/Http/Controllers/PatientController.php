@@ -50,7 +50,7 @@ class PatientController extends Controller
         if (!Patients::where("patient_id", $request->get("patient_id"))->exists())
             return $utils->message("error", "Patient Not Found" , 404);
 
-        $patient = Patients::where("patient_id", $request->get("reg_no"))->first();
+        $patient = Patients::where("patient_id", $request->get("patient_id"))->first();
 
         return $utils->message("error", $patient , 200);
 
