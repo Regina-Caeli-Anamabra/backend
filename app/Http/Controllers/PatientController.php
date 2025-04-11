@@ -64,10 +64,10 @@ class PatientController extends Controller
             'password.confirmed' => 'The password confirmation does not match.',
         ]);
 
-        if (!Patients::where("patient_id", $request->get("patient_id"))->exists())
+        if (!User::where("reg_id", $request->get("patient_id"))->exists())
             return $utils->message("error", "Patient Not Found" , 404);
 
-        $patient =  User::where("patient_id", $request->get("patient_id"))
+        $patient =  User::where("reg_id", $request->get("patient_id"))
                     ->update([
                         "password" => Hash::make($request->get("password"))
                     ]);
