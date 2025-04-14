@@ -615,10 +615,11 @@ class AuthController extends Controller
      */
     public function refreshToken(Request $request, Utils $utils)
     {
+        return 304;
         if(!auth('sanctum')->check())
             return $utils->message("error","Unauthorized Access." , 401);
 
-        $accessToken = $request->user()->createToken('access_token', [TokenAbility::ACCESS_API->value], Carbon::now()->addMinutes(10))->plainTextToken;
+        $accessToken = $request->user()->createToken('access_token', [TokenAbility::ACCESS_API->value], Carbon::now()->addMinutes(2))->plainTextToken;
         return $utils->message("success",  ['token' => $accessToken ], 200);
 
     }

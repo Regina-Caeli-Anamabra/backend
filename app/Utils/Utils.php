@@ -85,6 +85,7 @@ class Utils
         return $key;
     }
 
+
     public function validatePayment($transaction_id)
     {
         $token = env("FLWSECKEY");

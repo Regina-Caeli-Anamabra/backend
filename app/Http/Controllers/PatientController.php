@@ -11,6 +11,7 @@ use App\Models\Bookings;
 use App\Models\FlutterwavePayment;
 use App\Models\Patients;
 use App\Models\Payments;
+use App\Models\ServiceChargeFlutterwavePayments;
 use App\Models\Services;
 use App\Models\User;
 use App\Utils\Utils;
@@ -27,8 +28,8 @@ class PatientController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/service-charge-payment",
-     *     summary="Create Password",
+     *     path="/api/v1/complete-service-charge-payment",
+     *     summary="Complete Service charge payment",
      *     tags={"Patients"},
      *     @OA\Parameter(
      *         name="patient_id",
@@ -42,7 +43,15 @@ class PatientController extends Controller
      *         name="trx_id",
      *         in="query",
      *         description="TRX ID",
-     *         example="232234",
+     *         example="1739976680226",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="payment_id",
+     *         in="query",
+     *         description="Payment ID",
+     *         example="1739976680226",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -51,13 +60,106 @@ class PatientController extends Controller
      *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
      * )
      */
-    public function serviceChargePayment(Request $request)
+    public function CompleteServiceChargePayment(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "patient_id" => "required",
+            "trx_id" => "required",
+            "payment_id" => "required",
+        ]);
+
+
+        if (!User::where("reg_id", $request->input("patient_id"))->exists())
+            return $utils->message("Error", "Patient Not Found." , 404);
+
+
+        $patient = $request->get("patient_id");
+        $trx_id = $request->get("trx_id");
+        $payment_id = $request->get("payment_id");
+
+        $user = User::where("reg_id", $request->input("patient_id"))->first();
+        $paymentData = $utils->validatePayment($trx_id);
+
+        if ($paymentData["data"]["status"] == "successful") {
+            DB::transaction(function () use ($utils, $paymentData, $payment_id, $trx_id, $user) {
+                $flutter = ServiceChargeFlutterwavePayments::where("id", $payment_id)->firstOrFail();
+                $flutter->user_id = $user->id;
+                $flutter->patient_id = Patients::where("user_id", $user)->first()->id;
+                $flutter->trx_id = $trx_id;
+                $flutter->identity = $this->generateBookingCode("bookings");
+                $flutter->patient_id = Patients::where("user_id", $user->id)->value("id");
+                $flutter->account_id = $paymentData["data"]["account_id"];
+                $flutter->amount = $paymentData["data"]["amount"];
+                $flutter->amount_settled = $paymentData["data"]["amount_settled"];
+                $flutter->app_fee = $paymentData["data"]["app_fee"];
+                $flutter->charged_amount = $paymentData["data"]["charged_amount"];
+                $flutter->country = $paymentData["data"]["card"]["country"];
+                $flutter->expiry = $paymentData["data"]["card"]["expiry"];
+                $flutter->first_6digits = $paymentData["data"]["card"]["first_6digits"];
+                $flutter->issuer = $paymentData["data"]["card"]["issuer"];
+                $flutter->last_4digits = $paymentData["data"]["card"]["last_4digits"];
+                $flutter->card_token = $paymentData["data"]["card"]["token"];
+                $flutter->card_type = $paymentData["data"]["card"]["type"];
+                $flutter->email = $paymentData["data"]["customer"]["email"];
+                $flutter->name = $paymentData["data"]["customer"]["name"];
+                $flutter->phone_number = $paymentData["data"]["customer"]["phone_number"];
+                $flutter->flw_ref = $paymentData["data"]["flw_ref"];
+                $flutter->ip = $paymentData["data"]["ip"];
+                $flutter->processor_response = $paymentData["data"]["processor_response"];
+                $flutter->status = $paymentData["data"]["status"];
+                $flutter->narration = $paymentData["data"]["status"];
+                $flutter->merchant_fee = $paymentData["data"]["merchant_fee"];
+                $flutter->tx_ref = $paymentData["data"]["tx_ref"];
+                $flutter->update();
+            });
+        }
+
+        return $utils->message("Success", "Payment Completed Successfully." , 200);
+
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/initiate-service-charge-payment",
+     *     summary="Create Password",
+     *     tags={"Patients"},
+     *     @OA\Parameter(
+     *         name="patient_id",
+     *         in="query",
+     *         description="Patient ID",
+     *         example="94901/03/24",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Create Password", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
+     * )
+     */
+    public function initiateServiceChargePayment(Request $request, Utils $utils)
     {
         $request->validate([
             "patient_id" => "required",
             "trx_id" => "required",
         ]);
 
+        if (!User::where("reg_id", $request->input("patient_id"))->exists())
+            return $utils->message("Error", "Patient Not Found." , 404);
+
+        $user = User::where("reg_id", $request->input("patient_id"))->first();
+        $transaction_id = $request->get('trx_id');
+
+        $trx_id =  $utils->generateCode(20);
+        $payment = new ServiceChargeFlutterwavePayments();
+        $payment->status = "Pending";
+        $payment->user_id = $user->id;
+        $payment->amount = 1500;
+        $payment->patient_id =  Patients::where('user_id', $user->id)->first()->id;
+        $payment->status = "pending";
+        $payment->save();
+
+        return $utils->message("Success", $payment , 200);
 
     }
 

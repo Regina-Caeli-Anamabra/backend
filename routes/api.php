@@ -98,6 +98,8 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('/get-details', ['App\Http\Controllers\PatientController', 'getDetails']);
     Route::post('/create-password', ['App\Http\Controllers\PatientController', 'createPassword']);
     Route::post('/service-charge-payment', ['App\Http\Controllers\PatientController', 'serviceChargePayment']);
+    Route::post('/initiate-service-charge-payment', ['App\Http\Controllers\PatientController', 'initiateServiceChargePayment']);
+    Route::post('/complete-service-charge-payment', ['App\Http\Controllers\PatientController', 'CompleteServiceChargePayment']);
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/get-live-encryption-key', ['App\Http\Controllers\GeneralController', 'getLiveEncryptionKey']);
