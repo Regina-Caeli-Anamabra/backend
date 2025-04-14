@@ -113,7 +113,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
     });
 
-    Route::middleware('auth:sanctum', 'ability:' . \App\Enums\TokenAbility::ISSUE_ACCESS_TOKEN->value)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
         Route::get('/refresh-token',['App\Http\Controllers\Auth\AuthController', 'refreshToken']);
     });
 });
