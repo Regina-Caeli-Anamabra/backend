@@ -615,7 +615,7 @@ class AuthController extends Controller
      */
     public function refreshToken(Request $request, Utils $utils)
     {
-        return 304;
+
         if(!auth('sanctum')->check())
             return $utils->message("error","Unauthorized Access." , 401);
 
