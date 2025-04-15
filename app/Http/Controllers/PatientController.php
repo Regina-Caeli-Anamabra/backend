@@ -89,7 +89,7 @@ class PatientController extends Controller
         $trx_id = $request->get("trx_id");
         $payment_id = $request->get("payment_id");
 
-        $user = User::where("reg_id", $request->input("patient_id"))->first();
+        return $user = User::where("reg_id", $patient)->first();
         $paymentData = $utils->validatePayment($trx_id);
 
         if ($paymentData["data"]["status"] == "successful") {
@@ -99,7 +99,7 @@ class PatientController extends Controller
                 $flutter->patient_id = Patients::where("user_id", $user)->first()->id;
                 $flutter->trx_id = $trx_id;
                 $flutter->identity = $this->generateBookingCode("bookings");
-                $flutter->patient_id = Patients::where("user_id", $user->id)->value("id");
+                $flutter->patient_id = $user->id;
                 $flutter->account_id = $paymentData["data"]["account_id"];
                 $flutter->amount = $paymentData["data"]["amount"];
                 $flutter->amount_settled = $paymentData["data"]["amount_settled"];
