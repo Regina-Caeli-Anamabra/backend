@@ -95,6 +95,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::get('/resend-email', ['App\Http\Controllers\Auth\AuthController', 'resendEmail']);
     Route::get('/resend-sms', ['App\Http\Controllers\Auth\AuthController', 'sendSMS']);
     Route::get('/dashboard-services', ['App\Http\Controllers\GeneralController', 'dashboardServices']);
+
     Route::post('/get-details', ['App\Http\Controllers\PatientController', 'getDetails']);
     Route::post('/create-password', ['App\Http\Controllers\PatientController', 'createPassword']);
     Route::post('/service-charge-payment', ['App\Http\Controllers\PatientController', 'serviceChargePayment']);

@@ -122,7 +122,7 @@ class PatientController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/initiate-service-charge-payment",
-     *     summary="Create Password",
+     *     summary="Initiate service charge payment",
      *     tags={"Patients"},
      *     @OA\Parameter(
      *         name="patient_id",
