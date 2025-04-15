@@ -145,9 +145,9 @@ class PatientController extends Controller
      *             ),
      *             @OA\Property(
      *                 property="trx_id",
-     *                 type="string",
-     *                 example="94901/03/24",
-     *                 description="Patient ID"
+     *                 type="integer",
+     *                 example="8440118",
+     *                 description="TRX ID"
      *             )
      *         )
      *     ),
