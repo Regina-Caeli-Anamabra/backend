@@ -215,7 +215,7 @@ class PatientController extends Controller
      *         name="password_confirmation",
      *         in="query",
      *         description="password confirmation",
-     *          exmple="sam12345"
+     *          exmple="sam12345",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
