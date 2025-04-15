@@ -89,14 +89,14 @@ class PatientController extends Controller
         $trx_id = $request->get("trx_id");
         $payment_id = $request->get("payment_id");
 
-        return $user = User::where("reg_id", $patient)->first();
+         $user = User::where("reg_id", $patient)->first();
         $paymentData = $utils->validatePayment($trx_id);
 
         if ($paymentData["data"]["status"] == "successful") {
             DB::transaction(function () use ($utils, $paymentData, $payment_id, $trx_id, $user) {
                 $flutter = ServiceChargeFlutterwavePayments::where("id", $payment_id)->firstOrFail();
                 $flutter->user_id = $user->id;
-                $flutter->patient_id = Patients::where("user_id", $user)->first()->id;
+                $flutter->patient_id = $user->id;
                 $flutter->trx_id = $trx_id;
                 $flutter->identity = $this->generateBookingCode("bookings");
                 $flutter->patient_id = $user->id;
