@@ -207,7 +207,7 @@ class PatientController extends Controller
      *         name="password",
      *         in="query",
      *         description="Password",
-     *          exmple="sam12345"
+     *          exmple="sam12345",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
