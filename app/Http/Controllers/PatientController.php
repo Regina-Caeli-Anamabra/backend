@@ -25,41 +25,50 @@ use Mockery\Exception;
 class PatientController extends Controller
 {
 
-
     /**
      * @OA\Post(
      *     path="/api/v1/complete-service-charge-payments",
-     *     summary="Complete Service charge payment",
+     *     summary="Complete service charge payment",
      *     tags={"Patients"},
      *     @OA\Parameter(
      *         name="patient_id",
      *         in="query",
-     *         description="Patient ID",
-     *         example="94901/03/24",
      *         required=true,
-     *         @OA\Schema(type="string")
+     *         description="Patient ID",
+     *         @OA\Schema(type="string", example="94901/03/24")
      *     ),
      *     @OA\Parameter(
      *         name="trx_id",
      *         in="query",
-     *         description="TRX ID",
-     *         example="1739976680226",
      *         required=true,
-     *         @OA\Schema(type="string")
+     *         description="TRX ID",
+     *         @OA\Schema(type="string", example="1739976680226")
      *     ),
      *     @OA\Parameter(
      *         name="payment_id",
      *         in="query",
-     *         description="Payment ID",
-     *         example="1739976680226",
      *         required=true,
-     *         @OA\Schema(type="string")
+     *         description="Payment ID",
+     *         @OA\Schema(type="string", example="1739976680226")
      *     ),
-     *     @OA\Response(response="200", description="Create Password", @OA\JsonContent()),
-     *     @OA\Response(response="401", description="Unauthorized", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
+     *     @OA\Response(
+     *         response=200,
+     *         description="Payment completed successfully",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation Error",
+     *         @OA\JsonContent()
+     *     )
      * )
      */
+
     public function CompleteServiceChargePayment(Request $request, Utils $utils)
     {
         $request->validate([
