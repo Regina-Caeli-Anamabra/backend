@@ -29,7 +29,7 @@ class PatientController extends Controller
      * @OA\Post(
      *     path="/api/v1/complete-service-charge-payments",
      *     summary="Complete service charge payment",
-     *     tags={"Patients"},
+     *     tags={"Booking"},
      *     @OA\Parameter(
      *         name="patient_id",
      *         in="query",
