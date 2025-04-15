@@ -24,32 +24,34 @@ use Mockery\Exception;
 
 class PatientController extends Controller
 {
-
     /**
      * @OA\Post(
      *     path="/api/v1/complete-service-charge-payments",
      *     summary="Complete service charge payment",
      *     tags={"Booking"},
-     *     @OA\Parameter(
-     *         name="patient_id",
-     *         in="query",
+     *     @OA\RequestBody(
      *         required=true,
-     *         description="Patient ID",
-     *         @OA\Schema(type="string", example="94901/03/24")
-     *     ),
-     *     @OA\Parameter(
-     *         name="trx_id",
-     *         in="query",
-     *         required=true,
-     *         description="TRX ID",
-     *         @OA\Schema(type="string", example="1739976680226")
-     *     ),
-     *     @OA\Parameter(
-     *         name="payment_id",
-     *         in="query",
-     *         required=true,
-     *         description="Payment ID",
-     *         @OA\Schema(type="string", example="1739976680226")
+     *         @OA\JsonContent(
+     *             required={"patient_id", "trx_id", "payment_id"},
+     *             @OA\Property(
+     *                 property="patient_id",
+     *                 type="string",
+     *                 example="94901/03/24",
+     *                 description="Patient ID"
+     *             ),
+     *             @OA\Property(
+     *                 property="trx_id",
+     *                 type="string",
+     *                 example="1739976680226",
+     *                 description="TRX ID"
+     *             ),
+     *             @OA\Property(
+     *                 property="payment_id",
+     *                 type="string",
+     *                 example="1739976680226",
+     *                 description="Payment ID"
+     *             )
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -126,26 +128,41 @@ class PatientController extends Controller
         return $utils->message("Success", "Payment Completed Successfully." , 200);
 
     }
-
-
     /**
      * @OA\Post(
      *     path="/api/v1/initiate-service-charge-payments",
      *     summary="Initiate service charge payment",
      *     tags={"Patients"},
-     *     @OA\Parameter(
-     *         name="patient_id",
-     *         in="query",
-     *         description="Patient ID",
-     *         example="94901/03/24",
+     *     @OA\RequestBody(
      *         required=true,
-     *         @OA\Schema(type="string")
+     *         @OA\JsonContent(
+     *             required={"patient_id"},
+     *             @OA\Property(
+     *                 property="patient_id",
+     *                 type="string",
+     *                 example="94901/03/24",
+     *                 description="Patient ID"
+     *             )
+     *         )
      *     ),
-     *     @OA\Response(response="200", description="Create Password", @OA\JsonContent()),
-     *     @OA\Response(response="401", description="Unauthorized", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
+     *     @OA\Response(
+     *         response=200,
+     *         description="Create Password",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation Error",
+     *         @OA\JsonContent()
+     *     )
      * )
      */
+
     public function initiateServiceChargePayment(Request $request, Utils $utils)
     {
         $request->validate([
@@ -182,7 +199,7 @@ class PatientController extends Controller
      *         name="patient_id",
      *         in="query",
      *         description="Patient ID",
-     *         exmple="94901/03/24"
+     *         exmple="94901/03/24",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
