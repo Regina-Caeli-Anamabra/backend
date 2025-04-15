@@ -28,7 +28,7 @@ class PatientController extends Controller
      * @OA\Post(
      *     path="/api/v1/complete-service-charge-payments",
      *     summary="Complete service charge payment",
-     *     tags={"Booking"},
+     *     tags={"Patients"},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
