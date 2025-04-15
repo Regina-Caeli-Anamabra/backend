@@ -199,7 +199,7 @@ class PatientController extends Controller
      *         name="patient_id",
      *         in="query",
      *         description="Patient ID",
-     *         exmple="94901/03/24",
+     *         example="94901/03/24",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -207,15 +207,15 @@ class PatientController extends Controller
      *         name="password",
      *         in="query",
      *         description="Password",
-     *          exmple="sam12345",
+     *         example="sam12345",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
      *         name="password_confirmation",
      *         in="query",
-     *         description="password confirmation",
-     *          exmple="sam12345",
+     *         description="Password confirmation",
+     *         example="sam12345",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -224,6 +224,7 @@ class PatientController extends Controller
      *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
      * )
      */
+
     public function createPassword(Request $request, Utils $utils)
     {
         $request->validate([
