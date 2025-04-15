@@ -85,9 +85,9 @@ class PatientController extends Controller
             return $utils->message("Error", "Patient Not Found." , 404);
 
 
-        $patient = $request->get("patient_identity");
+        $patient = $request->get("patient_id");
         $trx_id = $request->get("trx_id");
-        $payment_id = $request->get("payment_id");
+        $payment_id = $request->get("patient_identity");
 
          $user = User::where("reg_id", $patient)->first();
         $paymentData = $utils->validatePayment($trx_id);
