@@ -28,7 +28,7 @@ class PatientController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/complete-service-charge-payment",
+     *     path="/api/v1/complete-service-charge-payments",
      *     summary="Complete Service charge payment",
      *     tags={"Patients"},
      *     @OA\Parameter(
@@ -121,7 +121,7 @@ class PatientController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/initiate-service-charge-payment",
+     *     path="/api/v1/initiate-service-charge-payments",
      *     summary="Initiate service charge payment",
      *     tags={"Patients"},
      *     @OA\Parameter(
