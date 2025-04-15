@@ -35,7 +35,7 @@ class PatientController extends Controller
      *         @OA\JsonContent(
      *             required={"patient_id", "trx_id", "payment_id"},
      *             @OA\Property(
-     *                 property="patient_identity",
+     *                 property="patient_id",
      *                 type="string",
      *                 example="94901/03/24",
      *                 description="Patient ID"
@@ -47,7 +47,7 @@ class PatientController extends Controller
      *                 description="TRX ID"
      *             ),
      *             @OA\Property(
-     *                 property="payment_id",
+     *                 property="patient_identity",
      *                 type="string",
      *                 example="1739976680226",
      *                 description="Payment ID"
