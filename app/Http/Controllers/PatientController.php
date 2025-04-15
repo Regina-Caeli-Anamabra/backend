@@ -98,7 +98,7 @@ class PatientController extends Controller
                 $flutter->user_id = $user->id;
                 $flutter->patient_id = $user->id;
                 $flutter->trx_id = $trx_id;
-                $flutter->identity = $this->generateBookingCode("bookings");
+                $flutter->identity = $this->generateCramp("service_payments");
                 $flutter->patient_id = $user->id;
                 $flutter->account_id = $paymentData["data"]["account_id"];
                 $flutter->amount = $paymentData["data"]["amount"];

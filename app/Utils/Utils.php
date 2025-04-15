@@ -21,7 +21,7 @@ class Utils
         $generated = $rand . $time;
 
         switch ($type) {
-            case "comments" :
+            case "service_payments" :
                 return "3060" . $generated;
                 break;
             case "service" :
