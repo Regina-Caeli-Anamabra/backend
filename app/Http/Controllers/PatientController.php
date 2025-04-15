@@ -35,7 +35,7 @@ class PatientController extends Controller
      *         @OA\JsonContent(
      *             required={"patient_id", "trx_id", "payment_id"},
      *             @OA\Property(
-     *                 property="patient_id",
+     *                 property="patient_identity",
      *                 type="string",
      *                 example="94901/03/24",
      *                 description="Patient ID"
@@ -77,7 +77,7 @@ class PatientController extends Controller
         $request->validate([
             "patient_id" => "required",
             "trx_id" => "required",
-            "payment_id" => "required",
+            "patient_identity" => "required",
         ]);
 
 
@@ -85,7 +85,7 @@ class PatientController extends Controller
             return $utils->message("Error", "Patient Not Found." , 404);
 
 
-        $patient = $request->get("patient_id");
+        $patient = $request->get("patient_identity");
         $trx_id = $request->get("trx_id");
         $payment_id = $request->get("payment_id");
 
@@ -94,11 +94,10 @@ class PatientController extends Controller
 
         if ($paymentData["data"]["status"] == "successful") {
             DB::transaction(function () use ($utils, $paymentData, $payment_id, $trx_id, $user) {
-                $flutter = ServiceChargeFlutterwavePayments::where("id", $payment_id)->firstOrFail();
+                $flutter = ServiceChargeFlutterwavePayments::where("identity", $payment_id)->firstOrFail();
                 $flutter->user_id = $user->id;
                 $flutter->patient_id = $user->id;
                 $flutter->trx_id = $trx_id;
-                $flutter->identity = $utils->generateCramp("service_payments");
                 $flutter->patient_id = $user->id;
                 $flutter->account_id = $paymentData["data"]["account_id"];
                 $flutter->amount = $paymentData["data"]["amount"];
@@ -188,6 +187,7 @@ class PatientController extends Controller
         $payment->status = "Pending";
         $payment->user_id = $user->id;
         $payment->amount = 1500;
+        $payment->identity = $utils->generateCramp("service_payments");
         $payment->patient_id =  Patients::where('user_id', $user->id)->first()->id;
         $payment->status = "pending";
         $payment->save();
