@@ -98,7 +98,7 @@ class PatientController extends Controller
                 $dbSave =  DB::transaction(function () use ($utils, $paymentData, $payment_id, $trx_id, $user) {
                     $flutter = ServiceChargeFlutterwavePayments::where("identity", $payment_id)->firstOrFail();
                     $flutter->user_id = $user->id;
-                    $flutter->patient_id = Patients::where($user->id, $user->name)->first()->id;
+                    $flutter->patient_id => Patients::where($user->id, $user->name)->first()->id;
                     $flutter->trx_id = $trx_id;
                     $flutter->patient_id = $user->id;
                     $flutter->account_id = $paymentData["data"]["account_id"];
