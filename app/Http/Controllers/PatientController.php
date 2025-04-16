@@ -144,6 +144,70 @@ class PatientController extends Controller
 
 
     }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/initiate-service-charge-payments",
+     *     summary="Initiate service charge payment",
+     *     tags={"Patients"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"patient_id"},
+     *             @OA\Property(
+     *                 property="patient_id",
+     *                 type="string",
+     *                 example="94901/03/24",
+     *                 description="Patient ID"
+     *             ),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Create Password",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation Error",
+     *         @OA\JsonContent()
+     *     )
+     * )
+     */
+
+    public function cancelServiceChargePayment(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "patient_id" => "required"
+        ]);
+
+        if (!User::where("reg_id", $request->input("patient_id"))->exists())
+            return $utils->message("Error", "Patient Not Found." , 404);
+
+        $user = User::where("reg_id", $request->input("patient_id"))->first();
+        $transaction_id = $request->get('trx_id');
+
+        $trx_id =  $utils->generateCode(20);
+
+        $payment = ServiceChargeFlutterwavePayments::where("identity", $transaction_id)->firstOrFail();
+        $payment->status = "Cancelled";
+        $payment->user_id = $user->id;
+        $payment->amount = 1500;
+        $payment->identity = $utils->generateCramp("service_payments");
+        $payment->patient_id =  Patients::where('user_id', $user->id)->first()->id;
+        $payment->status = "pending";
+        $payment->save();
+
+        return $utils->message("Success", $payment , 200);
+
+    }
+
     /**
      * @OA\Post(
      *     path="/api/v1/initiate-service-charge-payments",
@@ -420,7 +484,7 @@ class PatientController extends Controller
              PaymentResource::collection($patient);
              $data = [
                  "payments" => PaymentResource::collection($patient),
-                 "total" => number_format(Payments::sum("amount"), 2)
+                 "total" => number_format(FlutterwavePayment::sum("amount_settled"), 2)
              ];
 
 

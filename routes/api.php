@@ -100,6 +100,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('/create-password', ['App\Http\Controllers\PatientController', 'createPassword']);
     Route::post('/service-charge-payment', ['App\Http\Controllers\PatientController', 'serviceChargePayment']);
     Route::post('/initiate-service-charge-payments', ['App\Http\Controllers\PatientController', 'initiateServiceChargePayment']);
+    Route::post('/cancel-service-charge-payments', ['App\Http\Controllers\PatientController', 'cancelServiceChargePayment']);
     Route::post('/complete-service-charge-payments', ['App\Http\Controllers\PatientController', 'CompleteServiceChargePayment']);
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
