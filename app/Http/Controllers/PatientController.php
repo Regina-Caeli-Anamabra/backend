@@ -84,6 +84,9 @@ class PatientController extends Controller
         if (!User::where("reg_id", $request->input("patient_id"))->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
 
+        if (!Patients::where("reg_no", $request->input("patient_id"))->exists())
+            return $utils->message("Error", "User Not Found." , 404);
+
 
         $patient = $request->get("patient_id");
         $trx_id = $request->get("trx_id");
@@ -98,7 +101,7 @@ class PatientController extends Controller
                 $dbSave =  DB::transaction(function () use ($utils, $paymentData, $payment_id, $trx_id, $user) {
                     $flutter = ServiceChargeFlutterwavePayments::where("identity", $payment_id)->firstOrFail();
                     $flutter->user_id = $user->id;
-                    $flutter->patient_id = Patients::where("id", $user->id)->first()->id;
+                    $flutter->patient_id = Patients::where("user_id", $user->id)->first()->id;
                     $flutter->trx_id = $trx_id;
                     $flutter->patient_id = $user->id;
                     $flutter->account_id = $paymentData["data"]["account_id"];
