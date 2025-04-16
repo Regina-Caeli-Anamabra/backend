@@ -123,6 +123,7 @@ Route::group(['prefix' => 'v1/admin'], function () {
     Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'adminLogin']);
     Route::group(['middleware' => ['auth:sanctum', 'check.role']], function () {
         Route::get('/services', ['App\Http\Controllers\GeneralController', 'adminServices']);
+        Route::get('/service-charge', ['App\Http\Controllers\AdminController', 'serviceCharges']);
         Route::get('/category', ['App\Http\Controllers\GeneralController', 'category']);
         Route::get('/get-categories', ['App\Http\Controllers\AdminController', 'getCategories']);
         Route::post('/add-service', ['App\Http\Controllers\AdminController', 'addService']);

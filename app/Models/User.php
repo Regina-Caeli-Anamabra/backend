@@ -20,6 +20,11 @@ class User extends Authenticatable
         return $this->hasOne(Patients::class, 'user_id');
     }
 
+    public function serviceCharges(): HasOne
+    {
+        return $this->hasOne(ServiceChargeFlutterwavePayments::class, 'user_id');
+    }
+
     protected $hidden = [
         "password"
     ];

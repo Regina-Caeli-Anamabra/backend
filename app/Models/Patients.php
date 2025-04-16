@@ -20,6 +20,10 @@ class Patients extends Model
     {
         return $this->hasMany(Bookings::class, 'patient_id');
     }
+    public function serviceCharge(): HasMany
+    {
+        return $this->hasMany(ServiceChargeFlutterwavePayments::class, 'patient_id');
+    }
     public function user(): BelongsTo
     {
         return $this->belongsTo('App\Models\User', 'user_id');

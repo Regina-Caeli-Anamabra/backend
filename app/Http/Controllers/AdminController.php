@@ -7,10 +7,12 @@ use App\Http\Resources\Category;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\PatientResource;
 use App\Http\Resources\PaymentsResource;
+use App\Http\Resources\ServieChargeResource;
 use App\Models\Bookings;
 use App\Models\Categories;
 use App\Models\Patients;
 use App\Models\Payments;
+use App\Models\ServiceChargeFlutterwavePayments;
 use App\Models\Services;
 use App\Models\User;
 use App\Utils\Utils;
@@ -22,6 +24,19 @@ use Illuminate\Support\Facades\Log;
 class AdminController extends Controller
 {
 
+    public function serviceCharges(Request $request, Utils $utils)
+    {
+        if(!auth('sanctum')->check())
+            return $utils->message("error","Unauthorized Access." , 401);
+
+        $serviceCharges = ServiceChargeFlutterwavePayments::with("users", "patients")->get();
+        $sum = $serviceCharges->sum("amount_settled");
+        $data = [
+            "serviceCharges" => ServieChargeResource::collection($serviceCharges),
+            "sum" => number_format($sum, 2)
+        ];
+        return $utils->message("success",  $data, 200);
+    }
     public function getCategories(Request $request, Utils $utils)
     {
         if(!auth('sanctum')->check())
