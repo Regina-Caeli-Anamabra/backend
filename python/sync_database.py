@@ -11,12 +11,13 @@ db_config = {
     'database': os.environ.get("DB_DATABASE"),
 }
 
+
 # Function to move data from 'patient' table to 'users' table and update 'patient'
 def move_data():
     try:
         # Connect to the database
         connection = mysql.connector.connect(**db_config)
-        cursor = connection.cursor()
+        cursor = connection.cursor(dictionary=True)
 
         # Select data from 'patient' table
         select_query = "SELECT phone_no, patient_id FROM patient"
@@ -56,8 +57,20 @@ def move_data():
             cursor.close()
             connection.close()
 
+def wait_for_db():
+    while True:
+        try:
+            conn = mysql.connector.connect(**db_config)
+            conn.close()
+            break
+        except:
+            print("Waiting for DB...")
+            time.sleep(2)
+
+
 # Run the script every 10 seconds
 if __name__ == "__main__":
+    wait_for_db()
     while True:
         move_data()
         time.sleep(10)  # Wait for 10 seconds before running again
