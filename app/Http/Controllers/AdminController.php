@@ -29,7 +29,7 @@ class AdminController extends Controller
         if(!auth('sanctum')->check())
             return $utils->message("error","Unauthorized Access." , 401);
 
-        $serviceCharges = ServiceChargeFlutterwavePayments::with("users", "patients")->get();
+      return  $serviceCharges = ServiceChargeFlutterwavePayments::with("users", "patients")->get();
         $sum = $serviceCharges->sum("amount_settled");
         $data = [
             "serviceCharges" => ServieChargeResource::collection($serviceCharges),
