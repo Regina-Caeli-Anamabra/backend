@@ -630,15 +630,19 @@ class AuthController extends Controller
             "username" => "required",
             "password" => "required"
         ]);
-        if (!auth()->attempt($loginRequest->only(['username', 'password'])))
+        if (!auth()->attempt($loginRequest->only(['username', 'password']))){
             return $utils->message( "error", "Invalid Username/Password", 401);
 
-        $authUser = Auth::user();
-        $success['token']  = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addMinutes(15))->plainTextToken;
-        $success['refreshToken']  = $authUser->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value],\Carbon\Carbon::now()->addDays(7))->plainTextToken;
-        $success['username'] =  $authUser->username;
-        $success['email'] =  $authUser->email;
-        return $utils->message("success", $success, 200);
+        }else{
+
+            $authUser = Auth::user();
+            $success['token']  = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addMinutes(15))->plainTextToken;
+            $success['refreshToken']  = $authUser->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value],\Carbon\Carbon::now()->addDays(7))->plainTextToken;
+            $success['username'] =  $authUser->username;
+            $success['email'] =  $authUser->email;
+            return $utils->message("success", $success, 200);
+        }
+
     }
 
 
