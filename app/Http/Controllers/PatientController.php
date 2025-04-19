@@ -35,7 +35,7 @@ class PatientController extends Controller
      *         @OA\JsonContent(
      *             required={"patient_id", "trx_id", "payment_id"},
      *             @OA\Property(
-     *                 property="patient_id",
+     *                 property="payment_id",
      *                 type="string",
      *                 example="94901/03/24",
      *                 description="Patient ID"
@@ -49,7 +49,7 @@ class PatientController extends Controller
      *             @OA\Property(
      *                 property="patient_identity",
      *                 type="string",
-     *                 example="1739976680226",
+     *                 example="30601745065990641745065990189454",
      *                 description="Payment ID"
      *             )
      *         )
@@ -80,6 +80,9 @@ class PatientController extends Controller
             "patient_identity" => "required",
         ]);
 
+
+        if (!ServiceChargeFlutterwavePayments::where("", $request->get("patient_identity"))->exist())
+            return $utils->message("error", "Payment Not Found" , 404);
 
         if (!User::where("reg_id", $request->input("patient_id"))->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
