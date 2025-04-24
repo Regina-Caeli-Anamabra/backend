@@ -61,10 +61,11 @@ def wait_for_db():
     while True:
         try:
             conn = mysql.connector.connect(**db_config)
-            conn.close()
+            conn.close()  # Close the connection immediately after successful check
+            print("Database is ready!")
             break
-        except:
-            print("Waiting for DB...")
+        except mysql.connector.Error as err:
+            print(f"Waiting for DB... Error: {err}")
             time.sleep(2)
 
 
