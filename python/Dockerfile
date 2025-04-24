@@ -17,4 +17,4 @@ EXPOSE 5000
 ENV FLASK_ENV=production
 
 # Step 7: Run the application when the container launches
-CMD ["python", "sync_database.py"]
+CMD ["python", "./sync_database.py"]
