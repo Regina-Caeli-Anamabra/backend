@@ -23,10 +23,10 @@ def move_data():
         select_query = "SELECT phone_no, patient_id FROM patient WHERE moved = 0"
         cursor.execute(select_query)
 
-        # Fetch all results and process the first row
-        rows = cursor.fetchall()  # This ensures the result set is fully read
+        # Fetch the data (all results)
+        rows = cursor.fetchall()
         if rows:
-            row = rows[0]  # Get the first row
+            row = rows[0]
             phone_no = row['phone_no']
             patient_id = row['patient_id']
 
@@ -38,13 +38,17 @@ def move_data():
             insert_users_query = "INSERT INTO users (phone, reg_id, verified, password) VALUES (%s, %s, 1, %s)"
             cursor.execute(insert_users_query, (phone_no, patient_id, hashed_password))
 
-            # Update 'patient' table with user_id from 'users' table
+            # Get the ID of the newly created user (use lastrowid to get the inserted user's ID)
+            user_id = cursor.lastrowid
+            print(f"Created user with ID: {user_id}")
+
+            # Update 'patient' table with the user_id from the 'users' table
             update_patient_query = "UPDATE patient SET user_id = %s WHERE patient_id = %s"
-            cursor.execute(update_patient_query, (patient_id, patient_id))
+            cursor.execute(update_patient_query, (user_id, patient_id))
 
             # Commit the transactions
             connection.commit()
-            print(f"Moved data: {phone_no}, Patient ID: {patient_id}")
+            print(f"Moved data: {phone_no}, Patient ID: {patient_id}, User ID: {user_id}")
 
         else:
             print("No data to move.")
