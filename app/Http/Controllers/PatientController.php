@@ -225,12 +225,6 @@ class PatientController extends Controller
      *                 type="string",
      *                 example="94901/03/24",
      *                 description="Patient ID"
-     *             ),
-     *             @OA\Property(
-     *                 property="trx_id",
-     *                 type="integer",
-     *                 example="8440118",
-     *                 description="TRX ID"
      *             )
      *         )
      *     ),
@@ -255,15 +249,13 @@ class PatientController extends Controller
     public function initiateServiceChargePayment(Request $request, Utils $utils)
     {
         $request->validate([
-            "patient_id" => "required",
-            "trx_id" => "required",
+            "patient_id" => "required"
         ]);
 
         if (!User::where("reg_id", $request->input("patient_id"))->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
 
         $user = User::where("reg_id", $request->input("patient_id"))->first();
-        $transaction_id = $request->get('trx_id');
 
         $trx_id =  $utils->generateCode(20);
         $payment = new ServiceChargeFlutterwavePayments();
