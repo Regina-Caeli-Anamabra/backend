@@ -43,8 +43,8 @@ def move_data():
             print(f"Created user with ID: {user_id}")
 
             # Update 'patient' table with the user_id from the 'users' table
-            update_patient_query = "UPDATE patient SET user_id = %s WHERE patient_id = %s"
-            cursor.execute(update_patient_query, (user_id, patient_id))
+            update_patient_query = "UPDATE patient SET user_id = %s, moved = %s WHERE patient_id = %s"
+            cursor.execute(update_patient_query, (user_id, 1, patient_id))
 
             # Commit the transactions
             connection.commit()
