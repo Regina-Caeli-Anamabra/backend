@@ -6,8 +6,8 @@ import bcrypt
 # Database configuration using environment variables
 db_config = {
     'host': os.environ.get("DB_HOST"),
-    'user': os.environ.get("DB_USERNAME"),
-    'password': os.environ.get("DB_PASSWORD"),
+    'user': os.environ.get("MYSQL_USER"),
+    'password': os.environ.get("MYSQL_PASSWORD"),
     'database': os.environ.get("DB_DATABASE"),
 }
 
