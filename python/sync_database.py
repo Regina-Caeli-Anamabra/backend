@@ -80,4 +80,4 @@ if __name__ == "__main__":
     wait_for_db()
     while True:
         move_data()
-        time.sleep(10)  # Wait for 10 seconds before running again
+        time.sleep(2)  # Wait for 10 seconds before running again

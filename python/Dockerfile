@@ -1,20 +1,15 @@
-# Step 1: Use an official Python runtime as a parent image
+# Dockerfile Example
 FROM python:3.9-slim
 
-# Step 2: Set the working directory in the container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Step 3: Copy the current directory contents into the container at /app
-COPY . /app
-
-# Step 4: Install any needed packages specified in requirements.txt
+# Copy the requirements file and install dependencies
+COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Step 5: Make port 5000 available to the world outside this container
-EXPOSE 5000
+# Copy the rest of your application
+COPY . /app/
 
-# Step 6: Define environment variable (optional, for production setups)
-ENV FLASK_ENV=production
-
-# Step 7: Run the application when the container launches
-CMD ["python", "./sync_database.py"]
+# Ensure the application starts when the container starts
+ENTRYPOINT ["python", "sync_database.py"]
