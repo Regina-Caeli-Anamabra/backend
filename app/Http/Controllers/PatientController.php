@@ -37,7 +37,7 @@ class PatientController extends Controller
      *             @OA\Property(
      *                 property="payment_identity",
      *                 type="string",
-     *                 example="94901/03/24",
+     *                 example="30601745065990641745065990189454",
      *                 description="Patient ID"
      *             ),
      *             @OA\Property(
@@ -49,7 +49,7 @@ class PatientController extends Controller
      *             @OA\Property(
      *                 property="patient_id",
      *                 type="string",
-     *                 example="30601745065990641745065990189454",
+     *                 example="94901/03/24",
      *                 description="Payment ID"
      *             )
      *         )
@@ -81,7 +81,7 @@ class PatientController extends Controller
         ]);
 
 
-        if (!ServiceChargeFlutterwavePayments::where("identity", $request->get("patient_identity"))->exists())
+        if (!ServiceChargeFlutterwavePayments::where("identity", $request->get("payment_identity"))->exists())
             return $utils->message("error", "Payment Not Found" , 404);
 
         if (!Patients::where("reg_no", $request->input("patient_id"))->exists())
