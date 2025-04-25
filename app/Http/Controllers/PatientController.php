@@ -90,7 +90,7 @@ class PatientController extends Controller
 
         $patient = $request->get("patient_id");
         $trx_id = $request->get("trx_id");
-        $payment_id = $request->get("patient_identity");
+        $payment_id = $request->get("payment_identity");
 
          $user = User::where("reg_id", $patient)->first();
         $paymentData = $utils->validatePayment($trx_id);
