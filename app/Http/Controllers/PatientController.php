@@ -84,7 +84,7 @@ class PatientController extends Controller
         if (!ServiceChargeFlutterwavePayments::where("identity", $request->get("payment_identity"))->exists())
             return $utils->message("error", "Payment Not Found" , 404);
 
-        if (!User::where("reg_no", $request->input("patient_id"))->exists())
+        if (!User::where("reg_id", $request->input("patient_id"))->exists())
             return $utils->message("Error", "User Not Found." , 404);
 
 
