@@ -33,9 +33,9 @@ class PatientController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"patient_id", "trx_id", "payment_id"},
+     *             required={"patient_identity", "trx_id", "payment_identity"},
      *             @OA\Property(
-     *                 property="payment_id",
+     *                 property="payment_identity",
      *                 type="string",
      *                 example="94901/03/24",
      *                 description="Patient ID"
@@ -75,7 +75,7 @@ class PatientController extends Controller
     public function CompleteServiceChargePayment(Request $request, Utils $utils)
     {
         $request->validate([
-            "patient_id" => "required",
+            "payment_identity" => "required",
             "trx_id" => "required",
             "patient_identity" => "required",
         ]);
