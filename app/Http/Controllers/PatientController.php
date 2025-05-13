@@ -149,7 +149,7 @@ class PatientController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/cancel-service-charge-payments",
-     *     summary="Initiate service charge payment",
+     *     summary="Cancel service charge payment",
      *     tags={"Patients"},
      *     @OA\RequestBody(
      *         required=true,
