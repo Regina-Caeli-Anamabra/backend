@@ -448,7 +448,7 @@ class BookingController extends Controller
                 return $utils->message("error","Unauthorized Access." , 401);
 
 
-            if (DaysAvailable::where("service_id", $request->get("service_id"))->exists())
+            if (DaysAvailable::where("service_id", $request->get("service_id"))->where("days", $request->get("day"))->exists())
                 return $utils->message("success", true , 200);
 
             return $utils->message("success", false , 404);
@@ -538,7 +538,7 @@ class BookingController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
-            return $user_id =  auth('sanctum')->user()->id;
+             $user_id =  auth('sanctum')->user()->id;
              $service_id = $request->get("service_id");
              $amount = $request->get("amount");
 
