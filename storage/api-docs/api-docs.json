@@ -708,7 +708,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             },
             "post": {
                 "tags": [
@@ -858,7 +863,72 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/patient/receipt": {
+            "get": {
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Get States",
+                "operationId": "652cf496285d31e7835f4b44436a0dc2",
+                "parameters": [
+                    {
+                        "name": "identity",
+                        "in": "query",
+                        "description": "identity",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "83383738383"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Receipt",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/patient/get-session": {
@@ -940,58 +1010,6 @@
                 "responses": {
                     "201": {
                         "description": "Cancel Booking [ 0 = Active, 1 = Cancelled]",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Booking not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/patient/receipt": {
-            "get": {
-                "summary": "Get States",
-                "operationId": "652cf496285d31e7835f4b44436a0dc2",
-                "parameters": [
-                    {
-                        "name": "identity",
-                        "in": "query",
-                        "description": "identity",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "83383738383"
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Receipt",
                         "content": {
                             "application/json": {
                                 "schema": {}

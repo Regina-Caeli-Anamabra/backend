@@ -31,6 +31,9 @@ class BookingController extends Controller
      * @OA\Get (
      *     path="/api/v1/patient/reschedule",
      *     summary="Reschedule",
+     *      security={
+     *          {"sanctum": {}},
+     *      },
      *      @OA\Parameter(
      *          name="identity",
      *          in="query",
@@ -118,6 +121,9 @@ class BookingController extends Controller
      * @OA\Get (
      *     path="/api/v1/patient/bookings",
      *     summary="bookings",
+     *      security={
+     *          {"sanctum": {}},
+     *      },
      *      @OA\Parameter(
      *          name="identity",
      *          in="query",
@@ -192,6 +198,48 @@ class BookingController extends Controller
         }
     }
 
+    /**
+     * @OA\Get (
+     *     path="/api/v1/patient/receipt",
+     *     tags={"Booking"},
+     *     summary="Get States",
+     *     security={
+     *         {"sanctum": {}},
+     *     },
+     *      @OA\Parameter(
+     *          name="identity",
+     *          in="query",
+     *          description="identity",
+     *          required=true,
+     *          example="83383738383",
+     *          @OA\Schema(type="string")
+     *      ),
+     *     @OA\Response(response="201", description="Receipt", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="Booking not Found", @OA\JsonContent()),
+     *     @OA\Response(response="500", description="Server Error", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent()),
+     *
+     * )
+     * **/
+    public function receipt(Request $request, Utils $utils): JsonResponse
+    {
+
+        try {
+            if(!auth('sanctum')->check())
+                return $utils->message("error","Unauthorized Access." , 401);
+
+            $user_id =  auth('sanctum')->user()->id;
+            $identity = $request->get("identity");
+
+            $booking = Bookings::where("identity", $identity)->firstOrFail();
+
+            return $utils->message("success", $booking, 200);
+        }catch (\Exception $exception){
+            return $utils->message("error",$exception->getMessage(), 401);
+        }
+    }
+
+
 
     /**
      * @OA\Get (
@@ -212,7 +260,7 @@ class BookingController extends Controller
      *     @OA\Response(response="201", description="Reschedule Booking", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Booking not Found", @OA\JsonContent()),
      *     @OA\Response(response="500", description="Server Error", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="Validation Error", @OA\JsosnContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent()),
      *
      * )
      * **/
@@ -247,9 +295,6 @@ class BookingController extends Controller
      * @OA\Get (
      *     path="/api/v1/patient/cancel-booking",
      *     summary="Get States",
-     *     security={
-     *         {"sanctum": {}},
-     *     },
      *      @OA\Parameter(
      *          name="identity",
      *          in="query",
@@ -280,48 +325,6 @@ class BookingController extends Controller
             $booking->update();
 
             return $utils->message("success", "Cancelled Successfully...", 200);
-        }catch (\Exception $exception){
-            return $utils->message("error",$exception->getMessage(), 401);
-        }
-    }
-
-
-    /**
-     * @OA\Get (
-     *     path="/api/v1/patient/receipt",
-     *       tags={"Booking"},
-     *     summary="Get States",
-     *     security={
-     *         {"sanctum": {}},
-     *     },
-     *      @OA\Parameter(
-     *          name="identity",
-     *          in="query",
-     *          description="identity",
-     *          required=true,
-     *          example="83383738383",
-     *          @OA\Schema(type="string")
-     *      ),
-     *     @OA\Response(response="201", description="Receipt", @OA\JsonContent()),
-     *     @OA\Response(response="404", description="Booking not Found", @OA\JsonContent()),
-     *     @OA\Response(response="500", description="Server Error", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent()),
-     *
-     * )
-     * **/
-    public function receipt(Request $request, Utils $utils): JsonResponse
-    {
-
-        try {
-            if(!auth('sanctum')->check())
-                return $utils->message("error","Unauthorized Access." , 401);
-
-            $user_id =  auth('sanctum')->user()->id;
-            $identity = $request->get("identity");
-
-            $booking = Bookings::where("identity", $identity)->firstOrFail();
-
-            return $utils->message("success", $booking, 200);
         }catch (\Exception $exception){
             return $utils->message("error",$exception->getMessage(), 401);
         }
