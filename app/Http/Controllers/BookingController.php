@@ -16,6 +16,7 @@ use App\Models\Services;
 use App\Utils\Utils;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -55,6 +56,85 @@ class BookingController extends Controller
      * )
      * **/
     public function reScheduleBooking(Request $request, Utils $utils)
+    {
+
+        $request->validate([
+            "identity" => "required|string",
+            "start_time" => "required|string"
+        ]);
+
+        if(!auth('sanctum')->check())
+            return $utils->message("error","Unauthorized Access." , 401);
+
+        $user_id =  auth('sanctum')->user()->id;
+
+
+        try {
+            $payment_id = $request->get("payment_id");
+            $booking_start = Carbon::parse($request->get("booking_start"));
+            $booking_start_formatted =  $booking_start->format("Y-m-d H:i");
+            $booking_end =  $booking_start->copy()->addMinute(45)->format("Y-m-d H:i");
+
+//          if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
+//                return $utils->message("error","The session is already booked." , 400);
+
+            $identity = $request->get("identity");
+            $data = [
+                "transaction_id" => $request->get("transaction_id"),
+                "user_id" => $user_id,
+                "first_name" => Patients::where("user_id", $user_id)->value("firstName"),
+                "last_name" => Patients::where("user_id", $user_id)->value("lastName")
+            ]; #######
+            Log::info("Rescheduling...", $data);
+
+            $name = Services::where("id", $request->get("service_id"))->value("name");
+            $former_booking = Bookings::where("identity", $identity)->firstOrFail();
+            Bookings::where("identity", $identity)->update(["status", 1]);
+
+            $booking = new Bookings();
+            $booking->flutterwave_id = $former_booking->flutterwave_id;
+            $booking->session_start = $former_booking->session_start;
+            $booking->service_id = $former_booking->service_id;
+            $booking->identity = Utils::generateCode("bookings");
+            $booking->price = $former_booking->price;
+            $booking->session_end = $booking_end;
+            $booking->user_id = $user_id;
+            $booking->booking_for_self = 0;
+            $booking->recipient_id = $user_id;
+            $booking->reschedule_for = $former_booking->reschedule_for;
+            $booking->status = 2;
+            $booking->save();
+
+            return $utils->message("success", $booking, 200);
+
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/patient/bookings",
+     *     summary="bookings",
+     *      @OA\Parameter(
+     *          name="identity",
+     *          in="query",
+     *          description="identity",
+     *          required=true,
+     *          example="83383738383",
+     *          @OA\Schema(type="string")
+     *      ),
+     *
+     *     @OA\Response(response="201", description="Reschedule Booking", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="Booking not Found", @OA\JsonContent()),
+     *     @OA\Response(response="500", description="Server Error", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent()),
+     *
+     * )
+     * **/
+    public function bookings(Request $request, Utils $utils)
     {
 
         $request->validate([
@@ -197,6 +277,44 @@ class BookingController extends Controller
             $booking->update();
 
             return $utils->message("success", "Cancelled Successfully...", 200);
+        }catch (\Exception $exception){
+            return $utils->message("error",$exception->getMessage(), 401);
+        }
+    }
+
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/patient/receipt",
+     *     summary="Get States",
+     *      @OA\Parameter(
+     *          name="identity",
+     *          in="query",
+     *          description="identity",
+     *          required=true,
+     *          example="83383738383",
+     *          @OA\Schema(type="string")
+     *      ),
+     *     @OA\Response(response="201", description="Receipt", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="Booking not Found", @OA\JsonContent()),
+     *     @OA\Response(response="500", description="Server Error", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent()),
+     *
+     * )
+     * **/
+    public function receipt(Request $request, Utils $utils): JsonResponse
+    {
+
+        try {
+            if(!auth('sanctum')->check())
+                return $utils->message("error","Unauthorized Access." , 401);
+
+            $user_id =  auth('sanctum')->user()->id;
+            $identity = $request->get("identity");
+
+            $booking = Bookings::where("identity", $identity)->firstOrFail();
+
+            return $utils->message("success", $booking, 200);
         }catch (\Exception $exception){
             return $utils->message("error",$exception->getMessage(), 401);
         }

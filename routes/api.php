@@ -81,6 +81,8 @@ Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], funct
     Route::patch('/profile/update', ['App\Http\Controllers\PatientController', 'updateProfile']);
     Route::patch('/inner/password/update', ['App\Http\Controllers\Auth\AuthController', 'innerUpdatePassword']);
     Route::get('/get-categories', ['App\Http\Controllers\BookingController', 'getCategories']);
+    Route::get('/bookings', ['App\Http\Controllers\BookingController', 'bookings']);
+    Route::get('/receipt', ['App\Http\Controllers\BookingController', 'receipt']);
 
 });
 Route::group(['prefix' => 'v1'], function () {

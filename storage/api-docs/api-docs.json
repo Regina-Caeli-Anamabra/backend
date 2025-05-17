@@ -809,6 +809,118 @@
                 ]
             }
         },
+        "/api/v1/patient/bookings": {
+            "get": {
+                "summary": "bookings",
+                "operationId": "0a48d301dfe5a5aa0450ff4cd81fc0f6",
+                "parameters": [
+                    {
+                        "name": "identity",
+                        "in": "query",
+                        "description": "identity",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "83383738383"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Reschedule Booking",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/patient/get-session": {
+            "get": {
+                "tags": [
+                    "Booking"
+                ],
+                "summary": "Get Session",
+                "operationId": "2037e82fa7b0019e119aaca8106959b5",
+                "parameters": [
+                    {
+                        "name": "identity",
+                        "in": "query",
+                        "description": "identity",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "30601739987470311739987470547047"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Reschedule Booking",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/patient/cancel-booking": {
             "get": {
                 "summary": "Get States",
@@ -828,6 +940,58 @@
                 "responses": {
                     "201": {
                         "description": "Cancel Booking [ 0 = Active, 1 = Cancelled]",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/patient/receipt": {
+            "get": {
+                "summary": "Get States",
+                "operationId": "652cf496285d31e7835f4b44436a0dc2",
+                "parameters": [
+                    {
+                        "name": "identity",
+                        "in": "query",
+                        "description": "identity",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "83383738383"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Receipt",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -1024,6 +1188,73 @@
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "Booking successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Code Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized Access",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Booking already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/patient/check-availability": {
+            "post": {
+                "tags": [
+                    "Booking"
+                ],
+                "operationId": "a7a81ea3ca3729c3a34f1e8a87cc2c5b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "service_id": {
+                                        "type": "string",
+                                        "example": "2"
+                                    },
+                                    "day": {
+                                        "type": "string",
+                                        "example": "Monday"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Booking successful",
@@ -1795,6 +2026,296 @@
                         "sanctum": []
                     }
                 ]
+            }
+        },
+        "/api/v1/complete-service-charge-payments": {
+            "post": {
+                "tags": [
+                    "Patients"
+                ],
+                "summary": "Complete service charge payment",
+                "operationId": "45163c09438a1ec5ac24e818b122c1e9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "patient_id",
+                                    "trx_id",
+                                    "payment_identity"
+                                ],
+                                "properties": {
+                                    "payment_identity": {
+                                        "description": "Patient ID",
+                                        "type": "string",
+                                        "example": "30601745065990641745065990189454"
+                                    },
+                                    "trx_id": {
+                                        "description": "TRX ID",
+                                        "type": "string",
+                                        "example": "1739976680226"
+                                    },
+                                    "patient_id": {
+                                        "description": "Payment ID",
+                                        "type": "string",
+                                        "example": "94901/03/24"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Payment completed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cancel-service-charge-payments": {
+            "post": {
+                "tags": [
+                    "Patients"
+                ],
+                "summary": "Cancel service charge payment",
+                "operationId": "8de54f9b79bb3e57026d519cf840d0ca",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "patient_id"
+                                ],
+                                "properties": {
+                                    "patient_id": {
+                                        "description": "Patient ID",
+                                        "type": "string",
+                                        "example": "94901/03/24"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Create Password",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/initiate-service-charge-payments": {
+            "post": {
+                "tags": [
+                    "Patients"
+                ],
+                "summary": "Initiate service charge payment",
+                "operationId": "2474de95cfa106a0cab5505e8efc6998",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "patient_id"
+                                ],
+                                "properties": {
+                                    "patient_id": {
+                                        "description": "Patient ID",
+                                        "type": "string",
+                                        "example": "94901/03/24"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Create Password",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/create-password": {
+            "post": {
+                "tags": [
+                    "Patients"
+                ],
+                "summary": "Create Password",
+                "operationId": "c55fff0c735737a7525af6edcb304fdc",
+                "parameters": [
+                    {
+                        "name": "patient_id",
+                        "in": "query",
+                        "description": "Patient ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "94901/03/24"
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "Password",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "sam12345"
+                    },
+                    {
+                        "name": "password_confirmation",
+                        "in": "query",
+                        "description": "Password confirmation",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "sam12345"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Create Password",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/get-details": {
+            "post": {
+                "tags": [
+                    "Patients"
+                ],
+                "summary": "Get Patient Details",
+                "operationId": "b19de28c0ba967e14195ddfcf6890d31",
+                "parameters": [
+                    {
+                        "name": "patient_id",
+                        "in": "query",
+                        "description": "Patient ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Patient Details",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/v1/patient/profile": {
