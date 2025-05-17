@@ -212,7 +212,7 @@ class BookingController extends Controller
      *     @OA\Response(response="201", description="Reschedule Booking", @OA\JsonContent()),
      *     @OA\Response(response="404", description="Booking not Found", @OA\JsonContent()),
      *     @OA\Response(response="500", description="Server Error", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsosnContent()),
      *
      * )
      * **/
@@ -289,6 +289,7 @@ class BookingController extends Controller
     /**
      * @OA\Get (
      *     path="/api/v1/patient/receipt",
+     *       tags={"Booking"},
      *     summary="Get States",
      *     security={
      *         {"sanctum": {}},
