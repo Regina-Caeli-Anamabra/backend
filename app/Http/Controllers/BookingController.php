@@ -247,6 +247,9 @@ class BookingController extends Controller
      * @OA\Get (
      *     path="/api/v1/patient/cancel-booking",
      *     summary="Get States",
+     *     security={
+     *         {"sanctum": {}},
+     *     },
      *      @OA\Parameter(
      *          name="identity",
      *          in="query",
@@ -287,6 +290,9 @@ class BookingController extends Controller
      * @OA\Get (
      *     path="/api/v1/patient/receipt",
      *     summary="Get States",
+     *     security={
+     *         {"sanctum": {}},
+     *     },
      *      @OA\Parameter(
      *          name="identity",
      *          in="query",
