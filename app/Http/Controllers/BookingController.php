@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CategoryResource;
+use App\Http\Resources\User;
 use App\Models\Bookings;
 use App\Models\Categories;
 use App\Models\DaysAvailable;
@@ -25,6 +26,90 @@ use Illuminate\Support\Str;
 
 class BookingController extends Controller
 {
+
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/patient/check-email",
+     *     summary="Check Email",
+     *      @OA\Parameter(
+     *          name="email",
+     *          in="query",
+     *          description="email",
+     *          required=true,
+     *          example="email@mail.com",
+     *          @OA\Schema(type="string")
+     *      ),
+     *
+     *     @OA\Response(response="201", description="check Email", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="Email not Found", @OA\JsonContent()),
+     *     @OA\Response(response="500", description="Server Error", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent()),
+     *
+     * )
+     * **/
+    public function checkEmail(Request $request, Utils $utils)
+    {
+
+        $request->validate([
+            "email" => "required|string|email|max:255",
+        ]);
+
+        try {
+            $status =  "";
+            if (User::where("email", $request->get("email"))->exists())
+                $status = true;
+            else
+                $status = false;
+            return $utils->message("success", $status, 200);
+
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/patient/check-phone",
+     *     summary="Check Phone",
+     *      @OA\Parameter(
+     *          name="phone",
+     *          in="query",
+     *          description="phone",
+     *          required=true,
+     *          example="030393039330",
+     *          @OA\Schema(type="string")
+     *      ),
+     *
+     *     @OA\Response(response="201", description="check Email", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="Email not Found", @OA\JsonContent()),
+     *     @OA\Response(response="500", description="Server Error", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent()),
+     *
+     * )
+     * **/
+    public function checkPhone(Request $request, Utils $utils)
+    {
+
+        $request->validate([
+            "phone" => "required|string|max:255",
+        ]);
+
+        try {
+            $status =  "";
+            if (User::where("phone", $request->get("phone"))->exists())
+                $status = true;
+            else
+                $status = false;
+            return $utils->message("success", $status, 200);
+
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+
 
 
     /**
