@@ -30,7 +30,7 @@ class BookingController extends Controller
 
     /**
      * @OA\Get (
-     *     path="/api/v1/patient/check-email",
+     *     path="/api/v1/check-email",
      *     summary="Check Email",
      *      @OA\Parameter(
      *          name="email",
@@ -71,7 +71,7 @@ class BookingController extends Controller
 
     /**
      * @OA\Get (
-     *     path="/api/v1/patient/check-phone",
+     *     path="/api/v1/check-phone",
      *     summary="Check Phone",
      *      @OA\Parameter(
      *          name="phone",
