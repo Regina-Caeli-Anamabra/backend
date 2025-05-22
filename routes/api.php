@@ -66,6 +66,8 @@ return 1;
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], function () {
     Route::get('/generate-url', ['App\Http\Controllers\BookingController', 'generateUrl']);
+    Route::get('/check-email', ['App\Http\Controllers\BookingController', 'checkEmail']);
+    Route::get('/check-phone', ['App\Http\Controllers\BookingController', 'checkPhone']);
     Route::get('/cancelled', ['App\Http\Controllers\BookingController', 'cancelAppointment']);
     Route::get('/get-payment', ['App\Http\Controllers\BookingController', 'getPayment']);
     Route::post('/check-availability', ['App\Http\Controllers\BookingController', 'checkAvailability']);
