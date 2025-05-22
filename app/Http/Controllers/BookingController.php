@@ -57,7 +57,7 @@ class BookingController extends Controller
 
         try {
             $status =  "";
-            if (User::where("email", $request->get("email"))->exists())
+            if (\App\Models\User::where("email", $request->get("email"))->exists())
                 $status = true;
             else
                 $status = false;
@@ -98,7 +98,7 @@ class BookingController extends Controller
 
         try {
             $status =  "";
-            if (User::where("phone", $request->get("phone"))->exists())
+            if (\App\Models\User::where("phone", $request->get("phone"))->exists())
                 $status = true;
             else
                 $status = false;
