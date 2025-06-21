@@ -785,7 +785,7 @@ class BookingController extends Controller
                 "service_id" => $service_id
             ]);
 
-            return $utils->message("success", ["url"  => $signedUrl, "payment_id" => $payment->id,  'trx_id' => $trx_id] , 200);
+            return $utils->message("success", ["url"  => $signedUrl, "payment_id" => $payment->id, "identity" => $payment->identity,  'trx_id' => $trx_id] , 200);
 
         }catch (\Throwable $e) {
         // Do something with your exception
