@@ -766,15 +766,16 @@ class BookingController extends Controller
                 "last_name" => Patients::where("user_id", $user_id)->value("lastName")
             ];
             Log::info("transaction Started", $logged_data);
-             Patients::where('user_id', $user_id)->first();
+            Patients::where('user_id', $user_id)->first();
             $payment = new FlutterwavePayment();
             $payment->status = "pending";
             $payment->service_id = $service_id;
+            $payment->identity = $this->generateBookingCode("bookings");
             $payment->user_id = $user_id;
             $payment->amount = $amount;
             $payment->trx_id = $trx_id;
             $payment->patient_id =  Patients::where('user_id', $user_id)->first()->id;
-            $payment->status = "pending";
+            $payment->status = "created";
             $payment->save();
 
             // Generate a signed URL
@@ -935,9 +936,9 @@ class BookingController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="payment_id",
+     *         name="identity",
      *         in="query",
-     *         description="Payment id",
+     *         description="Payment transaction id",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -984,6 +985,7 @@ class BookingController extends Controller
         $request->validate([
             "booking_start" => "required",
             "booking_type" => "required",
+            "identity" => "required",
             "service_id" => "required|int",
             "booking_for_self" => "required|int",
             "interval" => "required|int"
@@ -996,7 +998,7 @@ class BookingController extends Controller
         $user_id =  auth('sanctum')->user()->id;
         try {
             $interval = $request->get("interval");
-            $payment_id = $request->get("payment_id");
+            $identity = $request->get("identity");
             $booking_start = Carbon::parse($request->get("booking_start"));
             $booking_start_formatted =  $booking_start->format("Y-m-d H:i");
             $booking_end =  $booking_start->copy()->addMinute($interval)->format("Y-m-d H:i");
@@ -1026,11 +1028,10 @@ class BookingController extends Controller
 
                 if ($paymentData["data"]["status"] == "successful") {
 
-                    $flutter = FlutterwavePayment::where("id", $payment_id)->firstOrFail();
+                    $flutter = FlutterwavePayment::where("identity", $identity)->firstOrFail();
                     $flutter->user_id = $user_id;
                     $flutter->patient_id = Patients::where("user_id", $user_id)->first()->id;
                     $flutter->trx_id = $transaction_id;
-                    $flutter->identity = $this->generateBookingCode("bookings");
                     $flutter->patient_id = Patients::where("user_id", $user_id)->value("id");
                     $flutter->account_id = $paymentData["data"]["account_id"];
                     $flutter->amount = $paymentData["data"]["amount"];
@@ -1061,7 +1062,7 @@ class BookingController extends Controller
 
 
                     $booking = new Bookings();
-                    $booking->flutterwave_id = $payment_id;
+                    $booking->flutterwave_id = $flutter->id;
                     $booking->session_start = $booking_start_formatted;
                     $booking->service_id = $service_id;
                     $booking->identity = $this->generateBookingCode("bookings");
@@ -1072,7 +1073,7 @@ class BookingController extends Controller
                     $booking->recipient_id = $recipient_id;
                     $booking->appointment_type = $appointment_type;
                     $booking->save();
-                    $id_from_payment = $this->addPayment($utils, $user_id, $payment_id, $booking->id, $amount, $service_id, $name);
+                    $id_from_payment = $this->addPayment($utils, $user_id, $flutter->id, $booking->id, $amount, $service_id, $name);
 
 
                     return $utils->message("success", $booking, 200);
