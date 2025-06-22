@@ -316,7 +316,7 @@ class BookingController extends Controller
             $user_id =  auth('sanctum')->user()->id;
             $identity = $request->get("identity");
 
-            $booking = Bookings::with(["patient:firstName,lastName,phone_no,", "flutterPayment:trx_id","services:service_name"])
+            $booking = Bookings::with(["patient:firstName,lastName,phone_no", "flutterPayment:trx_id","services:service_name"])
                         ->where("identity", $identity)
                         ->firstOrFail();
 
