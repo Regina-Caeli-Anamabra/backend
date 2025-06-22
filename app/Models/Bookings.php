@@ -30,7 +30,7 @@ class Bookings extends Model
         return $this->hasOne(Bookings::class);
     }
 
-    public function `services`(): BelongsTo
+    public function services(): BelongsTo
     {
         return $this->belongsTo(Services::class, "service_id");
     }
