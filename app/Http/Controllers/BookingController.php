@@ -1065,6 +1065,7 @@ class BookingController extends Controller
 
                     $booking = new Bookings();
                     $booking->flutterwave_id = $flutter->id;
+                    $booking->receipt_no = $utils->code_ref(10);
                     $booking->session_start = $booking_start_formatted;
                     $booking->service_id = $service_id;
                     $booking->identity = $this->generateBookingCode("bookings");
