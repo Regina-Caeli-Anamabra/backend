@@ -37,6 +37,16 @@ Route::get('/update-services-now', function(){
         $service->update();
     }
 });
+Route::get('/add-receipt-no', function(){
+
+    $bookings = \App\Models\Bookings::all();
+    $util = new App\Utils\Utils();
+    foreach($bookings as $booking){
+        $service = \App\Models\Bookings::find($booking->id);
+        $service->receipt_no = $util->code_ref(10);
+        $service->update();
+    }
+});
 
 
 Route::get('/re-arrange/category', function(){

@@ -649,10 +649,10 @@
                 ]
             }
         },
-        "/api/v1/patient/check-email": {
+        "/api/v1/check-email": {
             "get": {
                 "summary": "Check Email",
-                "operationId": "dca3c1d361c8cf1b0bc721d1a48b344e",
+                "operationId": "9d35f9488f4e19620a5aa19b32f62edc",
                 "parameters": [
                     {
                         "name": "email",
@@ -701,10 +701,10 @@
                 }
             }
         },
-        "/api/v1/patient/check-phone": {
+        "/api/v1/check-phone": {
             "get": {
                 "summary": "Check Phone",
-                "operationId": "73ac1162bc9246db63544987eadd93c6",
+                "operationId": "922f5818e3c8165f43d159acf52d426c",
                 "parameters": [
                     {
                         "name": "phone",
@@ -1569,9 +1569,9 @@
                         }
                     },
                     {
-                        "name": "payment_id",
+                        "name": "identity",
                         "in": "query",
-                        "description": "Payment id",
+                        "description": "Payment transaction id",
                         "required": true,
                         "schema": {
                             "type": "string"
