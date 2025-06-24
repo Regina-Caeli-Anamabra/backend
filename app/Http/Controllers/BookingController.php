@@ -323,7 +323,7 @@ class BookingController extends Controller
                     $query->select("id", "reg_id");
                 },
                 "patient" => function ($query) {
-                    $query->select("id", "firstName", "lastName");
+                    $query->select("id", "firstName", "lastName", "middleName");
                 },
                 "flutterPayment" => function ($query) {
                     $query->select("id", "trx_id");
