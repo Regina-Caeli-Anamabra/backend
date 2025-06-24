@@ -1089,6 +1089,7 @@ class BookingController extends Controller
                     $booking->user_id = $user_id;
                     $booking->booking_for_self = $request->get("booking_for_self");
                     $booking->recipient_id = $recipient_id;
+                    $booking->patient_id = Patients::where("user_id", $user_id)->value("id");
                     $booking->appointment_type = $appointment_type;
                     $booking->save();
                     $id_from_payment = $this->addPayment($utils, $user_id, $flutter->id, $booking->id, $amount, $service_id, $name);
