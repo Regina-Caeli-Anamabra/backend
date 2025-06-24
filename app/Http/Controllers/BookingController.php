@@ -316,9 +316,24 @@ class BookingController extends Controller
             $user_id =  auth('sanctum')->user()->id;
             $identity = $request->get("identity");
 
-            $booking = Bookings::with(["users:id,reg_id","patient:id,firstName,lastName,phone_no", "flutterPayment:id,trx_id","services:id,service_name"])
-                        ->where("identity", $identity)
-                        ->firstOrFail();
+//            $booking = Bookings::with(["users:id,reg_id","patient:id,firstName,lastName,phone_no", "flutterPayment:id,trx_id","services:id,service_name"])
+//                        ->where("identity", $identity)
+//                        ->firstOrFail();
+            $booking = Bookings::with(["users" => function ($query) {
+                    $query->select("id", "reg_id");
+                },
+                "patient" => function ($query) {
+                    $query->select("id", "firstName", "lastName");
+                },
+                "flutterPayment" => function ($query) {
+                    $query->select("id", "trx_id");
+                },
+                "services" => function ($query) {
+                    $query->select("id", "service_name");
+                }
+                ])
+                ->where("identity", $identity)
+                ->firstOrFail();
 
             return $utils->message("success", $booking, 200);
         }catch (\Exception $exception){
