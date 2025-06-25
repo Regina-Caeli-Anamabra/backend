@@ -591,6 +591,7 @@ class AuthController extends Controller
             $success['refreshToken']  = $authUser->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value],\Carbon\Carbon::now()->addDays(7))->plainTextToken;
             $success['username'] =  $authUser->username;
             $success['email'] =  $authUser->email;
+            $success['phone'] =  $authUser->phone;
             $success['first_name'] =  Patients::where("user_id", $authUser->id)->value("firstName");
             $success['last_name'] =  Patients::where("user_id", $authUser->id)->value("lastName");
             return $utils->message("success", $success, 200);
