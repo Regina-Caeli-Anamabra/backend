@@ -93,7 +93,7 @@ class BookingController extends Controller
     {
 
         $request->validate([
-            "phone" => "required|string|max:255",
+            "phone" => "required|string|max:255|min:10",
         ]);
 
         try {
@@ -102,6 +102,9 @@ class BookingController extends Controller
                 $status = true;
             else
                 $status = false;
+            if ($status == "" || !empty($status) || is_null($status))
+                $status = false;
+
             return $utils->message("success", $status, 200);
 
         }catch (\Throwable $e) {
