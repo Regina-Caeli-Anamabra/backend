@@ -15,12 +15,12 @@ class PaymentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return  [
-            'first_name' => $this->patients->firstName,
-            'last_name' => $this->patients->lastName,
-            'service_name' => $this->services->service_name,
-            'amount' => number_format($this->amount, 2),
-            'app_fee' => number_format($this->app_fee, 2),
-            'amount_settled' => number_format($this->amount_settled, 2)
+            'first_name' => $this->patients->firstName  ?? null,
+            'last_name' => $this->patients->lastName  ?? null,
+            'service_name' => $this->services->service_name  ?? null,
+            'amount' => number_format($this->amount, 2)  ?? null,
+            'app_fee' => number_format($this->app_fee, 2)  ?? null,
+            'amount_settled' => number_format($this->amount_settled, 2)  ?? null
         ];
     }
 }

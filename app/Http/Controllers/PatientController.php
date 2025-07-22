@@ -432,12 +432,13 @@ class PatientController extends Controller
         $search_item = $request->get("search_item");
         try {
             $patients = Patients::where(function ($query) use ($search_item) {
-                $query->where("phone_no", 'like', "%{$search_item}%");
-                $query->orWhere("firstName", 'like', "%{$search_item}%");
-                $query->orWhere("lastName", 'like', "%{$search_item}%");
-                $query->orWhere("middleName", 'like', "%{$search_item}%");
-                $query->orWhere("system_id", 'like', "%{$search_item}%");
-                $query->orWhere("patient_id", 'like', "%{$search_item}%");
+                $query->where("phone_no", 'like', "%{$search_item}%")
+                    ->orWhere("firstName", 'like', "%{$search_item}%")
+                    ->orWhere("lastName", 'like', "%{$search_item}%")
+                    ->orWhere("middleName", 'like', "%{$search_item}%")
+                    ->orWhere("system_id", 'like', "%{$search_item}%")
+                    ->orWhere("patient_id", 'like', "%{$search_item}%")
+                    ->orWhereRaw("CONCAT(firstName, ' ', lastName) LIKE ?", ["%{$search_item}%"]);
             })->get();
             $patients = SearchPatientResource::collection($patients);
             return $utils->message("success", $patients  , 200);
@@ -472,7 +473,8 @@ class PatientController extends Controller
 
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
-            $patient = FlutterwavePayment::with(["patients", "services"])->get();
+
+            $patient = FlutterwavePayment::with(["patients", "services"])->whereHas("patients")->get();
              PaymentResource::collection($patient);
              $data = [
                  "payments" => PaymentResource::collection($patient),
