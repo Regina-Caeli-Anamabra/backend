@@ -10,6 +10,7 @@ use App\Http\Resources\PaymentsResource;
 use App\Http\Resources\ServieChargeResource;
 use App\Models\Bookings;
 use App\Models\Categories;
+use App\Models\FlutterwavePayment;
 use App\Models\Patients;
 use App\Models\Payments;
 use App\Models\ServiceChargeFlutterwavePayments;
@@ -57,7 +58,7 @@ class AdminController extends Controller
         $booking = Bookings::count();
         $services = Services::count();
         $patient = DB::table('patient')->count();
-        $payments = Payments::sum("amount");
+        $payments = FlutterwavePayment::sum("amount_settled");
         $recentBookings =  Bookings::with("patient")->get();
 
         $data = [
