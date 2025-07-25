@@ -485,7 +485,7 @@ class AuthController extends Controller
                 $patient->first_name = $userRequest->get("first_name");
                 $patient->last_name = $userRequest->get("last_name");
                 $patient->user_id = $user->id;
-                $patient->phone = $phone;
+                $patient->phone_no = $phone;
                 $patient->date_of_birth = $userRequest->get("date_of_birth");
                 $patient->gender = $userRequest->get("gender");
                 $patient->next_of_kin_relationship = $userRequest->get("gender");
@@ -494,7 +494,7 @@ class AuthController extends Controller
                 $patient->nationality = $userRequest->get("nationality");
                 $patient->next_of_kin = $userRequest->get("next_of_kin");
                 $patient->next_of_kin_phone = $userRequest->get("next_of_kin_phone");
-                $patient->nature_of_relationship = $userRequest->get("nature_of_relationship");
+                $patient->next_of_kin_relationship = $userRequest->get("nature_of_relationship");
                 $patient->state_of_residence = $userRequest->get("state_of_residence");
                 $patient->address_of_residence = $userRequest->get("address_of_residence");
                 $patient->user_id = $user->id;
