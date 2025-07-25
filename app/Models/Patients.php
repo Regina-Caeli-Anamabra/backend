@@ -14,7 +14,7 @@ class Patients extends Model
 
     protected $guarded = [];
 
-    protected $table = "patient";
+    protected $table = "patients";
 
     public function bookings(): HasMany
     {

@@ -482,23 +482,22 @@ class AuthController extends Controller
 
 
                 $patient = new Patients();
-                $patient->firstName = $userRequest->get("first_name");
-                $patient->lastName = $userRequest->get("last_name");
+                $patient->first_name = $userRequest->get("first_name");
+                $patient->last_name = $userRequest->get("last_name");
                 $patient->middleName = $userRequest->get("middle_name");
                 $patient->user_id = $user->id;
                 $patient->phone_no = $phone;
-                $patient->system_id = $new_patientId;
-                $patient->patient_id = $new_patientId;
-                $patient->dateOfBirth = $userRequest->get("date_of_birth");
+                $patient->date_of_birth = $userRequest->get("date_of_birth");
                 $patient->gender = $userRequest->get("gender");
                 $patient->next_of_kin_relationship = $userRequest->get("gender");
                 $patient->marital_status = $userRequest->get("marital_status");
-                $patient->ethnic = $userRequest->get("religion");
+                $patient->religion = $userRequest->get("religion");
+                $patient->nationality = $userRequest->get("nationality");
                 $patient->next_of_kin = $userRequest->get("next_of_kin");
-                $patient->next_of_kin_phoneno = $userRequest->get("next_of_kin_phone");
-                $patient->next_of_kin_relationship = $userRequest->get("nature_of_relationship");
+                $patient->next_of_kin_phone = $userRequest->get("next_of_kin_phone");
+                $patient->nature_of_relationship = $userRequest->get("nature_of_relationship");
                 $patient->state_of_residence = $userRequest->get("state_of_residence");
-                $patient->address = $userRequest->get("address_of_residence");
+                $patient->address_of_residence = $userRequest->get("address_of_residence");
                 $patient->user_id = $user->id;
                 $patient->save();
 
