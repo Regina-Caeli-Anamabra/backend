@@ -9,6 +9,7 @@ use App\Http\Resources\SearchBookingResource;
 use App\Http\Resources\SearchPatientResource;
 use App\Models\Bookings;
 use App\Models\FlutterwavePayment;
+use App\Models\PatientFromHospital;
 use App\Models\Patients;
 use App\Models\Payments;
 use App\Models\ServiceChargeFlutterwavePayments;
@@ -396,8 +397,11 @@ class PatientController extends Controller
 
 
     }
+
+
     public function getPatient(Request $request, Utils $utils)
     {
+
         $user =  User::where("reg_id", $request->input('reg_id'))->first();
         $patient = Patients::where("user_id", $user->id)->first();
         return $utils->message("success",$patient , 200);

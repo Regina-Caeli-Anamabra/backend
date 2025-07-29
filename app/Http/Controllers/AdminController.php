@@ -146,6 +146,22 @@ class AdminController extends Controller
     public function getPatients(Utils $utils)
     {
         try {
+            $query = DB::table('patients')
+                    ->join('users', 'patient.user_id', '=', 'users.id')
+                    ->limit(1000)
+                    ->orderBy("patient.id", "DESC");
+                   $patients = $query->get();
+            $patients = PatientResource::collection($patients);
+            return $utils->message("success", $patients  , 200);
+
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+    public function getPatientFromHospital(Utils $utils)
+    {
+        try {
             $query = DB::table('patient')
                     ->join('users', 'patient.user_id', '=', 'users.id')
                     ->limit(1000)

@@ -147,6 +147,7 @@ Route::group(['prefix' => 'v1/admin'], function () {
         Route::get('/payments', ['App\Http\Controllers\AdminController', 'adminPayments']);
         Route::post('/add-service', ['App\Http\Controllers\AdminController', 'addService']);
         Route::get('/patients', ['App\Http\Controllers\AdminController', 'getPatients']);
+        Route::get('/patients-from-hospital', ['App\Http\Controllers\AdminController', 'getPatientFromHospital']);
         Route::get('/get-bookings', ['App\Http\Controllers\AdminController', 'index']);
         Route::post('/create-service', ['App\Http\Controllers\AdminController', 'createService']);
         Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);

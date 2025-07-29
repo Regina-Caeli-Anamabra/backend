@@ -28,7 +28,7 @@ class VerificationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('info@gounithacct.com', 'Regina Caeli'),
+            from: new Address('info@reginacaelihospital.org.ng', 'Regina Caeli'),
             subject: 'Verification Mail',
         );
     }
