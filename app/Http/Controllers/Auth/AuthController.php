@@ -457,14 +457,14 @@ class AuthController extends Controller
                 $currentYear = date('y');
 
 
-                $latestUserId =  DB::table('patient')->max('id');
+                $latestUserId =  DB::table('patients')->max('id');
 
                 $userIdInfo = explode("/", $latestUserId);
                 $patientId = (int) $userIdInfo[0] + 1;
                 $currentMonth = date('m');
                 $currentYear = date('y');
 
-                $new_patientId = $patientId . "/" . $currentMonth . "/" . $currentYear;
+                $new_patientId = "R". $patientId . "/" . $currentMonth . "/" . $currentYear;
 
 
                 $phone = $userRequest->get("phone");
