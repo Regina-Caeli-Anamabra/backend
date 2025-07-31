@@ -333,9 +333,9 @@ class PatientController extends Controller
      *     summary="Get Patient Details",
      *     tags={"Patients"},
      *     @OA\Parameter(
-     *         name="phone",
+     *         name="patient_id",
      *         in="query",
-     *         description="Phone",
+     *         description="patient_id",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -347,7 +347,7 @@ class PatientController extends Controller
     public function getDetails(Request $request, Utils $utils)
     {
         $request->validate([
-            "phone" => "required|string"
+            "patient_id" => "required|string"
         ]);
 
         $patient_id = $request->get("patient_id");
