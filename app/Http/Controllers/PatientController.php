@@ -355,8 +355,11 @@ class PatientController extends Controller
 
         if (Patients::where("user_id", $patient->id)->exists()){
             $patient = Patients::where("patient_id",$phone)->first();
-        }else{
+        }else if (PatientDontUse::where("user_id", $patient->id)->exists()){
             $patient = PatientDontUse::where("user_id",$patient->id)->first();
+
+        }else{
+            return $utils->message("error", "Patient does not exist" , 400);
 
         }
 
