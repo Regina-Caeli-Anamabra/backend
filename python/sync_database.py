@@ -20,7 +20,7 @@ def move_data():
         cursor = connection.cursor(dictionary=True)
 
         # Select data from 'patient' table
-        select_query = "SELECT phone_no, patient_id FROM patient WHERE moved = 0"
+        select_query = "SELECT phone_no, patient_id FROM patientdont WHERE moved = 0"
         cursor.execute(select_query)
 
         # Fetch the data (all results)

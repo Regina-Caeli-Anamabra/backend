@@ -10,6 +10,7 @@ use App\Models\DaysAvailable;
 use App\Models\DonationPayment;
 use App\Models\Donations;
 use App\Models\FlutterwavePayment;
+use App\Models\PatientDontUse;
 use App\Models\Patients;
 use App\Models\Payments;
 use App\Models\r;
@@ -786,7 +787,15 @@ class BookingController extends Controller
                 "last_name" => Patients::where("user_id", $user_id)->value("lastName")
             ];
             Log::info("transaction Started", $logged_data);
-            Patients::where('user_id', $user_id)->first();
+
+            Patients::where('user_id', $user_id)->first()->id;
+
+            if (Patients::where('user_id', $user_id)->exists()){
+                $patient = Patients::where('user_id', $user_id)->first();
+            }else{
+                $patient = PatientDontUse::where("user_id", $user_id)->first();
+            }
+
             $payment = new FlutterwavePayment();
             $payment->status = "pending";
             $payment->service_id = $service_id;
@@ -794,9 +803,10 @@ class BookingController extends Controller
             $payment->user_id = $user_id;
             $payment->amount = $amount;
             $payment->trx_id = $trx_id;
-            $payment->patient_id =  Patients::where('user_id', $user_id)->first()->id;
+            $payment->patient_id =  $patient->id;
             $payment->status = "created";
             $payment->save();
+
 
             // Generate a signed URL
             $signedUrl = URL::signedRoute('flutterwave.callback', [

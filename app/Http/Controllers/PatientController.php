@@ -9,6 +9,7 @@ use App\Http\Resources\SearchBookingResource;
 use App\Http\Resources\SearchPatientResource;
 use App\Models\Bookings;
 use App\Models\FlutterwavePayment;
+use App\Models\PatientDontUse;
 use App\Models\PatientFromHospital;
 use App\Models\Patients;
 use App\Models\Payments;
@@ -349,10 +350,14 @@ class PatientController extends Controller
             "patient_id" => "required|string"
         ]);
 
-        if (!Patients::where("patient_id", $request->get("patient_id"))->exists())
-            return $utils->message("error", "Patient Not Found" , 404);
+        $reg_no = $request->get("patient_id");
+        if (Patients::where("patient_id", $request->get("patient_id"))->exists()){
+            $patient = PatientDontUse::where("patient_id",$reg_no)->first();
+        }else{
+            $patient = User::where("reg_id",$reg_no)->first();
+            $patient = Patients::where("user_id",$patient->id)->first();
 
-        $patient = Patients::where("patient_id", $request->get("patient_id"))->first();
+        }
 
         return $utils->message("success", $patient , 200);
 
