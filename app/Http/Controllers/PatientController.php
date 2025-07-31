@@ -347,7 +347,7 @@ class PatientController extends Controller
     public function getDetails(Request $request, Utils $utils)
     {
         $request->validate([
-            "patient_id" => "required|string"
+            "phone" => "required|string"
         ]);
 
         $phone = $request->get("phone");
