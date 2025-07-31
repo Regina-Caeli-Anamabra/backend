@@ -482,8 +482,8 @@ class AuthController extends Controller
 
 
                 $patient = new Patients();
-                $patient->first_name = $userRequest->get("first_name");
-                $patient->last_name = $userRequest->get("last_name");
+                $patient->firstName = $userRequest->get("first_name");
+                $patient->lastName = $userRequest->get("last_name");
                 $patient->user_id = $user->id;
                 $patient->phone_no = $phone;
                 $patient->date_of_birth = $userRequest->get("date_of_birth");
