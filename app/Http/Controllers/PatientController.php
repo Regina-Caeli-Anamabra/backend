@@ -350,18 +350,12 @@ class PatientController extends Controller
             "phone" => "required|string"
         ]);
 
-        $phone = $request->get("phone");
-        $patient = User::where("phone",$phone)->first();
+        $patient_id = $request->get("patient_id");
 
-        if (Patients::where("user_id", $patient->id)->exists()){
-            $patient = Patients::where("patient_id",$phone)->first();
-        }else if (PatientDontUse::where("user_id", $patient->id)->exists()){
-            $patient = PatientDontUse::where("user_id",$patient->id)->first();
-
-        }else{
+        if (!PatientDontUse::where("user_id", $patient_id )->exists())
             return $utils->message("error", "Patient does not exist" , 400);
 
-        }
+        $patient = PatientDontUse::where("patient_id", $patient_id )->get();
 
         return $utils->message("success", $patient , 200);
 
