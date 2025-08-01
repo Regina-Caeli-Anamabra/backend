@@ -30,7 +30,7 @@ class AdminController extends Controller
         if(!auth('sanctum')->check())
             return $utils->message("error","Unauthorized Access." , 401);
 
-        $serviceCharges = ServiceChargeFlutterwavePayments::with("users", "patients")->get();
+        $serviceCharges = ServiceChargeFlutterwavePayments::has("patients")->with("users", "patients")->get();
         $sum = $serviceCharges->sum("amount_settled");
         $data = [
             "serviceCharges" => ServieChargeResource::collection($serviceCharges),
@@ -55,10 +55,10 @@ class AdminController extends Controller
         if(!auth('sanctum')->check())
             return $utils->message("error","Unauthorized Access." , 401);
 
-        $booking = Bookings::count();
+        $booking = Bookings::has("patients")->count();
         $services = Services::count();
         $patient = DB::table('patient')->count();
-        $payments = FlutterwavePayment::sum("amount_settled");
+        $payments = FlutterwavePayment::has("patients")->sum("amount_settled");
         $recentBookings =  Bookings::with("patient")->get();
 
         $data = [
