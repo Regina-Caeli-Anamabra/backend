@@ -15,8 +15,8 @@ class ServieChargeResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "name" => ($this->patients)->firstName . " " . ($this->patients)->lastName,
-            "patient_id" => ($this->patients)->patient_id,
+            "name" => optional($this->patients)->firstName . " " . optional($this->patients)->lastName,
+            "patient_id" => optional($this->patients)->patient_id,
             "amount" => number_format($this->amount_settled, 2)
         ];
     }
