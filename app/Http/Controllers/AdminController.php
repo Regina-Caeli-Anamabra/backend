@@ -30,7 +30,7 @@ class AdminController extends Controller
         if(!auth('sanctum')->check())
             return $utils->message("error","Unauthorized Access." , 401);
 
-        $serviceCharges = ServiceChargeFlutterwavePayments::with("users", "patients")->get();
+       return $serviceCharges = ServiceChargeFlutterwavePayments::with("users", "patients")->get();
         $sum = $serviceCharges->sum("amount_settled");
         $data = [
             "serviceCharges" => ServieChargeResource::collection($serviceCharges),
@@ -102,11 +102,14 @@ class AdminController extends Controller
         $user_id =  auth('sanctum')->user()->id;
 
         try {
-             $booking = Bookings::with("users", "patient")->orderBy("created_at", "DESC")->get();
+             $booking = Bookings::with('users', 'patient')
+                 ->has('patient')
+                 ->orderBy('created_at', 'DESC')
+                 ->get();
             $bookings = BookingResource::collection($booking);
             $data = [
                 "bookings" => $bookings,
-                "total" => number_format(Bookings::sum('price'), 2)
+                "total" => number_format(Bookings::has('patient')->sum('price'), 2)
             ];
             return $utils->message("success", $data , 200);
         }catch (\Throwable $e) {
