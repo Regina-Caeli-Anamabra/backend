@@ -388,7 +388,7 @@ class PatientController extends Controller
 
         $patient_id = $request->get("patient_id");
 
-        if (!PatientDontUse::where("user_id", $patient_id )->exists())
+        if (!PatientDontUse::where("patient_id", $patient_id )->exists())
             return $utils->message("error", "Patient does not exist" , 400);
 
         $patient = PatientDontUse::where("patient_id", $patient_id )->get();
