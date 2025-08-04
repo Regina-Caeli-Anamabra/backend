@@ -282,7 +282,7 @@ class PatientController extends Controller
             $mobilePatient->next_of_kin = $patient->next_of_kin;
             $mobilePatient->next_of_kin_phone = $patient->next_of_kin_phoneno;
             $mobilePatient->address_of_next_of_kin = $patient->next_of_kin_address;
-            $mobilePatient->nature_of_relationship = $patient->next_of_kin_relationship;
+            $mobilePatient->next_of_kin_relationship = $patient->next_of_kin_relationship;
             $mobilePatient->user_id = $user->id;
             $mobilePatient->save();
 
