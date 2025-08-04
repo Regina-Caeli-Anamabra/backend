@@ -99,13 +99,12 @@ class PatientController extends Controller
 
         if ($paymentData["data"]["status"] == "successful") {
             try {
-
-                $dbSave =  DB::transaction(function () use ($utils, $paymentData, $payment_id, $trx_id, $user) {
+                $patients = Patients::where("user_id", $user->id)->first();
+                $dbSave =  DB::transaction(function () use ($utils, $paymentData, $payment_id, $trx_id, $user, $patients) {
                     $flutter = ServiceChargeFlutterwavePayments::where("identity", $payment_id)->firstOrFail();
                     $flutter->user_id = $user->id;
-                    $flutter->patient_id = Patients::where("user_id", $user->id)->first()->id;
+                    $flutter->patient_id = $patients->id;
                     $flutter->trx_id = $trx_id;
-                    $flutter->patient_id = $user->id;
                     $flutter->account_id = $paymentData["data"]["account_id"];
                     $flutter->amount = $paymentData["data"]["amount"];
                     $flutter->amount_settled = $paymentData["data"]["amount_settled"];
@@ -251,20 +250,57 @@ class PatientController extends Controller
             "patient_id" => "required"
         ]);
 
-        if (!User::where("reg_id", $request->input("patient_id"))->exists())
+
+        $patient_id =  $request->input("patient_id");
+
+        if (User::where("reg_id",$patient_id)->exists())
+            return $utils->message("Error", "Patient record already exists." , 500);
+
+        if (!PatientDontUse::where("patient_id",$patient_id)->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
 
-        $user = User::where("reg_id", $request->input("patient_id"))->first();
+        $patient = PatientDontUse::where("patient_id", $patient_id)->first();
+
+        if (!empty($patient) > 0){
+            $user = new User();
+            $user->reg_id = $patient->patient_id;
+            $user->phone = $patient->phone_no;
+            $user->email = $patient->email;
+            $user->save();
+
+            $mobilePatient = new Patients();
+            $mobilePatient->firstName = $patient->firstName;
+            $mobilePatient->lastName = $patient->middleName;
+            $mobilePatient->phone = $patient->phone_no;
+            $mobilePatient->gender = $patient->gender;
+            $mobilePatient->marital_status = $patient->marital_status;
+            $mobilePatient->nationality = $patient->nationality;
+            $mobilePatient->religion = $patient->ethnic;
+            $mobilePatient->date_of_birth = $patient->dateOfBirth;
+            $mobilePatient->address_of_residence = $patient->permanent_address;
+            $mobilePatient->state_of_residence = $patient->state_of_residence;
+            $mobilePatient->next_of_kin = $patient->next_of_kin;
+            $mobilePatient->next_of_kin_phone = $patient->next_of_kin_phoneno;
+            $mobilePatient->address_of_next_of_kin = $patient->next_of_kin_address;
+            $mobilePatient->nature_of_relationship = $patient->next_of_kin_relationship;
+            $mobilePatient->user_id = $user->id;
+            $mobilePatient->save();
+
+        }else{
+            $patient = Patients::where("patient_id", $patient_id)->first();
+            $user = User::findOrFail($patient->user_id);
+        }
 
         $trx_id =  $utils->generateCode(20);
         $payment = new ServiceChargeFlutterwavePayments();
         $payment->status = "Pending";
-        $payment->user_id = $user->id;
         $payment->amount = 1500;
         $payment->identity = $utils->generateCramp("service_payments");
-        $payment->patient_id =  Patients::where('user_id', $user->id)->first()->id;
-        $payment->status = "pending";
+        $payment->patient_id = $mobilePatient->id;
+        $payment->user_id = $user->id;
+        $payment->status = "Pending";
         $payment->save();
+
 
         return $utils->message("Success", $payment , 200);
 
@@ -375,18 +411,16 @@ class PatientController extends Controller
             if ($patient) {
                 $patient->firstName = $request->get("firstName");
                 $patient->lastName = $request->get("lastName");
-                $patient->middleName = $request->get("middleName");
-                $patient->phone_no = $phone;
-                $patient->dateOfBirth = $request->get("dateOfBirth");
-                $patient->next_of_kin_relationship = $request->get("next_of_kin_relationship");
+                $patient->phone = $phone;
+                $patient->date_of_birth = $request->get("dateOfBirth");
+                $patient->nature_of_relationship = $request->get("next_of_kin_relationship");
                 $patient->marital_status = $request->get("marital_status");
                 $patient->next_of_kin = $request->get("next_of_kin");
-                $patient->state_of_origin = $request->get("state_of_Origin");
-                $patient->next_of_kin_phoneno = $request->get("next_of_kin_phoneno");
-                $patient->next_of_kin_address = $request->get("next_of_kin_address");
+//                $patient->state_of_origin = $request->get("state_of_Origin");
+                $patient->next_of_kin_phone = $request->get("next_of_kin_phoneno");
+                $patient->address_of_next_of_kin = $request->get("next_of_kin_address");
                 $patient->state_of_residence = $request->get("state_of_Residence");
-                $patient->permanent_address = $request->get("address");
-                $patient->title = $request->get("title");
+//                $patient->address_of_residence = $request->get("address");
 
                 $patient->update();
 

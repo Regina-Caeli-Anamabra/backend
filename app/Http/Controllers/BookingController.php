@@ -1097,12 +1097,11 @@ class BookingController extends Controller
                     $booking->session_start = $booking_start_formatted;
                     $booking->service_id = $service_id;
                     $booking->identity = $this->generateBookingCode("bookings");
-                    $booking->price = $amount;
+                    $booking->price =  $paymentData["data"]["amount_settled"];
                     $booking->session_end = $booking_end;
                     $booking->user_id = $user_id;
                     $booking->booking_for_self = $request->get("booking_for_self");
-                    $booking->recipient_id = $recipient_id;
-                    $booking->patient_id = Patients::where("user_id", $user_id)->value("id");
+                    $booking->patient_id = (int) Patients::where("user_id", $user_id)->first()->id;
                     $booking->appointment_type = $appointment_type;
                     $booking->save();
                     $id_from_payment = $this->addPayment($utils, $user_id, $flutter->id, $booking->id, $amount, $service_id, $name);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\BookingResource;
 use App\Http\Resources\Category;
 use App\Http\Resources\CategoryResource;
+use App\Http\Resources\HospitalPatientResource;
 use App\Http\Resources\PatientResource;
 use App\Http\Resources\PaymentsResource;
 use App\Http\Resources\ServieChargeResource;
@@ -30,7 +31,8 @@ class AdminController extends Controller
         if(!auth('sanctum')->check())
             return $utils->message("error","Unauthorized Access." , 401);
 
-        $serviceCharges = ServiceChargeFlutterwavePayments::has("patients")->with("users", "patients")->get();
+
+        $serviceCharges = ServiceChargeFlutterwavePayments::with("users", "patients")->get();
         $sum = $serviceCharges->sum("amount_settled");
         $data = [
             "serviceCharges" => ServieChargeResource::collection($serviceCharges),
@@ -55,9 +57,9 @@ class AdminController extends Controller
         if(!auth('sanctum')->check())
             return $utils->message("error","Unauthorized Access." , 401);
 
-        $booking = Bookings::has("patients")->count();
+        $booking = Bookings::has("patient")->count();
         $services = Services::count();
-        $patient = DB::table('patient')->count();
+        $patient = DB::table('patients')->count();
         $payments = FlutterwavePayment::has("patients")->sum("amount_settled");
         $recentBookings =  Bookings::with("patient")->get();
 
@@ -103,7 +105,7 @@ class AdminController extends Controller
 
         try {
              $booking = Bookings::with('users', 'patient')
-                 ->has('patient')
+                 ->whereHas('patient')
                  ->orderBy('created_at', 'DESC')
                  ->get();
             $bookings = BookingResource::collection($booking);
@@ -165,12 +167,11 @@ class AdminController extends Controller
     public function getPatientFromHospital(Utils $utils)
     {
         try {
-            $query = DB::table('patient')
-                    ->join('users', 'patient.user_id', '=', 'users.id')
-                    ->limit(1000)
-                    ->orderBy("patient.id", "DESC");
+            $query = DB::table('patientdontuse')
+                    ->limit(2000)
+                    ->orderBy("id", "DESC");
                    $patients = $query->get();
-            $patients = PatientResource::collection($patients);
+            $patients = HospitalPatientResource::collection($patients);
             return $utils->message("success", $patients  , 200);
 
         }catch (\Throwable $e) {

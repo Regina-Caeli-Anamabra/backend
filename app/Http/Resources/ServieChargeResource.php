@@ -16,7 +16,8 @@ class ServieChargeResource extends JsonResource
     {
         return [
             "name" => optional($this->patients)->firstName . " " . optional($this->patients)->lastName,
-            "patient_id" => optional($this->patient)->patient_id,
+            "patient_id" => optional($this->users)->reg_id,
+            "status" => $this->status,
             "amount" => number_format($this->amount_settled, 2)
         ];
     }

@@ -20,7 +20,7 @@ class BookingResource extends JsonResource
             "session_end" => Carbon::parse($this->session_end)->format('d M, Y H:m:s'),
             "price" => number_format($this->price, 2),
             "name" => optional($this->patient)->firstName . ' ' . optional($this->patient)->lastName,
-            "patient_id" => optional($this->users)->patient_id
+            "patient_id" => optional($this->users)->reg_id
         ];
     }
 }
