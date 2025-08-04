@@ -271,7 +271,7 @@ class PatientController extends Controller
             $mobilePatient = new Patients();
             $mobilePatient->firstName = $patient->firstName;
             $mobilePatient->lastName = $patient->middleName;
-            $mobilePatient->phone = $patient->phone_no;
+            $mobilePatient->phone_no = $patient->phone_no;
             $mobilePatient->gender = $patient->gender;
             $mobilePatient->marital_status = $patient->marital_status;
             $mobilePatient->nationality = $patient->nationality;
