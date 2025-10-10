@@ -510,7 +510,7 @@ class AuthController extends Controller
                 }else{
 
                     // Define the URL and data you want to send
-                    $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=verification code is ' .  $verifyCode . '&sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
+                    $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $verifyCode .' your Regina Ceali Hospital verification code. Expires in 5 minutes. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
 
                     // Send the POST request
                     $response = Http::get($url);

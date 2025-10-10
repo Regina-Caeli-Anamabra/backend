@@ -253,9 +253,6 @@ class PatientController extends Controller
 
         $patient_id =  $request->input("patient_id");
 
-        if (User::where("reg_id",$patient_id)->exists())
-            return $utils->message("Error", "Patient record already exists." , 500);
-
         if (!PatientDontUse::where("patient_id",$patient_id)->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
 
