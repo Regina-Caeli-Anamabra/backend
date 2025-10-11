@@ -256,7 +256,7 @@ class PatientController extends Controller
         if (!PatientDontUse::where("patient_id",$patient_id)->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
 
-        $patient = PatientDontUse::where("patient_id", $patient_id)->first();
+        $patient = Patients::where("patient_id", $patient_id)->first();
 
         if (!empty($patient) > 0){
             $user = new User();
