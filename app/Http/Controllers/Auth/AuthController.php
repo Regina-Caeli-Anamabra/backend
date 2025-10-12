@@ -583,6 +583,8 @@ class AuthController extends Controller
 
         if (auth()->attempt($loginRequest->only(['phone', 'password'])) ){
             $authUser = Auth::user();
+            if ($authUser->paid == 0)
+                return $utils->message("success", "You have to pay service charge to continue", 400);
 
             $success['token']  = $authUser->createToken('access_token')->plainTextToken;
 //            $success['token']  = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addMinute(2))->plainTextToken;

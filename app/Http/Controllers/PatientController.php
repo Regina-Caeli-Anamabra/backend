@@ -128,6 +128,12 @@ class PatientController extends Controller
                     $flutter->merchant_fee = $paymentData["data"]["merchant_fee"];
                     $flutter->tx_ref = $paymentData["data"]["tx_ref"];
                     $flutter->update();
+
+
+                    $user = User::where("id", $user->id)->first();
+                    $user->paid = 1;
+                    $user->save();
+
                     return true;
 
                 });
