@@ -12,72 +12,100 @@ db_config = {
 }
 
 
-# Function to move data from 'patient' table to 'users' table and update 'patient'def move_data():
 def move_data():
+    """Move data from 'patientdontuse' to 'users' and update 'patient'"""
     try:
         # Connect to the database
         connection = mysql.connector.connect(**db_config)
         cursor = connection.cursor(dictionary=True)
 
-        # Select data from 'patient' table
-        select_query = "SELECT phone_no, patient_id FROM patientdont WHERE moved = 0"
+        # Select data from 'patientdontuse' table
+        select_query = "SELECT * FROM patientdontuse WHERE moved = 0"
         cursor.execute(select_query)
 
-        # Fetch the data (all results)
         rows = cursor.fetchall()
-        if rows:
-            row = rows[0]
-            phone_no = row['phone_no']
-            patient_id = row['patient_id']
+        if not rows:
+            print("No data to move.")
+            return
 
-            # Hash the password for user creation (replace with actual password)
+        for row in rows:
+            # Extract fields
+            firstName = row.get('firstName')
+            middleName = row.get('middleName')
+            lastName = row.get('lastName')
+            dateOfBirth = row.get('dateOfBirth')
+            gender = row.get('gender')
+            marital_status = row.get('marital_status')
+            nationality = row.get('nationality')
+            state_of_origin = row.get('state_of_origin')
+            lga = row.get('lga')
+            ethnic = row.get('ethnic')
+            phone_no = row.get('phone_no')
+            email = row.get('email')
+            state_of_residence = row.get('state_of_residence')
+            address = row.get('address')
+            next_of_kin = row.get('next_of_kin')
+            next_of_kin_relationship = row.get('next_of_kin_relationship')
+            next_of_kin_phoneno = row.get('next_of_kin_phoneno')
+            next_of_kin_address = row.get('next_of_kin_address')
+            town = row.get('town')
+            permanent_address = row.get('permanent_address')
+            patient_id = row.get('patient_id')
+
+            # You didn't define 'religion' in the source table — using default/None
+            religion = row.get('religion', None)
+
+            # Hash default password
             password = "12345"
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
             # Insert data into 'users' table
-            insert_users_query = "INSERT INTO users (phone, reg_id, verified, password) VALUES (%s, %s, 1, %s)"
-            cursor.execute(insert_users_query, (phone_no, patient_id, hashed_password))
+            insert_users_query = """
+                INSERT INTO offline_online_patients_sync
+                (reg_id, firstName, lastName, phone, gender, marital_status, religion, nationality,
+                 next_of_kin, next_of_kin_phone, nature_of_relationship, date_of_birth,
+                 state_of_residence, address_of_residence, address_of_next_of_kin, password)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(insert_users_query, (
+                patient_id, firstName, lastName, phone_no, gender, marital_status, religion, nationality,
+                next_of_kin, next_of_kin_phoneno, next_of_kin_relationship, dateOfBirth,
+                state_of_residence, permanent_address, next_of_kin_address, hashed_password
+            ))
 
-            # Get the ID of the newly created user (use lastrowid to get the inserted user's ID)
-            user_id = cursor.lastrowid
-            print(f"Created user with ID: {user_id}")
 
-            # Update 'patient' table with the user_id from the 'users' table
-            update_patient_query = "UPDATE patient SET user_id = %s, moved = %s WHERE patient_id = %s"
-            cursor.execute(update_patient_query, (user_id, 1, patient_id))
+            # Update 'patientdontuse' table to mark as moved
+            update_patient_query = "UPDATE patientdontuse SET moved = %s WHERE patient_id = %s"
+            cursor.execute(update_patient_query, (1, patient_id))
 
-            # Commit the transactions
+            # Commit transaction for each row
             connection.commit()
-            print(f"Moved data: {phone_no}, Patient ID: {patient_id}, User ID: {user_id}")
-
-        else:
-            print("No data to move.")
+            print(f"✅ Moved data: {phone_no} | Patient ID: {patient_id} | User ID: {user_id}")
 
     except mysql.connector.Error as err:
-        print(f"Error: {err}")
+        print(f"❌ Database Error: {err}")
 
     finally:
-        # Close the database connection
-        if connection.is_connected():
+        if 'connection' in locals() and connection.is_connected():
             cursor.close()
             connection.close()
 
 
 def wait_for_db():
+    """Wait for database connection to become available"""
     while True:
         try:
             conn = mysql.connector.connect(**db_config)
-            conn.close()  # Close the connection immediately after successful check
-            print("Database is ready!")
+            conn.close()
+            print("✅ Database is ready!")
             break
         except mysql.connector.Error as err:
-            print(f"Waiting for DB... Error: {err}")
+            print(f"⏳ Waiting for DB... Error: {err}")
             time.sleep(2)
 
 
-# Run the script every 10 seconds
 if __name__ == "__main__":
     wait_for_db()
     while True:
         move_data()
-        time.sleep(2)  # Wait for 10 seconds before running again
+        time.sleep(10)  # Wait for 10 seconds before running again

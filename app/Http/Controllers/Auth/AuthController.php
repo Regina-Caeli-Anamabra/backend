@@ -457,17 +457,24 @@ class AuthController extends Controller
                 $currentYear = date('y');
 
 
-                $latestUserId =  DB::table('patients')->max('id');
+                $latestPatient = DB::table('patients')->orderBy('id', 'desc')->first();
 
-                $userIdInfo = explode("/", $latestUserId);
-                $patientId = (int) $userIdInfo[0] + 1;
+                if ($latestPatient && preg_match('/O(\d+)\//', $latestPatient->patient_id, $matches)) {
+                    $lastNumber = (int)$matches[1];
+                } else {
+                    $lastNumber = 0; // start from 0001 if no record exists
+                }
+
+                $nextNumber = $lastNumber + 1;
+                $formattedNumber = str_pad($nextNumber, 4, '0', STR_PAD_LEFT); // 0001 → 1000
+
                 $currentMonth = date('m');
                 $currentYear = date('y');
 
-                $new_patientId = "R". $patientId . "/" . $currentMonth . "/" . $currentYear;
+                $new_patientId = "O{$formattedNumber}/{$currentMonth}/{$currentYear}";
 
 
-                $phone = $userRequest->get("phone");
+            $phone = $userRequest->get("phone");
                 $user = New User();
                 $user->password = $password;
                 $user->email = $userRequest->get("email");
@@ -583,13 +590,14 @@ class AuthController extends Controller
 
         if (auth()->attempt($loginRequest->only(['phone', 'password'])) ){
             $authUser = Auth::user();
-            if ($authUser->paid == 0)
-                return $utils->message("success", "You have to pay service charge to continue", 400);
+//            if ($authUser->paid == 0)
+//                return $utils->message("success", "You have to pay service charge to continue", 400);
 
             $success['token']  = $authUser->createToken('access_token')->plainTextToken;
 //            $success['token']  = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addMinute(2))->plainTextToken;
             $success['refreshToken']  = $authUser->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value],\Carbon\Carbon::now()->addDays(7))->plainTextToken;
             $success['username'] =  $authUser->username;
+            $success['reg_id'] =  $authUser->reg_id;
             $success['email'] =  $authUser->email;
             $success['phone'] =  $authUser->phone;
             $success['first_name'] =  Patients::where("user_id", $authUser->id)->value("firstName");

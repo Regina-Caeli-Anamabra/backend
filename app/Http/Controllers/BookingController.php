@@ -772,7 +772,7 @@ class BookingController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
-             $user_id =  auth('sanctum')->user()->id;
+             $user_id =  auth('sanctum')->user()->reg_id;
              $service_id = $request->get("service_id");
              $amount = $request->get("amount");
 
@@ -788,7 +788,7 @@ class BookingController extends Controller
             ];
             Log::info("transaction Started", $logged_data);
 
-            Patients::where('user_id', $user_id)->first()->id;
+            Patients::where('reg_id', $user_id)->first()->id;
 
             if (Patients::where('user_id', $user_id)->exists()){
                 $patient = Patients::where('user_id', $user_id)->first();
@@ -804,7 +804,6 @@ class BookingController extends Controller
             $payment->amount = $amount;
             $payment->trx_id = $trx_id;
             $payment->patient_id =  $patient->id;
-            $payment->status = "created";
             $payment->save();
 
 

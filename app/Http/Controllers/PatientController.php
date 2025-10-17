@@ -301,9 +301,7 @@ class PatientController extends Controller
         $payment->identity = $utils->generateCramp("service_payments");
         $payment->patient_id = $mobilePatient->id;
         $payment->user_id = $user->id;
-        $payment->status = "Pending";
         $payment->save();
-
 
         return $utils->message("Success", $payment , 200);
 
