@@ -1,9 +1,7 @@
 import os
 import mysql.connector
 import time
-import bcrypt
 
-# Database configuration using environment variables
 db_config = {
     'host': os.environ.get("DB_HOST"),
     'user': os.environ.get("MYSQL_USER"),
@@ -13,6 +11,8 @@ db_config = {
 
 
 def move_data():
+    host = os.environ.get("DB_HOST")
+    print(f"host is {host}")
     """Move data from 'patientdontuse' to 'users' and update 'patient'"""
     try:
         # Connect to the database
@@ -55,17 +55,13 @@ def move_data():
             # You didn't define 'religion' in the source table — using default/None
             religion = row.get('religion', None)
 
-            # Hash default password
-            password = "12345"
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
             # Insert data into 'users' table
             insert_users_query = """
                 INSERT INTO offline_online_patients_sync
                 (reg_id, firstName, lastName, phone, gender, marital_status, religion, nationality,
                  next_of_kin, next_of_kin_phone, nature_of_relationship, date_of_birth,
-                 state_of_residence, address_of_residence, address_of_next_of_kin, password)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                 state_of_residence, address_of_residence, address_of_next_of_kin)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(insert_users_query, (
                 patient_id, firstName, lastName, phone_no, gender, marital_status, religion, nationality,
@@ -92,6 +88,8 @@ def move_data():
 
 
 def wait_for_db():
+    host = os.environ.get("DB_HOST")
+    print(f"host is {host}")
     """Wait for database connection to become available"""
     while True:
         try:
