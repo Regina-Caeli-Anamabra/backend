@@ -11,6 +11,7 @@ use App\Mail\VerificationMail;
 use App\Mail\VerifyCodeMail;
 use App\Models\Account;
 use App\Models\NewCustomer;
+use App\Models\OfflineOnlinePatientsSync;
 use App\Models\Patients;
 use App\Models\User;
 use App\Utils\CurlGet;
@@ -445,7 +446,6 @@ class AuthController extends Controller
     public function registerUser(UserRequest $userRequest, Utils $utils, Execs $execs)
     {
 
-        $phone = $userRequest->get("phone");
          $password =   Hash::make($userRequest->get("password"));
         $verifyCode = mt_rand(100000,999999);
         try {
@@ -457,22 +457,19 @@ class AuthController extends Controller
                 $currentYear = date('y');
 
 
-                $latestPatient = DB::table('patients')->orderBy('id', 'desc')->first();
+            $latestPatient = DB::table('users')->orderBy('id', 'desc')->first();
 
-                if ($latestPatient && preg_match('/O(\d+)\//', $latestPatient->patient_id, $matches)) {
-                    $lastNumber = (int)$matches[1];
-                } else {
-                    $lastNumber = 0; // start from 0001 if no record exists
-                }
+            if ($latestPatient) {
+                $lastNumber = (int)$latestPatient->id;
+            } else {
+                $lastNumber = 0; // start from 0 if no record exists
+            }
 
-                $nextNumber = $lastNumber + 1;
-                $formattedNumber = str_pad($nextNumber, 4, '0', STR_PAD_LEFT); // 0001 → 1000
+            $newNumber = $lastNumber + 1;
+            $currentMonth = date('m');
+            $currentYear = date('y');
 
-                $currentMonth = date('m');
-                $currentYear = date('y');
-
-                $new_patientId = "O{$formattedNumber}/{$currentMonth}/{$currentYear}";
-
+            $newPatientId = "RO{$newNumber}/{$currentMonth}/{$currentYear}";
 
             $phone = $userRequest->get("phone");
                 $user = New User();
@@ -484,7 +481,7 @@ class AuthController extends Controller
                 $user->register_for_self = $userRequest->get("register_for_self");
                 $user->register_for_self = $userRequest->get("register_for_self");
                 $user->vCode = $verifyCode;
-                $user->reg_id = $new_patientId;
+                $user->reg_id = $newPatientId;
                 $user->save();
 
 
@@ -492,20 +489,40 @@ class AuthController extends Controller
                 $patient->firstName = $userRequest->get("first_name");
                 $patient->lastName = $userRequest->get("last_name");
                 $patient->user_id = $user->id;
-                $patient->phone_no = $phone;
+                $patient->phone = $phone;
                 $patient->date_of_birth = $userRequest->get("date_of_birth");
                 $patient->gender = $userRequest->get("gender");
-                $patient->next_of_kin_relationship = $userRequest->get("gender");
                 $patient->marital_status = $userRequest->get("marital_status");
                 $patient->religion = $userRequest->get("religion");
                 $patient->nationality = $userRequest->get("nationality");
                 $patient->next_of_kin = $userRequest->get("next_of_kin");
                 $patient->next_of_kin_phone = $userRequest->get("next_of_kin_phone");
-                $patient->next_of_kin_relationship = $userRequest->get("nature_of_relationship");
+                $patient->nature_of_relationship = $userRequest->get("nature_of_relationship");
                 $patient->state_of_residence = $userRequest->get("state_of_residence");
                 $patient->address_of_residence = $userRequest->get("address_of_residence");
                 $patient->user_id = $user->id;
                 $patient->save();
+
+                $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
+                $offlineOnlinePatientSync->firstName = $userRequest->get("first_name");
+                $offlineOnlinePatientSync->lastName = $userRequest->get("last_name");
+                $offlineOnlinePatientSync->user_id = $user->id;
+                $offlineOnlinePatientSync->phone = $phone;
+                $offlineOnlinePatientSync->date_of_birth = $userRequest->get("date_of_birth");
+                $offlineOnlinePatientSync->gender = $userRequest->get("gender");
+                $offlineOnlinePatientSync->nature_of_relationship = $userRequest->get("gender");
+                $offlineOnlinePatientSync->marital_status = $userRequest->get("marital_status");
+                $offlineOnlinePatientSync->religion = $userRequest->get("religion");
+                $offlineOnlinePatientSync->nationality = $userRequest->get("nationality");
+                $offlineOnlinePatientSync->next_of_kin = $userRequest->get("next_of_kin");
+                $offlineOnlinePatientSync->next_of_kin_phone = $userRequest->get("next_of_kin_phone");
+                $offlineOnlinePatientSync->nature_of_relationship = $userRequest->get("nature_of_relationship");
+                $offlineOnlinePatientSync->state_of_residence = $userRequest->get("state_of_residence");
+                $offlineOnlinePatientSync->address_of_residence = $userRequest->get("address_of_residence");
+                $offlineOnlinePatientSync->user_id = $user->id;
+                $offlineOnlinePatientSync->patient_id = $patient->id;
+                $offlineOnlinePatientSync->place = "online";
+                $offlineOnlinePatientSync->save();
 
 
                 if ($userRequest->get("auth_type") == "EMAIL") {
@@ -513,7 +530,7 @@ class AuthController extends Controller
                     $data = [
                         "code" => $verifyCode
                     ];
-                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
+//                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
                 }else{
 
                     // Define the URL and data you want to send
@@ -523,7 +540,7 @@ class AuthController extends Controller
                     $response = Http::get($url);
 
                 }
-                return $utils->message("success", [ "reg_id" => $new_patientId, "code" => ""] , 200);
+                return $utils->message("success", [ "reg_id" => $newPatientId, "code" => ""] , 200);
 
             } catch (\Throwable $e) {
                 return $utils->message("error",$e->getMessage() , 400);
@@ -590,8 +607,8 @@ class AuthController extends Controller
 
         if (auth()->attempt($loginRequest->only(['phone', 'password'])) ){
             $authUser = Auth::user();
-//            if ($authUser->paid == 0)
-//                return $utils->message("success", "You have to pay service charge to continue", 400);
+            if ($authUser->paid == 0)
+                return $utils->message("success", "You have to pay service charge to continue", 400);
 
             $success['token']  = $authUser->createToken('access_token')->plainTextToken;
 //            $success['token']  = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addMinute(2))->plainTextToken;

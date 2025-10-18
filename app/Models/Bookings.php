@@ -12,6 +12,10 @@ class Bookings extends Model
 {
     use HasFactory;
 
+    public function offlineOnlineSync(): BelongsTo
+    {
+        return $this->belongsTo(OfflineOnlinePatientsSync::class, 'offline_online_sync_id');
+    }
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patients::class, 'patient_id');

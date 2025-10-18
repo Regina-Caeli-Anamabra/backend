@@ -9,6 +9,7 @@ use App\Http\Resources\SearchBookingResource;
 use App\Http\Resources\SearchPatientResource;
 use App\Models\Bookings;
 use App\Models\FlutterwavePayment;
+use App\Models\OfflineOnlinePatientsSync;
 use App\Models\PatientDontUse;
 use App\Models\PatientFromHospital;
 use App\Models\Patients;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Testing\Fluent\Concerns\Has;
 use Mockery\Exception;
 
 class PatientController extends Controller
@@ -259,10 +261,10 @@ class PatientController extends Controller
 
         $patient_id =  $request->input("patient_id");
 
-        if (!PatientDontUse::where("patient_id",$patient_id)->exists())
+        if (!User::where("reg_id",$patient_id)->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
 
-        $patient = Patients::where("patient_id", $patient_id)->first();
+        $patient = User::where("reg_id", $patient_id)->first();
 
         if (!empty($patient) > 0){
             $user = new User();
@@ -352,8 +354,37 @@ class PatientController extends Controller
             'password.confirmed' => 'The password confirmation does not match.',
         ]);
 
-        if (!User::where("reg_id", $request->get("patient_id"))->exists())
+        if (!PatientDontUse::where("patient_id", $request->get("patient_id"))->exists())
             return $utils->message("error", "Patient Not Found" , 404);
+
+        $patientDontUse = PatientDontUse::where("patient_id", $request->get("patient_id"))->first();
+
+        $users = new User();
+        $users->reg_id = $patientDontUse->patient_id;
+        $users->phone  = $patientDontUse->phone_no;
+        $users->email  = $patientDontUse->email;
+        $users->password  = Hash::make($request->get("password"));
+        $users->save();
+
+        $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
+        $offlineOnlinePatientSync->firstName = $patientDontUse->firstName;
+        $offlineOnlinePatientSync->lastName = $patientDontUse->glastName;
+        $offlineOnlinePatientSync->user_id = $users->id;
+        $offlineOnlinePatientSync->phone =  $patientDontUse->phone_no;
+        $offlineOnlinePatientSync->date_of_birth = $patientDontUse->dateOfBirth;
+        $offlineOnlinePatientSync->gender = $patientDontUse->gender;
+        $offlineOnlinePatientSync->nature_of_relationship = $patientDontUse->next_of_kin_relationship;
+        $offlineOnlinePatientSync->marital_status = $patientDontUse->marital_status;
+        $offlineOnlinePatientSync->religion = $patientDontUse->ethnic;
+        $offlineOnlinePatientSync->nationality = $patientDontUse->nationality;
+        $offlineOnlinePatientSync->next_of_kin = $patientDontUse->next_of_kin;
+        $offlineOnlinePatientSync->next_of_kin_phone = $patientDontUse->next_of_kin_phoneno;
+        $offlineOnlinePatientSync->state_of_residence = $patientDontUse->state_of_residence;
+        $offlineOnlinePatientSync->address_of_residence = $patientDontUse->permanent_address;
+        $offlineOnlinePatientSync->patient_id = $patientDontUse->id;
+        $offlineOnlinePatientSync->place = "offline";
+        $offlineOnlinePatientSync->save();
+
 
         $patient =  User::where("reg_id", $request->get("patient_id"))
                     ->update([
@@ -363,6 +394,28 @@ class PatientController extends Controller
         return $utils->message("success", "Password Updated Successfully." , 200);
 
     }
+
+
+//    public function createPassword(Request $request, Utils $utils)
+//    {
+//        $request->validate([
+//            "patient_id" => "required|string",
+//            "password" => "required|string|min:8|confirmed"
+//        ], [
+//            'password.confirmed' => 'The password confirmation does not match.',
+//        ]);
+//
+//        if (!User::where("reg_id", $request->get("patient_id"))->exists())
+//            return $utils->message("error", "Patient Not Found" , 404);
+//
+//        $patient =  User::where("reg_id", $request->get("patient_id"))
+//                    ->update([
+//                        "password" => Hash::make($request->get("password"))
+//                    ]);
+//
+//        return $utils->message("success", "Password Updated Successfully." , 200);
+//
+//    }
 
     /**
      * @OA\Post(
@@ -627,6 +680,13 @@ class PatientController extends Controller
      *         description="address_of_next_of_kin",
      *         @OA\Schema(type="string")
      *     ),
+     *      @OA\Parameter(
+     *          name="phone",
+     *          in="query",
+     *          required=true,
+     *          description="phone",
+     *          @OA\Schema(type="string")
+     *      ),
      *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
      *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
@@ -635,6 +695,16 @@ class PatientController extends Controller
      */
     public function updateProfile(Request $request, Utils $utils)
     {
+        $request->validate([
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
+            'religion' => 'nullable|string|max:50',
+            'next_of_kin' => 'required|string|max:100',
+            'address_of_next_of_kin' => 'required|string|max:255',
+            'state_of_residence' => 'required|string|max:100',
+            'address_of_residence' => 'required|string|max:255',
+        ]);
+
         try {
 
             if(!auth('sanctum')->check())
@@ -645,12 +715,13 @@ class PatientController extends Controller
 
                     $user->firstName = $request->get("first_name");
                     $user->lastName = $request->get("last_name");
-                    $user->ethnic = $request->get("religion");
+                    $user->phone = $request->get("phone");
+                    $user->religion = $request->get("religion");
                     $user->next_of_kin = $request->get("next_of_kin");
-                    $user->next_of_kin_phoneno = $request->get("next_of_kin_phone");
-//                    $user->address_of_next_of_kin = $request->get("address_of_next_of_kin");
-//                    $user->state_of_residence = $request->get("state_of_residence");
-//                    $user->address = $request->get("address_of_residence");
+                    $user->next_of_kin_phone = $request->get("next_of_kin_phone");
+                    $user->address_of_next_of_kin = $request->get("address_of_next_of_kin");
+                    $user->state_of_residence = $request->get("state_of_residence");
+                    $user->address_of_residence = $request->get("address_of_residence");
                     $user->update();
                }
             return $utils->message("success", "User updated successfully.." , 200);

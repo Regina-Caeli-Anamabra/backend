@@ -317,17 +317,18 @@ class BookingController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
+
             $user_id =  auth('sanctum')->user()->id;
             $identity = $request->get("identity");
 
-//            $booking = Bookings::with(["users:id,reg_id","patient:id,firstName,lastName,phone_no", "flutterPayment:id,trx_id","services:id,service_name"])
-//                        ->where("identity", $identity)
-//                        ->firstOrFail();
+            if (!Bookings::where("identity", $identity)->exists())
+                return $utils->message("Error", "No Record(s) Found", 400);
+
             $booking = Bookings::with(["users" => function ($query) {
                     $query->select("id", "reg_id");
                 },
-                "patient" => function ($query) {
-                    $query->select("id", "firstName", "lastName", "middleName", "phone_no");
+                "offlineOnlineSync" => function ($query) {
+                    $query->select("id", "firstName", "lastName", "middleName", "phone");
                 },
                 "flutterPayment" => function ($query) {
                     $query->select("id", "trx_id");
@@ -387,7 +388,11 @@ class BookingController extends Controller
             if (!Bookings::where("identity", $request->get("identity"))->exists())
                 return $utils->message("error", "Session Not Found" , 404);
 
-            $session = Bookings::with("services")->where("identity", $request->get("identity"))->where("user_id", $user_id)->get();
+            $session = Bookings::with("services")
+                        ->where("identity", $request->get("identity"))
+                        ->where("user_id", $user_id)
+                        ->get();
+
             return $utils->message("success", $session, 200);
 
         }catch (\Throwable $e) {
@@ -466,7 +471,7 @@ class BookingController extends Controller
             $user_id =  auth('sanctum')->user()->id;
             $identity = $request->get("identity");
 
-            $payments = Payments::where("identity", $identity)->get();
+            $payments = Payments::where("identity", $identity)->with("user_id", $user_id)->get();
 
             return $utils->message("success", $payments, 200);
         }catch (\Exception $exception){
@@ -1056,7 +1061,6 @@ class BookingController extends Controller
                     return $utils->message("error", "Invalid Transaction ID.", 400);
 
                 if ($paymentData["data"]["status"] == "successful") {
-
                     $flutter = FlutterwavePayment::where("identity", $identity)->firstOrFail();
                     $flutter->user_id = $user_id;
                     $flutter->patient_id = Patients::where("user_id", $user_id)->first()->id;
