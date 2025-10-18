@@ -1,10 +1,6 @@
 import os
 import mysql.connector
 import time
-from dotenv import load_dotenv  # ✅ Load environment variables from .env
-
-# Load .env file (make sure it's in the same directory or give full path)
-load_dotenv()
 
 # Database configuration from environment variables
 db_config = {
