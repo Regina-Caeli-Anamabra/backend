@@ -41,7 +41,7 @@ def move_data():
             nationality = row.get('nationality')
             state_of_origin = row.get('state_of_origin')
             lga = row.get('lga')
-            ethnic = row.get('ethnic')
+            religion = row.get('ethnic')
             phone_no = row.get('phone_no')
             email = row.get('email')
             state_of_residence = row.get('state_of_residence')
@@ -53,7 +53,6 @@ def move_data():
             town = row.get('town')
             permanent_address = row.get('permanent_address')
             patient_id = row.get('patient_id')
-            religion = row.get('religion', None)
 
             # Insert data into 'offline_online_patients_sync'
             insert_query = """
