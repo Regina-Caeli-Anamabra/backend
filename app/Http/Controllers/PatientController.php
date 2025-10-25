@@ -267,7 +267,7 @@ class PatientController extends Controller
         if (!empty($patient) > 0){
 
             if(PatientDontUse::where("patient_id",$patient_id)->exists()){
-                $oldPatients = PatientDontUse::where("patient_id",$patient_id)->firstOrFail();
+            return    $oldPatients = PatientDontUse::where("patient_id",$patient_id)->firstOrFail();
 
                 $user = new User();
                 $user->reg_id = $patient_id;
