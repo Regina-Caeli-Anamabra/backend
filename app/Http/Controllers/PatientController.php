@@ -261,7 +261,7 @@ class PatientController extends Controller
 
         $patient_id =  $request->input("patient_id");
 
-        if (!User::where("reg_id",$patient_id)->exists())
+        if (!Patients::where("reg_id",$patient_id)->exists() || PatientDontUse::where("reg_id",$patient_id)->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
 
         $patient = User::where("reg_id", $patient_id)->first();
@@ -273,7 +273,27 @@ class PatientController extends Controller
             $user->email = $patient->email;
             $user->save();
 
-            $mobilePatient = new Patients();
+            if(!PatientDontUse::where("reg_id",$patient_id)->exists()){
+                $mobilePatient = new Patients();
+                $mobilePatient->firstName = $patient->firstName;
+                $mobilePatient->lastName = $patient->middleName;
+                $mobilePatient->phone_no = $patient->phone_no;
+                $mobilePatient->gender = $patient->gender;
+                $mobilePatient->marital_status = $patient->marital_status;
+                $mobilePatient->nationality = $patient->nationality;
+                $mobilePatient->religion = $patient->ethnic;
+                $mobilePatient->date_of_birth = $patient->dateOfBirth;
+                $mobilePatient->address_of_residence = $patient->permanent_address;
+                $mobilePatient->state_of_residence = $patient->state_of_residence;
+                $mobilePatient->next_of_kin = $patient->next_of_kin;
+                $mobilePatient->next_of_kin_phone = $patient->next_of_kin_phoneno;
+                $mobilePatient->address_of_next_of_kin = $patient->next_of_kin_address;
+                $mobilePatient->next_of_kin_relationship = $patient->next_of_kin_relationship;
+                $mobilePatient->user_id = $user->id;
+                $mobilePatient->save();
+            }
+
+            $mobilePatient = new OfflineOnlinePatientsSync();
             $mobilePatient->firstName = $patient->firstName;
             $mobilePatient->lastName = $patient->middleName;
             $mobilePatient->phone_no = $patient->phone_no;
