@@ -259,13 +259,13 @@ class PatientController extends Controller
         ]);
 
         $patient_id =  $request->input("patient_id");
+        return 4848;
 
         if (!PatientDontUse::where("patient_id", $patient_id)->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
 
 
         if (!empty($patient) > 0){
-return 4848;
             if(PatientDontUse::where("patient_id",$patient_id)->exists()){
             return    $oldPatients = PatientDontUse::where("patient_id",$patient_id)->firstOrFail();
 
