@@ -258,23 +258,22 @@ class PatientController extends Controller
             "patient_id" => "required"
         ]);
 
-
         $patient_id =  $request->input("patient_id");
 
         if (!PatientDontUse::where("patient_id", $patient_id)->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
 
-        $patient = User::where("reg_id", $patient_id)->first();
 
         if (!empty($patient) > 0){
-            $user = new User();
-            $user->reg_id = $patient->patient_id;
-            $user->phone = $patient->phone_no;
-            $user->email = $patient->email;
-            $user->save();
 
             if(PatientDontUse::where("patient_id",$patient_id)->exists()){
                 $oldPatients = PatientDontUse::where("patient_id",$patient_id)->firstOrFail();
+
+                $user = new User();
+                $user->reg_id = $patient_id;
+                $user->phone = $oldPatients->phone_no;
+                $user->email = $oldPatients->email;
+                $user->save();
 
                 $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
                 $offlineOnlinePatientSync->firstName = $oldPatients->firstName;
@@ -294,46 +293,6 @@ class PatientController extends Controller
                 $offlineOnlinePatientSync->patient_id = $oldPatients->id;
                 $offlineOnlinePatientSync->place = "offline";
                 $offlineOnlinePatientSync->save();
-
-            }else{
-
-                $db_patient = new Patients();
-                $db_patient->firstName = $patient->firstName;
-                $db_patient->lastName = $patient->middleName;
-                $db_patient->phone_no = $patient->phone_no;
-                $db_patient->gender = $patient->gender;
-                $db_patient->marital_status = $patient->marital_status;
-                $db_patient->nationality = $patient->nationality;
-                $db_patient->religion = $patient->ethnic;
-                $db_patient->date_of_birth = $patient->dateOfBirth;
-                $db_patient->address_of_residence = $patient->permanent_address;
-                $db_patient->state_of_residence = $patient->state_of_residence;
-                $db_patient->next_of_kin = $patient->next_of_kin;
-                $db_patient->next_of_kin_phone = $patient->next_of_kin_phoneno;
-                $db_patient->address_of_next_of_kin = $patient->next_of_kin_address;
-                $db_patient->next_of_kin_relationship = $patient->next_of_kin_relationship;
-                $db_patient->user_id = $user->id;
-                $db_patient->save();
-
-
-                $mobilePatient = new OfflineOnlinePatientsSync();
-                $mobilePatient->firstName = $patient->firstName;
-                $mobilePatient->lastName = $patient->middleName;
-                $mobilePatient->phone_no = $patient->phone_no;
-                $mobilePatient->gender = $patient->gender;
-                $mobilePatient->marital_status = $patient->marital_status;
-                $mobilePatient->nationality = $patient->nationality;
-                $mobilePatient->religion = $patient->ethnic;
-                $mobilePatient->date_of_birth = $patient->dateOfBirth;
-                $mobilePatient->address_of_residence = $patient->permanent_address;
-                $mobilePatient->state_of_residence = $patient->state_of_residence;
-                $mobilePatient->next_of_kin = $patient->next_of_kin;
-                $mobilePatient->next_of_kin_phone = $patient->next_of_kin_phoneno;
-                $mobilePatient->address_of_next_of_kin = $patient->next_of_kin_address;
-                $mobilePatient->next_of_kin_relationship = $patient->next_of_kin_relationship;
-                $mobilePatient->user_id = $user->id;
-                $mobilePatient->save();
-
             }
 
         }else{
@@ -346,8 +305,7 @@ class PatientController extends Controller
         $payment->status = "Pending";
         $payment->amount = 1500;
         $payment->identity = $utils->generateCramp("service_payments");
-        $payment->patient_id = $mobilePatient->id;
-        $payment->user_id = $user->id;
+        $payment->user_id =  $user->id;
         $payment->save();
 
         return $utils->message("Success", $payment , 200);
