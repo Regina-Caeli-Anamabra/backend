@@ -273,8 +273,50 @@ class PatientController extends Controller
             $user->email = $patient->email;
             $user->save();
 
-            if(!PatientDontUse::where("reg_id",$patient_id)->exists()){
-                $mobilePatient = new Patients();
+            if(PatientDontUse::where("reg_id",$patient_id)->exists()){
+                $oldPatients = PatientDontUse::where("reg_id",$patient_id)->firstOrFail();
+
+                $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
+                $offlineOnlinePatientSync->firstName = $oldPatients->firstName;
+                $offlineOnlinePatientSync->lastName = $oldPatients->glastName;
+                $offlineOnlinePatientSync->user_id = $user->id;
+                $offlineOnlinePatientSync->phone =  $oldPatients->phone_no;
+                $offlineOnlinePatientSync->date_of_birth = $oldPatients->dateOfBirth;
+                $offlineOnlinePatientSync->gender = $oldPatients->gender;
+                $offlineOnlinePatientSync->nature_of_relationship = $oldPatients->next_of_kin_relationship;
+                $offlineOnlinePatientSync->marital_status = $oldPatients->marital_status;
+                $offlineOnlinePatientSync->religion = $oldPatients->ethnic;
+                $offlineOnlinePatientSync->nationality = $oldPatients->nationality;
+                $offlineOnlinePatientSync->next_of_kin = $oldPatients->next_of_kin;
+                $offlineOnlinePatientSync->next_of_kin_phone = $oldPatients->next_of_kin_phoneno;
+                $offlineOnlinePatientSync->state_of_residence = $oldPatients->state_of_residence;
+                $offlineOnlinePatientSync->address_of_residence = $oldPatients->permanent_address;
+                $offlineOnlinePatientSync->patient_id = $oldPatients->id;
+                $offlineOnlinePatientSync->place = "offline";
+                $offlineOnlinePatientSync->save();
+
+            }else{
+
+                $db_patient = new Patients();
+                $db_patient->firstName = $patient->firstName;
+                $db_patient->lastName = $patient->middleName;
+                $db_patient->phone_no = $patient->phone_no;
+                $db_patient->gender = $patient->gender;
+                $db_patient->marital_status = $patient->marital_status;
+                $db_patient->nationality = $patient->nationality;
+                $db_patient->religion = $patient->ethnic;
+                $db_patient->date_of_birth = $patient->dateOfBirth;
+                $db_patient->address_of_residence = $patient->permanent_address;
+                $db_patient->state_of_residence = $patient->state_of_residence;
+                $db_patient->next_of_kin = $patient->next_of_kin;
+                $db_patient->next_of_kin_phone = $patient->next_of_kin_phoneno;
+                $db_patient->address_of_next_of_kin = $patient->next_of_kin_address;
+                $db_patient->next_of_kin_relationship = $patient->next_of_kin_relationship;
+                $db_patient->user_id = $user->id;
+                $db_patient->save();
+
+
+                $mobilePatient = new OfflineOnlinePatientsSync();
                 $mobilePatient->firstName = $patient->firstName;
                 $mobilePatient->lastName = $patient->middleName;
                 $mobilePatient->phone_no = $patient->phone_no;
@@ -291,25 +333,8 @@ class PatientController extends Controller
                 $mobilePatient->next_of_kin_relationship = $patient->next_of_kin_relationship;
                 $mobilePatient->user_id = $user->id;
                 $mobilePatient->save();
-            }
 
-            $mobilePatient = new OfflineOnlinePatientsSync();
-            $mobilePatient->firstName = $patient->firstName;
-            $mobilePatient->lastName = $patient->middleName;
-            $mobilePatient->phone_no = $patient->phone_no;
-            $mobilePatient->gender = $patient->gender;
-            $mobilePatient->marital_status = $patient->marital_status;
-            $mobilePatient->nationality = $patient->nationality;
-            $mobilePatient->religion = $patient->ethnic;
-            $mobilePatient->date_of_birth = $patient->dateOfBirth;
-            $mobilePatient->address_of_residence = $patient->permanent_address;
-            $mobilePatient->state_of_residence = $patient->state_of_residence;
-            $mobilePatient->next_of_kin = $patient->next_of_kin;
-            $mobilePatient->next_of_kin_phone = $patient->next_of_kin_phoneno;
-            $mobilePatient->address_of_next_of_kin = $patient->next_of_kin_address;
-            $mobilePatient->next_of_kin_relationship = $patient->next_of_kin_relationship;
-            $mobilePatient->user_id = $user->id;
-            $mobilePatient->save();
+            }
 
         }else{
             $patient = Patients::where("patient_id", $patient_id)->first();
@@ -385,26 +410,6 @@ class PatientController extends Controller
         $users->email  = $patientDontUse->email;
         $users->password  = Hash::make($request->get("password"));
         $users->save();
-
-        $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
-        $offlineOnlinePatientSync->firstName = $patientDontUse->firstName;
-        $offlineOnlinePatientSync->lastName = $patientDontUse->glastName;
-        $offlineOnlinePatientSync->user_id = $users->id;
-        $offlineOnlinePatientSync->phone =  $patientDontUse->phone_no;
-        $offlineOnlinePatientSync->date_of_birth = $patientDontUse->dateOfBirth;
-        $offlineOnlinePatientSync->gender = $patientDontUse->gender;
-        $offlineOnlinePatientSync->nature_of_relationship = $patientDontUse->next_of_kin_relationship;
-        $offlineOnlinePatientSync->marital_status = $patientDontUse->marital_status;
-        $offlineOnlinePatientSync->religion = $patientDontUse->ethnic;
-        $offlineOnlinePatientSync->nationality = $patientDontUse->nationality;
-        $offlineOnlinePatientSync->next_of_kin = $patientDontUse->next_of_kin;
-        $offlineOnlinePatientSync->next_of_kin_phone = $patientDontUse->next_of_kin_phoneno;
-        $offlineOnlinePatientSync->state_of_residence = $patientDontUse->state_of_residence;
-        $offlineOnlinePatientSync->address_of_residence = $patientDontUse->permanent_address;
-        $offlineOnlinePatientSync->patient_id = $patientDontUse->id;
-        $offlineOnlinePatientSync->place = "offline";
-        $offlineOnlinePatientSync->save();
-
 
         $patient =  User::where("reg_id", $request->get("patient_id"))
                     ->update([
