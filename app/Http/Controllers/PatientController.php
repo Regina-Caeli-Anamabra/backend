@@ -261,7 +261,7 @@ class PatientController extends Controller
 
         $patient_id =  $request->input("patient_id");
 
-        if (!Patients::where("reg_id",$patient_id)->exists() || PatientDontUse::where("reg_id",$patient_id)->exists())
+        if (!Patients::where("reg_id",$patient_id)->exists() || PatientDontUse::where("patient_id",$patient_id)->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
 
         $patient = User::where("reg_id", $patient_id)->first();
@@ -273,8 +273,8 @@ class PatientController extends Controller
             $user->email = $patient->email;
             $user->save();
 
-            if(PatientDontUse::where("reg_id",$patient_id)->exists()){
-                $oldPatients = PatientDontUse::where("reg_id",$patient_id)->firstOrFail();
+            if(PatientDontUse::where("patient_id",$patient_id)->exists()){
+                $oldPatients = PatientDontUse::where("patient_id",$patient_id)->firstOrFail();
 
                 $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
                 $offlineOnlinePatientSync->firstName = $oldPatients->firstName;

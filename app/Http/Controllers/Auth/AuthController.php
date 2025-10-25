@@ -471,7 +471,7 @@ class AuthController extends Controller
 
             $newPatientId = "RO{$newNumber}/{$currentMonth}/{$currentYear}";
 
-            $phone = $userRequest->get("phone");
+                $phone = $userRequest->get("phone");
                 $user = New User();
                 $user->password = $password;
                 $user->email = $userRequest->get("email");
@@ -489,6 +489,7 @@ class AuthController extends Controller
                 $patient->firstName = $userRequest->get("first_name");
                 $patient->lastName = $userRequest->get("last_name");
                 $patient->user_id = $user->id;
+                $user->reg_id = $newPatientId;
                 $patient->phone = $phone;
                 $patient->date_of_birth = $userRequest->get("date_of_birth");
                 $patient->gender = $userRequest->get("gender");
