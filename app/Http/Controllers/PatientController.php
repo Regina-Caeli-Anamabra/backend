@@ -265,7 +265,7 @@ class PatientController extends Controller
 
 
         if (!empty($patient) > 0){
-
+return 4848;
             if(PatientDontUse::where("patient_id",$patient_id)->exists()){
             return    $oldPatients = PatientDontUse::where("patient_id",$patient_id)->firstOrFail();
 
