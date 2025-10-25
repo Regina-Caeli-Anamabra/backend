@@ -449,7 +449,6 @@ class PatientController extends Controller
 
         return $utils->message("success", $patient , 200);
 
-
     }
 
     public function updatePatient(Request $request, Utils $utils)

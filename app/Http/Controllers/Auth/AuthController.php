@@ -530,7 +530,7 @@ class AuthController extends Controller
                     $data = [
                         "code" => $verifyCode
                     ];
-//                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
+                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
                 }else{
 
                     // Define the URL and data you want to send
@@ -540,7 +540,7 @@ class AuthController extends Controller
                     $response = Http::get($url);
 
                 }
-                return $utils->message("success", [ "reg_id" => $newPatientId, "code" => ""] , 200);
+                return $utils->message("success", [ "reg_id" => $newPatientId] , 200);
 
             } catch (\Throwable $e) {
                 return $utils->message("error",$e->getMessage() , 400);
