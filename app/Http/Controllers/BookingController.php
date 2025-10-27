@@ -794,8 +794,8 @@ class BookingController extends Controller
             ];
             Log::info("transaction Started", $logged_data);
 
-              $patientInfo = OfflineOnlinePatientsSync::where('user_id', $user_id)->first();
-              $patient = $patientInfo->id;
+            $patient = OfflineOnlinePatientsSync::where('user_id', $user_id)->value("id");
+
 //            if (OfflineOnlinePatientsSync::where('user_id', $user_id)->exists()){
 //                $patient = Patients::where('user_id', $user_id)->first();
 //            }else{
