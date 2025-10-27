@@ -778,7 +778,7 @@ class BookingController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
-             $user_id =  auth('sanctum')->id();
+           return  $user_id =  auth('sanctum')->id();
              $service_id = $request->get("service_id");
              $amount = $request->get("amount");
 
