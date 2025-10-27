@@ -1065,9 +1065,8 @@ class BookingController extends Controller
                 if ($paymentData["data"]["status"] == "successful") {
                     $flutter = FlutterwavePayment::where("identity", $identity)->firstOrFail();
                     $flutter->user_id = $user_id;
-                    $flutter->patient_id = Patients::where("user_id", $user_id)->first()->id;
+                    $flutter->patient_id = OfflineOnlinePatientsSync::where("user_id", $user_id)->first()->id;
                     $flutter->trx_id = $transaction_id;
-                    $flutter->patient_id = Patients::where("user_id", $user_id)->value("id");
                     $flutter->account_id = $paymentData["data"]["account_id"];
                     $flutter->amount = $paymentData["data"]["amount"];
                     $flutter->amount_settled = $paymentData["data"]["amount_settled"];
