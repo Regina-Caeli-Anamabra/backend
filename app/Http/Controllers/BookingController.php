@@ -1033,6 +1033,10 @@ class BookingController extends Controller
             return $utils->message("error","Unauthorized Access." , 401);
 
         $user_id =  auth('sanctum')->user()->id;
+
+        if (User::where("id", $user_id)->where("paid", "!=", 1)->exists())
+            return $utils->message("error","Payment of Service Charge Required" , 400);
+
         try {
             $interval = $request->get("interval");
             $identity = $request->get("identity");
