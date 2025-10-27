@@ -267,6 +267,9 @@ class PatientController extends Controller
             $user->email = $oldPatients->email;
             $user->save();
 
+            $oldPatients->user_id = $user->id;
+            $oldPatients->save();
+
             $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
             $offlineOnlinePatientSync->firstName = $oldPatients->firstName;
             $offlineOnlinePatientSync->lastName = $oldPatients->glastName;
@@ -359,23 +362,18 @@ class PatientController extends Controller
         if (!PatientDontUse::where("patient_id", $request->get("patient_id"))->exists())
             return $utils->message("error", "Patient Not Found" , 404);
 
+        $patient_id = $request->get("patient_id");
+        User::where("reg_id", $patient_id)
+            ->update([
+                "password" => Hash::make($request->get("password")),
+                "username" => $request->get("username")
+            ]);
 
         $patientDontUse = PatientDontUse::where("patient_id", $request->get("patient_id"))->first();
-        $username = $request->get("username");
-        $users = new User();
-        $users->reg_id = $patientDontUse->patient_id;
-        $users->username  = $username;
-        $users->phone  = $patientDontUse->phone_no;
-        $users->email  = $patientDontUse->email;
-        $users->password  = Hash::make($request->get("password"));
-        $users->save();
 
+        $users = User::where("reg_id", $patient_id)->first();
         $patientDontUse->user_id = $users->id;
         $patientDontUse->save();
-        $patient =  User::where("reg_id", $request->get("patient_id"))
-                    ->update([
-                        "password" => Hash::make($request->get("password"))
-                    ]);
 
         return $utils->message("success", "Password Updated Successfully." , 200);
 
