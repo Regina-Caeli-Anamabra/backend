@@ -84,7 +84,6 @@ class PatientController extends Controller
             "patient_id" => "required",
         ]);
 
-
         if (!ServiceChargeFlutterwavePayments::where("identity", $request->get("payment_identity"))->exists())
             return $utils->message("error", "Payment Not Found" , 404);
 
@@ -93,7 +92,7 @@ class PatientController extends Controller
 
 
         $patient = $request->get("patient_id");
-        $trx_id = $request->get("trx_id");
+       return $trx_id = $request->get("trx_id");
         $payment_id = $request->get("payment_identity");
 
         $user = User::where("reg_id", $patient)->first();
@@ -140,8 +139,6 @@ class PatientController extends Controller
 
                 if ($dbSave)
                     return $utils->message("Success", "Payment Completed Successfully." , 200);
-
-                return $utils->message("error", "Server Error" , 400);
 
             }catch (Exception $e){
                 return $utils->message("error", $e->getMessage() , 400);
