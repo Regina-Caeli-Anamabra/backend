@@ -1034,7 +1034,7 @@ class BookingController extends Controller
 
         $user_id =  auth('sanctum')->user()->id;
 
-        if (User::where("id", $user_id)->where("paid", "!=", 1)->exists())
+        if (\App\Models\User::where("id", $user_id)->where("paid", "!=", 1)->exists())
             return $utils->message("error","Payment of Service Charge Required" , 400);
 
         try {
