@@ -10,4 +10,6 @@ class PatientDontUse extends Model
     use HasFactory;
 
     protected $table = 'patientdontuse';
+
+    public $timestamps = false;
 }

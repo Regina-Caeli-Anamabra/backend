@@ -96,12 +96,12 @@ class PatientController extends Controller
         $trx_id = $request->get("trx_id");
         $payment_id = $request->get("payment_identity");
 
-         $user = User::where("reg_id", $patient)->first();
+        $user = User::where("reg_id", $patient)->first();
         $paymentData = $utils->validatePayment($trx_id);
 
         if ($paymentData["data"]["status"] == "successful") {
             try {
-                $patients = Patients::where("user_id", $user->id)->first();
+                $patients = OfflineOnlinePatientsSync::where("user_id", $user->id)->first();
                 $dbSave =  DB::transaction(function () use ($utils, $paymentData, $payment_id, $trx_id, $user, $patients) {
                     $flutter = ServiceChargeFlutterwavePayments::where("identity", $payment_id)->firstOrFail();
                     $flutter->user_id = $user->id;
@@ -131,11 +131,9 @@ class PatientController extends Controller
                     $flutter->tx_ref = $paymentData["data"]["tx_ref"];
                     $flutter->update();
 
-
                     $user = User::where("id", $user->id)->first();
                     $user->paid = 1;
                     $user->save();
-
                     return true;
 
                 });
@@ -144,7 +142,6 @@ class PatientController extends Controller
                     return $utils->message("Success", "Payment Completed Successfully." , 200);
 
                 return $utils->message("error", "Server Error" , 400);
-
 
             }catch (Exception $e){
                 return $utils->message("error", $e->getMessage() , 400);
@@ -192,6 +189,7 @@ class PatientController extends Controller
 
     public function cancelServiceChargePayment(Request $request, Utils $utils)
     {
+
         $request->validate([
             "patient_id" => "required"
         ]);
@@ -210,7 +208,6 @@ class PatientController extends Controller
         $payment->amount = 1500;
         $payment->identity = $utils->generateCramp("service_payments");
         $payment->patient_id =  Patients::where('user_id', $user->id)->first()->id;
-        $payment->status = "pending";
         $payment->save();
 
         return $utils->message("Success", $payment , 200);
@@ -251,7 +248,6 @@ class PatientController extends Controller
      *     )
      * )
      */
-
     public function initiateServiceChargePayment(Request $request, Utils $utils)
     {
         $request->validate([
@@ -259,45 +255,39 @@ class PatientController extends Controller
         ]);
 
         $patient_id =  $request->input("patient_id");
-        return 4848;
 
-        if (!PatientDontUse::where("patient_id", $patient_id)->exists())
+        if (!Patients::where("reg_id", $patient_id)->exists() && !PatientDontUse::where("patient_id", $patient_id)->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
 
+        if(!OfflineOnlinePatientsSync::where("reg_id",$patient_id)->exists()){
+            $oldPatients = PatientDontUse::where("patient_id",$patient_id)->firstOrFail();
+            $user = new User();
+            $user->reg_id = $patient_id;
+            $user->phone = $oldPatients->phone_no;
+            $user->email = $oldPatients->email;
+            $user->save();
 
-        if (!empty($patient) > 0){
-            if(PatientDontUse::where("patient_id",$patient_id)->exists()){
-            return    $oldPatients = PatientDontUse::where("patient_id",$patient_id)->firstOrFail();
-
-                $user = new User();
-                $user->reg_id = $patient_id;
-                $user->phone = $oldPatients->phone_no;
-                $user->email = $oldPatients->email;
-                $user->save();
-
-                $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
-                $offlineOnlinePatientSync->firstName = $oldPatients->firstName;
-                $offlineOnlinePatientSync->lastName = $oldPatients->glastName;
-                $offlineOnlinePatientSync->user_id = $user->id;
-                $offlineOnlinePatientSync->phone =  $oldPatients->phone_no;
-                $offlineOnlinePatientSync->date_of_birth = $oldPatients->dateOfBirth;
-                $offlineOnlinePatientSync->gender = $oldPatients->gender;
-                $offlineOnlinePatientSync->nature_of_relationship = $oldPatients->next_of_kin_relationship;
-                $offlineOnlinePatientSync->marital_status = $oldPatients->marital_status;
-                $offlineOnlinePatientSync->religion = $oldPatients->ethnic;
-                $offlineOnlinePatientSync->nationality = $oldPatients->nationality;
-                $offlineOnlinePatientSync->next_of_kin = $oldPatients->next_of_kin;
-                $offlineOnlinePatientSync->next_of_kin_phone = $oldPatients->next_of_kin_phoneno;
-                $offlineOnlinePatientSync->state_of_residence = $oldPatients->state_of_residence;
-                $offlineOnlinePatientSync->address_of_residence = $oldPatients->permanent_address;
-                $offlineOnlinePatientSync->patient_id = $oldPatients->id;
-                $offlineOnlinePatientSync->place = "offline";
-                $offlineOnlinePatientSync->save();
-            }
-
+            $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
+            $offlineOnlinePatientSync->firstName = $oldPatients->firstName;
+            $offlineOnlinePatientSync->lastName = $oldPatients->glastName;
+            $offlineOnlinePatientSync->user_id = $user->id;
+            $offlineOnlinePatientSync->reg_id = $patient_id;
+            $offlineOnlinePatientSync->phone =  $oldPatients->phone_no;
+            $offlineOnlinePatientSync->date_of_birth = $oldPatients->dateOfBirth;
+            $offlineOnlinePatientSync->gender = $oldPatients->gender;
+            $offlineOnlinePatientSync->nature_of_relationship = $oldPatients->next_of_kin_relationship;
+            $offlineOnlinePatientSync->marital_status = $oldPatients->marital_status;
+            $offlineOnlinePatientSync->religion = $oldPatients->ethnic;
+            $offlineOnlinePatientSync->nationality = $oldPatients->nationality;
+            $offlineOnlinePatientSync->next_of_kin = $oldPatients->next_of_kin;
+            $offlineOnlinePatientSync->next_of_kin_phone = $oldPatients->next_of_kin_phoneno;
+            $offlineOnlinePatientSync->state_of_residence = $oldPatients->state_of_residence;
+            $offlineOnlinePatientSync->address_of_residence = $oldPatients->permanent_address;
+            $offlineOnlinePatientSync->patient_id = $oldPatients->id;
+            $offlineOnlinePatientSync->place = "offline";
+            $offlineOnlinePatientSync->save();
         }else{
-            $patient = Patients::where("patient_id", $patient_id)->first();
-            $user = User::findOrFail($patient->user_id);
+            $user = User::where("reg_id", $patient_id)->firstOrFail();
         }
 
         $trx_id =  $utils->generateCode(20);
@@ -327,6 +317,14 @@ class PatientController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
+     *         name="username",
+     *         in="query",
+     *         description="Username",
+     *         example="sam",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
      *         name="password",
      *         in="query",
      *         description="Password",
@@ -352,6 +350,7 @@ class PatientController extends Controller
     {
         $request->validate([
             "patient_id" => "required|string",
+            "username" => "required|string",
             "password" => "required|string|min:8|confirmed"
         ], [
             'password.confirmed' => 'The password confirmation does not match.',
@@ -360,15 +359,19 @@ class PatientController extends Controller
         if (!PatientDontUse::where("patient_id", $request->get("patient_id"))->exists())
             return $utils->message("error", "Patient Not Found" , 404);
 
-        $patientDontUse = PatientDontUse::where("patient_id", $request->get("patient_id"))->first();
 
+        $patientDontUse = PatientDontUse::where("patient_id", $request->get("patient_id"))->first();
+        $username = $request->get("username");
         $users = new User();
         $users->reg_id = $patientDontUse->patient_id;
+        $users->username  = $username;
         $users->phone  = $patientDontUse->phone_no;
         $users->email  = $patientDontUse->email;
         $users->password  = Hash::make($request->get("password"));
         $users->save();
 
+        $patientDontUse->user_id = $users->id;
+        $patientDontUse->save();
         $patient =  User::where("reg_id", $request->get("patient_id"))
                     ->update([
                         "password" => Hash::make($request->get("password"))
@@ -692,9 +695,9 @@ class PatientController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
-               $user =  Patients::where("user_id", auth('sanctum')->id())->firstOrFail();
-               if($user){
+               $user =  OfflineOnlinePatientsSync::where("user_id", auth('sanctum')->id())->firstOrFail();
 
+               if($user){
                     $user->firstName = $request->get("first_name");
                     $user->lastName = $request->get("last_name");
                     $user->phone = $request->get("phone");
@@ -705,10 +708,37 @@ class PatientController extends Controller
                     $user->state_of_residence = $request->get("state_of_residence");
                     $user->address_of_residence = $request->get("address_of_residence");
                     $user->update();
+                    if ($user->place == "online"){
+                        $patient =  Patients::where("user_id", auth('sanctum')->id())->firstOrFail();
+                        $patient->firstName = $request->get("first_name");
+                        $patient->lastName = $request->get("last_name");
+                        $patient->phone = $request->get("phone");
+                        $patient->religion = $request->get("religion");
+                        $patient->next_of_kin = $request->get("next_of_kin");
+                        $patient->next_of_kin_phone = $request->get("next_of_kin_phone");
+                        $patient->address_of_next_of_kin = $request->get("address_of_next_of_kin");
+                        $patient->state_of_residence = $request->get("state_of_residence");
+                        $patient->address_of_residence = $request->get("address_of_residence");
+                        $patient->update();
+                    }else{
+                         $patient =  PatientDontUse::where("user_id", auth('sanctum')->id())->firstOrFail();
+                        $patient->firstName = $request->get("first_name");
+                        $patient->lastName = $request->get("last_name");
+                        $patient->phone_no = $request->get("phone");
+                        $patient->ethnic = $request->get("religion");
+                        $patient->next_of_kin = $request->get("next_of_kin");
+                        $patient->next_of_kin_phoneno = $request->get("next_of_kin_phone");
+                        $patient->address = $request->get("address_of_next_of_kin");
+                        $patient->state_of_residence = $request->get("state_of_residence");
+                        $patient->address = $request->get("address_of_residence");
+                        $patient->update();
+                    }
                }
             return $utils->message("success", "User updated successfully.." , 200);
 
         }catch (\Exception $exception){
+            return $utils->message("error", $exception->getMessage(), 400);
+
             Log::error($exception->getMessage());
         }
     }

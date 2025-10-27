@@ -2346,6 +2346,16 @@
                         "example": "94901/03/24"
                     },
                     {
+                        "name": "username",
+                        "in": "query",
+                        "description": "Username",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "sam"
+                    },
+                    {
                         "name": "password",
                         "in": "query",
                         "description": "Password",
@@ -2405,7 +2415,7 @@
                     {
                         "name": "patient_id",
                         "in": "query",
-                        "description": "Patient ID",
+                        "description": "patient_id",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -2560,6 +2570,15 @@
                         "name": "address_of_next_of_kin",
                         "in": "query",
                         "description": "address_of_next_of_kin",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "description": "phone",
                         "required": true,
                         "schema": {
                             "type": "string"

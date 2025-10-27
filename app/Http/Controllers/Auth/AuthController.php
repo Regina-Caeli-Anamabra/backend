@@ -489,7 +489,7 @@ class AuthController extends Controller
                 $patient->firstName = $userRequest->get("first_name");
                 $patient->lastName = $userRequest->get("last_name");
                 $patient->user_id = $user->id;
-                $user->reg_id = $newPatientId;
+                $patient->reg_id = $newPatientId;
                 $patient->phone = $phone;
                 $patient->date_of_birth = $userRequest->get("date_of_birth");
                 $patient->gender = $userRequest->get("gender");
@@ -508,6 +508,7 @@ class AuthController extends Controller
                 $offlineOnlinePatientSync->firstName = $userRequest->get("first_name");
                 $offlineOnlinePatientSync->lastName = $userRequest->get("last_name");
                 $offlineOnlinePatientSync->user_id = $user->id;
+                $offlineOnlinePatientSync->reg_id = $newPatientId;
                 $offlineOnlinePatientSync->phone = $phone;
                 $offlineOnlinePatientSync->date_of_birth = $userRequest->get("date_of_birth");
                 $offlineOnlinePatientSync->gender = $userRequest->get("gender");
@@ -531,7 +532,7 @@ class AuthController extends Controller
                     $data = [
                         "code" => $verifyCode
                     ];
-                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
+//                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
                 }else{
 
                     // Define the URL and data you want to send

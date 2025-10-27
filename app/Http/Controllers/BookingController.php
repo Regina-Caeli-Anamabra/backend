@@ -10,6 +10,7 @@ use App\Models\DaysAvailable;
 use App\Models\DonationPayment;
 use App\Models\Donations;
 use App\Models\FlutterwavePayment;
+use App\Models\OfflineOnlinePatientsSync;
 use App\Models\PatientDontUse;
 use App\Models\Patients;
 use App\Models\Payments;
@@ -917,8 +918,10 @@ class BookingController extends Controller
             $booking->service_id = $service_id;
             $booking->identity = $identity;
             $booking->price = $amount;
+            $booking->receipt_no  = $utils->code_ref(10);;
             $booking->session_end = $booking_end;
             $booking->user_id = $user_id;
+            $booking->offline_online_sync_id = $payment->offline_online_sync_id;
             $booking->booking_for_self = $request->get("booking_for_self");
             $booking->recipient_id = $recipient_id;
             $booking->appointment_type = $appointment_type;
@@ -1046,7 +1049,6 @@ class BookingController extends Controller
             $recipient_id = $request->get("booked_by_id");
             $appointment_type = $request->get("booking_type");
 
-
                 $transaction_id = $request->get("trx_id");
                 $paymentData = $utils->validatePayment($transaction_id);
                 $data = [
@@ -1104,7 +1106,7 @@ class BookingController extends Controller
                     $booking->session_end = $booking_end;
                     $booking->user_id = $user_id;
                     $booking->booking_for_self = $request->get("booking_for_self");
-                    $booking->patient_id = (int) Patients::where("user_id", $user_id)->first()->id;
+                    $booking->offline_online_sync_id  = (int) OfflineOnlinePatientsSync::where("user_id", $user_id)->first()->id;
                     $booking->appointment_type = $appointment_type;
                     $booking->save();
                     $id_from_payment = $this->addPayment($utils, $user_id, $flutter->id, $booking->id, $amount, $service_id, $name);
@@ -1134,7 +1136,7 @@ class BookingController extends Controller
                 $payments->name = $name;
                 $payments->identiy = $identity;
                 $payments->service_id = $service_id;
-                $payments->patient_id = Patients::where("user_id", $user_id)->value("id");
+                $payments->patient_id = OfflineOnlinePatientsSync::where("user_id", $user_id)->value("id");
                 $payments->save();
                 return $payments->id;
 
