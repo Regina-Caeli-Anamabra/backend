@@ -586,9 +586,9 @@ class AuthController extends Controller
      *     summary="Authenticate user and generate Sactum token",
      *     tags={"Auth"},
      *     @OA\Parameter(
-     *         name="phone",
+     *         name="username",
      *         in="query",
-     *         description="Phone",
+     *         description="Username",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
