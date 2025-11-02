@@ -252,6 +252,7 @@ class PatientController extends Controller
         ]);
 
         $patient_id =  $request->input("patient_id");
+        $offlineOnlinePatientSync = "";
 
         if (!Patients::where("reg_id", $patient_id)->exists() && !PatientDontUse::where("patient_id", $patient_id)->exists())
             return $utils->message("Error", "Patient Not Found." , 404);
@@ -288,6 +289,7 @@ class PatientController extends Controller
             $offlineOnlinePatientSync->save();
         }else{
             $user = User::where("reg_id", $patient_id)->firstOrFail();
+            $offlineOnlinePatientSync = OfflineOnlinePatientsSync::where("patient_id", $patient_id)->firstOrFail();
         }
 
         $trx_id =  $utils->generateCode(20);
