@@ -583,19 +583,19 @@ class AuthController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/login",
-     *     summary="Authenticate user and generate Sactum token",
+     *     summary="Authenticate user",
      *     tags={"Auth"},
      *     @OA\Parameter(
      *         name="username",
      *         in="query",
-     *         description="Username",
+     *         description="username",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
      *         name="password",
      *         in="query",
-     *         description="Password",
+     *         description="password",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),

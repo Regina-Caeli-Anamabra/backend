@@ -288,11 +288,9 @@ class PatientController extends Controller
             $offlineOnlinePatientSync->place = "offline";
             $offlineOnlinePatientSync->save();
         }else{
-            if(!OfflineOnlinePatientsSync::where("reg_id", $patient_id)->exists())
-                return $utils->message("error", "You have to register first" , 400);
 
             $user = User::where("reg_id", $patient_id)->firstOrFail();
-            $offlineOnlinePatientSync = OfflineOnlinePatientsSync::where("patient_id", $patient_id)->firstOrFail();
+            $offlineOnlinePatientSync = OfflineOnlinePatientsSync::where("reg_id", $patient_id)->firstOrFail();
         }
 
         $trx_id =  $utils->generateCode(20);
