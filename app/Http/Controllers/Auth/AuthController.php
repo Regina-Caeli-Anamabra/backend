@@ -607,7 +607,7 @@ class AuthController extends Controller
     public function login(LoginRequest $loginRequest, Utils $utils, Execs $execs)
     {
 
-        if (auth()->attempt($loginRequest->only(['phone', 'password'])) ){
+        if (auth()->attempt($loginRequest->only(['username', 'password'])) ){
             $authUser = Auth::user();
 
             $success['token']  = $authUser->createToken('access_token')->plainTextToken;
