@@ -12,13 +12,16 @@ class ServieChargeResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
+    public function toArray(Request $request)
     {
+        \Log::info("Loaded relationships:", array_keys($this->getRelations()));
+
         return [
-            "name" => optional($this->onlineOfflinePatients)->firstName . " " . optional($this->onlineOfflinePatients)->lastName,
+            "name" => trim(optional($this->onlineOfflinePatients)->firstName . ' ' . optional($this->onlineOfflinePatients)->lastName),
             "patient_id" => optional($this->users)->reg_id,
             "status" => $this->status,
-            "amount" => number_format($this->amount_settled, 2)
+            "amount" => number_format($this->amount, 2)
         ];
+
     }
 }

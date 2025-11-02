@@ -513,6 +513,26 @@ class PatientController extends Controller
         $search_item = $request->get("search_item");
         try {
             $patients = Patients::where(function ($query) use ($search_item) {
+                $query->where("phone", 'like', "%{$search_item}%")
+                    ->orWhere("firstName", 'like', "%{$search_item}%")
+                    ->orWhere("lastName", 'like', "%{$search_item}%")
+                    ->orWhere("middleName", 'like', "%{$search_item}%")
+                    ->orWhere("patient_id", 'like', "%{$search_item}%")
+                    ->orWhereRaw("CONCAT(firstName, ' ', lastName) LIKE ?", ["%{$search_item}%"]);
+            })->get();
+            $patients = SearchPatientResource::collection($patients);
+            return $utils->message("success", $patients  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+    public function searchHospitalPatient(Request $request, Utils $utils)
+    {
+
+        $search_item = $request->get("search_item");
+        try {
+            $patients = PatientDontUse::where(function ($query) use ($search_item) {
                 $query->where("phone_no", 'like', "%{$search_item}%")
                     ->orWhere("firstName", 'like', "%{$search_item}%")
                     ->orWhere("lastName", 'like', "%{$search_item}%")
