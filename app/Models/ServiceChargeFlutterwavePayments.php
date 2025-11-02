@@ -16,9 +16,15 @@ class ServiceChargeFlutterwavePayments extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
     public function patients(): BelongsTo
     {
         return $this->belongsTo(Patients::class, 'patient_id');
+    }
+
+    public function onlineOfflinePatients(): BelongsTo
+    {
+        return $this->belongsTo(OfflineOnlinePatientsSync::class, 'patient_id');
     }
 
 }

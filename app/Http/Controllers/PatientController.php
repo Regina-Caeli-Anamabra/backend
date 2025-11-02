@@ -296,6 +296,7 @@ class PatientController extends Controller
         $payment->amount = 1500;
         $payment->identity = $utils->generateCramp("service_payments");
         $payment->user_id =  $user->id;
+        $payment->patient_id  =  $offlineOnlinePatientSync->id;
         $payment->save();
 
         return $utils->message("Success", $payment , 200);

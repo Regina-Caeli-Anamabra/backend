@@ -16,4 +16,11 @@ class OfflineOnlinePatientsSync extends Model
     {
         return $this->hasMany(Bookings::class, 'id');
     }
+
+    public function serviceCharge(): HasMany
+    {
+        return $this->hasMany(Bookings::class, 'id');
+    }
+
+
 }
