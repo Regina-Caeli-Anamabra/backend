@@ -778,11 +778,15 @@ class BookingController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
+
              $user_id =  auth('sanctum')->id();
              $service_id = $request->get("service_id");
              $amount = $request->get("amount");
 
-//            $trx_id = 5804669; ###########################
+            if (\App\Models\User::where("id", $user_id)->where("paid", "!=", 1)->exists())
+                return $utils->message("error","Payment of Service Charge Required" , 400);
+
+
             $trx_id =  $utils->generateCode(20);
             $logged_data = [
                 "trx_id" => $trx_id,
@@ -796,12 +800,6 @@ class BookingController extends Controller
 
             $patient = OfflineOnlinePatientsSync::where('user_id', $user_id)->first();
 
-//            if (OfflineOnlinePatientsSync::where('user_id', $user_id)->exists()){
-//                $patient = Patients::where('user_id', $user_id)->first();
-//            }else{
-//                $patient = PatientDontUse::where("user_id", $user_id)->first();
-//            }
-
             $payment = new FlutterwavePayment();
             $payment->status = "pending";
             $payment->service_id = $service_id;
@@ -811,7 +809,6 @@ class BookingController extends Controller
             $payment->trx_id = $trx_id;
             $payment->patient_id =  $patient->id;
             $payment->save();
-
 
             // Generate a signed URL
             $signedUrl = URL::signedRoute('flutterwave.callback', [
@@ -1033,9 +1030,6 @@ class BookingController extends Controller
             return $utils->message("error","Unauthorized Access." , 401);
 
         $user_id =  auth('sanctum')->user()->id;
-
-        if (\App\Models\User::where("id", $user_id)->where("paid", "!=", 1)->exists())
-            return $utils->message("error","Payment of Service Charge Required" , 400);
 
         try {
             $interval = $request->get("interval");
