@@ -12,6 +12,7 @@ use App\Mail\VerifyCodeMail;
 use App\Models\Account;
 use App\Models\NewCustomer;
 use App\Models\OfflineOnlinePatientsSync;
+use App\Models\PatientDontUse;
 use App\Models\Patients;
 use App\Models\User;
 use App\Utils\CurlGet;
@@ -142,6 +143,54 @@ class AuthController extends Controller
             return $utils->message("error", "Code Does Not Exist", 404);
 
         return $utils->message("success","Verification Successful.", 200);
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/recover-reg-id",
+     *      tags={"Auth"},
+     *     @OA\Parameter(
+     *         name="phone",
+     *         in="query",
+     *         description="phone",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Verification successful"),
+     *     @OA\Response(response="404", description="Code Not Found")
+     * )
+     */
+    public function recoverRegId(Request $request, Utils $utils)
+    {
+
+        $request->validate([
+            "phone" => "required|string"
+        ]);
+
+        $phone = $request->get("phone");
+        $phone_db = substr($phone, 1);
+
+
+        if (Patients::where("phone", $phone)->exists()){
+
+            $patient = Patients::where("phone", $phone)->first();
+           $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $patient->reg_id .' your Regina Ceali Reg ID. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
+
+            // Send the POST request
+            $response = Http::get($url);
+        }else  if (PatientDontUse::where("phone_no", $phone_db)->exists()){
+
+            $patient = PatientDontUse::where("phone_no", $phone_db)->first();
+            $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $patient->patient_id .' is your Regina Ceali Reg ID. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
+
+            $response = Http::get($url);
+        }else{
+            return $utils->message("error","Patient Not Found.", 404);
+
+        }
+
+        return $utils->message("success","You will receive a text message if your phone is on our database.", 200);
     }
 
 

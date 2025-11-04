@@ -95,6 +95,33 @@
                 }
             }
         },
+        "/api/v1/recover-reg-id": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "operationId": "d04491e7847c29da2c1325ba16e3475e",
+                "parameters": [
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "description": "phone",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification successful"
+                    },
+                    "404": {
+                        "description": "Code Not Found"
+                    }
+                }
+            }
+        },
         "/api/v1/send-forgot-password-code": {
             "post": {
                 "tags": [
@@ -538,13 +565,13 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Authenticate user and generate Sactum token",
+                "summary": "Authenticate user",
                 "operationId": "15400f94bfe16d4952aa545606939fc2",
                 "parameters": [
                     {
-                        "name": "phone",
+                        "name": "username",
                         "in": "query",
-                        "description": "Phone",
+                        "description": "username",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -553,7 +580,7 @@
                     {
                         "name": "password",
                         "in": "query",
-                        "description": "Password",
+                        "description": "password",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -2413,9 +2440,9 @@
                 "operationId": "b19de28c0ba967e14195ddfcf6890d31",
                 "parameters": [
                     {
-                        "name": "patient_id",
+                        "name": "phone",
                         "in": "query",
-                        "description": "patient_id",
+                        "description": "phone",
                         "required": true,
                         "schema": {
                             "type": "string"
