@@ -69,10 +69,8 @@ class Utils
                 break;
         }
     }
-    public function sendOTPToSMS($phone)
+    public function sendOTPToSMS($phone, $verifyCode)
     {
-        $verifyCode = $this->generateKey();
-
         $user = User::where("phone", $phone)->firstOrFail();
         $user->vCode = $verifyCode;
         $user->save();
