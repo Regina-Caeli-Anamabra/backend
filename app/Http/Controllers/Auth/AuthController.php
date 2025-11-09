@@ -247,7 +247,7 @@ class AuthController extends Controller
 
 
         if ($auth_type == "EMAIL"){
-            Mail::to($options)->send(new PasswordResetMail($mailData));
+            Mail::to($password_reset_code)->send(new PasswordResetMail($mailData));
             return $utils->message("success", "OTP Sent. Check your mailbox or phone", 200);
         }else{
             $utils->sendOTPToSMS($options);

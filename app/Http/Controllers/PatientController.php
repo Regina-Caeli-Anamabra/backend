@@ -408,9 +408,9 @@ class PatientController extends Controller
      *     summary="Get Patient Details",
      *     tags={"Patients"},
      *     @OA\Parameter(
-     *         name="phone",
+     *         name="patient_id",
      *         in="query",
-     *         description="phone",
+     *         description="patient_id",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -425,9 +425,9 @@ class PatientController extends Controller
             "patient_id" => "required|string"
         ]);
 
-        $phone = $request->get("phone");
+        $phone = $request->get("patient_id");
 
-        if (!PatientDontUse::where("phone_no", $phone )->exists())
+        if (!PatientDontUse::where("patient_id", $phone )->exists())
             return $utils->message("error", "Patient does not exist" , 400);
 
         $patient = PatientDontUse::where("phone", $phone)->get();
