@@ -2,37 +2,37 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enums\TokenAbility;
 use App\Execs\Execs;
-use App\Http\Resources\Customer;
+use App\Models\User;
+use App\Utils\Utils;
+use App\Utils\CurlGet;
+use App\Models\Account;
+use App\Utils\CurlPost;
+use App\Models\Patients;
+use App\Enums\TokenAbility;
+use App\Models\NewCustomer;
+use Illuminate\Support\Str;
+use App\Mail\VerifyCodeMail;
+use Illuminate\Http\Request;
+use mysql_xdevapi\Exception;
+use Illuminate\Http\Response;
+use App\Mail\VerificationMail;
+use App\Models\PatientDontUse;
+use Illuminate\Support\Carbon;
 use App\Mail\PasswordCodeEmail;
 use App\Mail\PasswordResetMail;
-use App\Mail\VerificationMail;
-use App\Mail\VerifyCodeMail;
-use App\Models\Account;
-use App\Models\NewCustomer;
-use App\Models\OfflineOnlinePatientsSync;
-use App\Models\PatientDontUse;
-use App\Models\Patients;
-use App\Models\User;
-use App\Utils\CurlGet;
-use App\Utils\CurlPost;
-use App\Utils\Utils;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use App\Http\Resources\Customer;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\UserRequest;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\LoginRequest;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
+use App\Models\OfflineOnlinePatientsSync;
 use Illuminate\Testing\Fluent\Concerns\Has;
-use mysql_xdevapi\Exception;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class AuthController extends Controller
@@ -169,13 +169,13 @@ class AuthController extends Controller
         ]);
 
         $phone = $request->get("phone");
-        $phone_db = substr($phone, 1);
+        $phone_db = phone;
 
 
         if (Patients::where("phone", $phone)->exists()){
 
             $patient = Patients::where("phone", $phone)->first();
-           $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $patient->reg_id .' your Regina Ceali Reg ID. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
+            $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $patient->reg_id .' your Regina Ceali Reg ID. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
 
             // Send the POST request
             $response = Http::get($url);
