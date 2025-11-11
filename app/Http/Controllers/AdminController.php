@@ -35,7 +35,7 @@ class AdminController extends Controller
             ->where("status", "successful")
             ->get();
 
-        $sum = $serviceCharges::where("status", "successful")->sum("amount");
+        $sum = $serviceCharges->sum("amount");
 
         $data = [
             "serviceCharges" => ServieChargeResource::collection($serviceCharges),
