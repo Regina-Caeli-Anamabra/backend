@@ -169,7 +169,7 @@ class AuthController extends Controller
         ]);
 
         $phone = $request->get("phone");
-        $phone_db = phone;
+        $phone_db = $phone;
 
 
         if (Patients::where("phone", $phone)->exists()){
