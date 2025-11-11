@@ -32,8 +32,8 @@ class AdminController extends Controller
             return $utils->message("error","Unauthorized Access." , 401);
 
 
-         $serviceCharges = ServiceChargeFlutterwavePayments::with("users", "patients", "onlineOfflinePatients")->get();
-        $sum = $serviceCharges->sum("amount");
+         $serviceCharges = ServiceChargeFlutterwavePayments::with("users", "patients", "onlineOfflinePatients")->where("status", "successful")->get();
+        $sum = $serviceCharges::where("status", "successful")->sum("amount");
         $data = [
             "serviceCharges" => ServieChargeResource::collection($serviceCharges),
             "sum" => number_format($sum, 2)
