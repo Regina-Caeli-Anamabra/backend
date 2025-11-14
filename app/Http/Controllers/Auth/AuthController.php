@@ -169,8 +169,8 @@ class AuthController extends Controller
         ]);
 
         $phone = $request->get("phone");
-        $phone_db = $phone;
-
+        $phone_with_carrier = "+234". $phone;
+        $phone_without_zero = preg_replace('/^0/', '', $phone);
 
         if (Patients::where("phone", $phone)->exists()){
 
@@ -179,12 +179,13 @@ class AuthController extends Controller
 
             // Send the POST request
             $response = Http::get($url);
-        }else  if (PatientDontUse::where("phone_no", $phone_db)->exists()){
+        }else  if (PatientDontUse::where("phone_no", $phone)->orWhere("phone_no", $phone_with_carrier)->orWhere("phone", $phone_without_zero)->exists()){
 
-            $patient = PatientDontUse::where("phone_no", $phone_db)->first();
-            $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $patient->patient_id .' is your Regina Ceali Reg ID. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
+            $patients = PatientDontUse::where("phone_no", $phone)->get();
+            return $utils->message("error",$patients, 200);
 
-            $response = Http::get($url);
+//            $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $patient->patient_id .' is your Regina Ceali Reg ID. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
+//            $response = Http::get($url);
         }else{
             return $utils->message("error","Patient Not Found.", 404);
 
