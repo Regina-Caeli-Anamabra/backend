@@ -461,7 +461,7 @@ class AuthController extends Controller
      *         @OA\JsonContent(
      *             required={
      *                 "username", "password", "first_name", "last_name", "phone",
-     *                 "email", "gender", "marital_status", "religion",
+     *                 "gender", "marital_status", "religion",
      *                 "nationality", "state", "state_of_residence",
      *                 "address_of_residence", "address_of_next_of_kin",
      *                 "register_for_self", "auth_type"
@@ -580,12 +580,14 @@ class AuthController extends Controller
 
 
                 if ($userRequest->get("auth_type") == "EMAIL") {
-
+                    $email = $userRequest->get("email");
                     $data = [
                         "code" => $verifyCode
                     ];
-                    Mail::to($userRequest->get("email"))->send(new VerificationMail($data));
+                    if (!empty($email))
+                        Mail::to($email)->send(new VerificationMail($data));
                 }else{
+
 
                     // Define the URL and data you want to send
                     $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $verifyCode .' your Regina Ceali Hospital verification code. Expires in 5 minutes. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
