@@ -179,7 +179,7 @@ class AuthController extends Controller
 
             // Send the POST request
             $response = Http::get($url);
-        }else  if (PatientDontUse::where("phone_no", $phone)->orWhere("phone_no", $phone_with_carrier)->orWhere("phone", $phone_without_zero)->exists()){
+        }else  if (PatientDontUse::where("phone_no", $phone)->orWhere("phone_no", $phone_with_carrier)->orWhere("phone_no", $phone_without_zero)->exists()){
 
             $patients = PatientDontUse::where("phone_no", $phone)->get();
             return $utils->message("success",$patients, 200);
