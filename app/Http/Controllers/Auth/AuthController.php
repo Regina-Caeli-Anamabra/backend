@@ -174,11 +174,13 @@ class AuthController extends Controller
 
         if (Patients::where("phone", $phone)->exists()){
 
-            $patient = Patients::where("phone", $phone)->first();
-            $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $patient->reg_id .' your Regina Ceali Reg ID. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
+            $patients = Patients::where("phone", $phone)->get();
+            return $utils->message("success",$patients, 200);
+//            $patient = Patients::where("phone", $phone)->first();
+//            $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $patient->reg_id .' your Regina Ceali Reg ID. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
 
             // Send the POST request
-            $response = Http::get($url);
+//            $response = Http::get($url);
         }else  if (PatientDontUse::where("phone_no", $phone)->orWhere("phone_no", $phone_with_carrier)->orWhere("phone_no", $phone_without_zero)->exists()){
 
             $patients = PatientDontUse::where("phone_no", $phone)->get();
