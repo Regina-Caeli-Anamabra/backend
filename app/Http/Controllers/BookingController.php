@@ -1002,6 +1002,12 @@ class BookingController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
+     *         name="mode_of_payment",
+     *         in="query",
+     *         description="Card or Transfer",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
      *         name="interval",
      *         in="query",
      *         description="interval",
@@ -1046,9 +1052,9 @@ class BookingController extends Controller
             $service_id = $request->get("service_id");
             $recipient_id = $request->get("booked_by_id");
             $appointment_type = $request->get("booking_type");
-
+            $modeOfPayment = $request->get("mode_of_payment");
                 $transaction_id = $request->get("trx_id");
-                return $paymentData = $utils->validatePayment($transaction_id);
+                 $paymentData = $utils->validatePayment($transaction_id);
                 $data = [
                     "transaction_id" => $request->get("transaction_id"),
                     "user_id" => $user_id,
@@ -1061,35 +1067,58 @@ class BookingController extends Controller
                     return $utils->message("error", "Invalid Transaction ID.", 400);
 
                 if ($paymentData["data"]["status"] == "successful") {
-                    $flutter = FlutterwavePayment::where("identity", $identity)->firstOrFail();
-                    $flutter->user_id = $user_id;
-                    $flutter->patient_id = OfflineOnlinePatientsSync::where("user_id", $user_id)->first()->id;
-                    $flutter->trx_id = $transaction_id;
-                    $flutter->account_id = $paymentData["data"]["account_id"];
-                    $flutter->amount = $paymentData["data"]["amount"];
-                    $flutter->amount_settled = $paymentData["data"]["amount_settled"];
-                    $flutter->app_fee = $paymentData["data"]["app_fee"];
-                    $flutter->charged_amount = $paymentData["data"]["charged_amount"];
-                    $flutter->country = $paymentData["data"]["card"]["country"];
-                    $flutter->expiry = $paymentData["data"]["card"]["expiry"];
-                    $flutter->first_6digits = $paymentData["data"]["card"]["first_6digits"];
-                    $flutter->issuer = $paymentData["data"]["card"]["issuer"];
-                    $flutter->last_4digits = $paymentData["data"]["card"]["last_4digits"];
-                    $flutter->card_token = $paymentData["data"]["card"]["token"];
-                    $flutter->card_type = $paymentData["data"]["card"]["type"];
-                    $flutter->email = $paymentData["data"]["customer"]["email"];
-                    $flutter->name = $paymentData["data"]["customer"]["name"];
-                    $flutter->phone_number = $paymentData["data"]["customer"]["phone_number"];
-                    $flutter->flw_ref = $paymentData["data"]["flw_ref"];
-                    $flutter->ip = $paymentData["data"]["ip"];
-                    $flutter->processor_response = $paymentData["data"]["processor_response"];
-                    $flutter->status = $paymentData["data"]["status"];
-                    $flutter->narration = $paymentData["data"]["status"];
-                    $flutter->merchant_fee = $paymentData["data"]["merchant_fee"];
-                    $flutter->tx_ref = $paymentData["data"]["tx_ref"];
-                    $flutter->service_id = $request->get("service_id");
-                    $flutter->update();
-
+                    if ($modeOfPayment == "Card") {
+                        $flutter = FlutterwavePayment::where("identity", $identity)->firstOrFail();
+                        $flutter->user_id = $user_id;
+                        $flutter->patient_id = OfflineOnlinePatientsSync::where("user_id", $user_id)->first()->id;
+                        $flutter->trx_id = $transaction_id;
+                        $flutter->account_id = $paymentData["account_id"];
+                        $flutter->amount = $paymentData["amount"];
+                        $flutter->amount_settled = $paymentData["amount_settled"];
+                        $flutter->app_fee = $paymentData["app_fee"];
+                        $flutter->charged_amount = $paymentData["charged_amount"];
+                        $flutter->email = $paymentData["data"]["customer"]["email"];
+                        $flutter->name = $paymentData["data"]["customer"]["name"];
+                        $flutter->phone_number = $paymentData["data"]["customer"]["phone_number"];
+                        $flutter->flw_ref = $paymentData["data"]["flw_ref"];
+                        $flutter->ip = $paymentData["data"]["ip"];
+                        $flutter->processor_response = $paymentData["data"]["processor_response"];
+                        $flutter->status = $paymentData["data"]["status"];
+                        $flutter->narration = $paymentData["data"]["status"];
+                        $flutter->merchant_fee = $paymentData["data"]["merchant_fee"];
+                        $flutter->tx_ref = $paymentData["data"]["tx_ref"];
+                        $flutter->service_id = $request->get("service_id");
+                        $flutter->update();
+                    }else{
+                        $flutter = FlutterwavePayment::where("identity", $identity)->firstOrFail();
+                        $flutter->user_id = $user_id;
+                        $flutter->patient_id = OfflineOnlinePatientsSync::where("user_id", $user_id)->first()->id;
+                        $flutter->trx_id = $transaction_id;
+                        $flutter->account_id = $paymentData["account_id"];
+                        $flutter->amount = $paymentData["data"]["amount"];
+                        $flutter->amount_settled = $paymentData["data"]["amount_settled"];
+                        $flutter->app_fee = $paymentData["data"]["app_fee"];
+                        $flutter->charged_amount = $paymentData["data"]["charged_amount"];
+                        $flutter->country = $paymentData["data"]["card"]["country"];
+                        $flutter->expiry = $paymentData["data"]["card"]["expiry"];
+                        $flutter->first_6digits = $paymentData["data"]["card"]["first_6digits"];
+                        $flutter->issuer = $paymentData["data"]["card"]["issuer"];
+                        $flutter->last_4digits = $paymentData["data"]["card"]["last_4digits"];
+                        $flutter->card_token = $paymentData["data"]["card"]["token"];
+                        $flutter->card_type = $paymentData["data"]["card"]["type"];
+                        $flutter->email = $paymentData["data"]["customer"]["email"];
+                        $flutter->name = $paymentData["data"]["customer"]["name"];
+                        $flutter->phone_number = $paymentData["data"]["customer"]["phone_number"];
+                        $flutter->flw_ref = $paymentData["data"]["flw_ref"];
+                        $flutter->ip = $paymentData["data"]["ip"];
+                        $flutter->processor_response = $paymentData["data"]["processor_response"];
+                        $flutter->status = $paymentData["data"]["status"];
+                        $flutter->narration = $paymentData["data"]["status"];
+                        $flutter->merchant_fee = $paymentData["data"]["merchant_fee"];
+                        $flutter->tx_ref = $paymentData["data"]["tx_ref"];
+                        $flutter->service_id = $request->get("service_id");
+                        $flutter->update();
+                    }
                     Log::info("Flutterwave Completed", $paymentData);
 
 
