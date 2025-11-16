@@ -1048,7 +1048,7 @@ class BookingController extends Controller
             $appointment_type = $request->get("booking_type");
 
                 $transaction_id = $request->get("trx_id");
-                return $paymentData = $utils->validatePayment($transaction_id);
+                $paymentData = $utils->validatePayment($transaction_id);
                 $data = [
                     "transaction_id" => $request->get("transaction_id"),
                     "user_id" => $user_id,
