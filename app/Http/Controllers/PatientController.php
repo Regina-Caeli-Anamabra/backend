@@ -59,8 +59,8 @@ class PatientController extends Controller
      *             @OA\Property(
      *                 property="mode_of_transfer",
      *                 type="string",
-     *                 example="94901/03/24",
-     *                 description="Payment ID"
+     *                 example="Transfer",
+     *                 description="Card or Transfer"
      *             )
      *         )
      *     ),
