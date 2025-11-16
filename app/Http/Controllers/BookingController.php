@@ -1072,7 +1072,7 @@ class BookingController extends Controller
                         $flutter->user_id = $user_id;
                         $flutter->patient_id = OfflineOnlinePatientsSync::where("user_id", $user_id)->first()->id;
                         $flutter->trx_id = $transaction_id;
-                        $flutter->account_id = $paymentData["account_id"];
+                        $flutter->account_id = $paymentData["data"]["account_id"];
                         $flutter->amount = $paymentData["data"]["amount"];
                         $flutter->amount_settled = $paymentData["data"]["amount_settled"];
                         $flutter->app_fee = $paymentData["data"]["app_fee"];
@@ -1101,7 +1101,7 @@ class BookingController extends Controller
                         $flutter->user_id = $user_id;
                         $flutter->patient_id = OfflineOnlinePatientsSync::where("user_id", $user_id)->first()->id;
                         $flutter->trx_id = $transaction_id;
-                        $flutter->account_id = $paymentData["account_id"];
+                        $flutter->account_id = $paymentData["data"]["account_id"];
                         $flutter->amount = $paymentData["data"]["amount"];
                         $flutter->amount_settled = $paymentData["data"]["amount_settled"];
                         $flutter->app_fee = $paymentData["data"]["app_fee"];
