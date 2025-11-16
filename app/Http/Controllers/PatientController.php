@@ -55,6 +55,12 @@ class PatientController extends Controller
      *                 type="string",
      *                 example="94901/03/24",
      *                 description="Payment ID"
+     *             ),
+     *             @OA\Property(
+     *                 property="mode_of_transfer",
+     *                 type="string",
+     *                 example="94901/03/24",
+     *                 description="Payment ID"
      *             )
      *         )
      *     ),
@@ -82,6 +88,7 @@ class PatientController extends Controller
             "payment_identity" => "required",
             "trx_id" => "required",
             "patient_id" => "required",
+            "mode_of_transfer" => "required",
         ]);
 
         if (!ServiceChargeFlutterwavePayments::where("identity", $request->get("payment_identity"))->exists())
@@ -93,6 +100,7 @@ class PatientController extends Controller
 
         $patient = $request->get("patient_id");
         $trx_id = $request->get("trx_id");
+        $mode_of_transfer = $request->get("mode_of_transfer");
         $payment_id = $request->get("payment_identity");
 
         $user = User::where("reg_id", $patient)->first();
@@ -101,35 +109,57 @@ class PatientController extends Controller
         if ($paymentData["data"]["status"] == "successful") {
             try {
                 $patients = OfflineOnlinePatientsSync::where("user_id", $user->id)->first();
-                $dbSave =  DB::transaction(function () use ($utils, $paymentData, $payment_id, $trx_id, $user, $patients) {
-                    $flutter = ServiceChargeFlutterwavePayments::where("identity", $payment_id)->firstOrFail();
-                    $flutter->user_id = $user->id;
-                    $flutter->patient_id = $patients->id;
-                    $flutter->trx_id = $trx_id;
-                    $flutter->account_id = $paymentData["data"]["account_id"];
-                    $flutter->amount = $paymentData["data"]["amount"];
-                    $flutter->amount_settled = $paymentData["data"]["amount_settled"];
-                    $flutter->app_fee = $paymentData["data"]["app_fee"];
-                    $flutter->charged_amount = $paymentData["data"]["charged_amount"];
-                    $flutter->country = $paymentData["data"]["card"]["country"];
-                    $flutter->expiry = $paymentData["data"]["card"]["expiry"];
-                    $flutter->first_6digits = $paymentData["data"]["card"]["first_6digits"];
-                    $flutter->issuer = $paymentData["data"]["card"]["issuer"];
-                    $flutter->last_4digits = $paymentData["data"]["card"]["last_4digits"];
-                    $flutter->card_token = $paymentData["data"]["card"]["token"];
-                    $flutter->card_type = $paymentData["data"]["card"]["type"];
-                    $flutter->email = $paymentData["data"]["customer"]["email"];
-                    $flutter->name = $paymentData["data"]["customer"]["name"];
-                    $flutter->phone_number = $paymentData["data"]["customer"]["phone_number"];
-                    $flutter->flw_ref = $paymentData["data"]["flw_ref"];
-                    $flutter->ip = $paymentData["data"]["ip"];
-                    $flutter->processor_response = $paymentData["data"]["processor_response"];
-                    $flutter->status = $paymentData["data"]["status"];
-                    $flutter->narration = $paymentData["data"]["status"];
-                    $flutter->merchant_fee = $paymentData["data"]["merchant_fee"];
-                    $flutter->tx_ref = $paymentData["data"]["tx_ref"];
-                    $flutter->update();
-
+                $dbSave =  DB::transaction(function () use ($utils, $mode_of_transfer, $paymentData, $payment_id, $trx_id, $user, $patients) {
+                    if ($mode_of_transfer == "Card") {
+                        $flutter = ServiceChargeFlutterwavePayments::where("identity", $payment_id)->firstOrFail();
+                        $flutter->user_id = $user->id;
+                        $flutter->patient_id = $patients->id;
+                        $flutter->trx_id = $trx_id;
+                        $flutter->account_id = $paymentData["data"]["account_id"];
+                        $flutter->amount = $paymentData["data"]["amount"];
+                        $flutter->amount_settled = $paymentData["data"]["amount_settled"];
+                        $flutter->app_fee = $paymentData["data"]["app_fee"];
+                        $flutter->charged_amount = $paymentData["data"]["charged_amount"];
+                        $flutter->country = $paymentData["data"]["card"]["country"];
+                        $flutter->expiry = $paymentData["data"]["card"]["expiry"];
+                        $flutter->first_6digits = $paymentData["data"]["card"]["first_6digits"];
+                        $flutter->issuer = $paymentData["data"]["card"]["issuer"];
+                        $flutter->last_4digits = $paymentData["data"]["card"]["last_4digits"];
+                        $flutter->card_token = $paymentData["data"]["card"]["token"];
+                        $flutter->card_type = $paymentData["data"]["card"]["type"];
+                        $flutter->email = $paymentData["data"]["customer"]["email"];
+                        $flutter->name = $paymentData["data"]["customer"]["name"];
+                        $flutter->phone_number = $paymentData["data"]["customer"]["phone_number"];
+                        $flutter->flw_ref = $paymentData["data"]["flw_ref"];
+                        $flutter->ip = $paymentData["data"]["ip"];
+                        $flutter->processor_response = $paymentData["data"]["processor_response"];
+                        $flutter->status = $paymentData["data"]["status"];
+                        $flutter->narration = $paymentData["data"]["status"];
+                        $flutter->merchant_fee = $paymentData["data"]["merchant_fee"];
+                        $flutter->tx_ref = $paymentData["data"]["tx_ref"];
+                        $flutter->update();
+                    }else{
+                        $flutter = ServiceChargeFlutterwavePayments::where("identity", $payment_id)->firstOrFail();
+                        $flutter->user_id = $user->id;
+                        $flutter->patient_id = $patients->id;
+                        $flutter->trx_id = $trx_id;
+                        $flutter->account_id = $paymentData["data"]["account_id"];
+                        $flutter->amount = $paymentData["data"]["amount"];
+                        $flutter->amount_settled = $paymentData["data"]["amount_settled"];
+                        $flutter->app_fee = $paymentData["data"]["app_fee"];
+                        $flutter->charged_amount = $paymentData["data"]["charged_amount"];
+                        $flutter->email = $paymentData["data"]["customer"]["email"];
+                        $flutter->name = $paymentData["data"]["customer"]["name"];
+                        $flutter->phone_number = $paymentData["data"]["customer"]["phone_number"];
+                        $flutter->flw_ref = $paymentData["data"]["flw_ref"];
+                        $flutter->ip = $paymentData["data"]["ip"];
+                        $flutter->processor_response = $paymentData["data"]["processor_response"];
+                        $flutter->status = $paymentData["data"]["status"];
+                        $flutter->narration = $paymentData["data"]["status"];
+                        $flutter->merchant_fee = $paymentData["data"]["merchant_fee"];
+                        $flutter->tx_ref = $paymentData["data"]["tx_ref"];
+                        $flutter->update();
+                    }
                     $user = User::where("id", $user->id)->first();
                     $user->paid = 1;
                     $user->save();
