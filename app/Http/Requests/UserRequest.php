@@ -26,7 +26,7 @@ class UserRequest extends FormRequest
         return [
             "phone" => "required|string",
             "first_name" => "required|string",
-            Rule::unique('users', 'username'), // unique in users table
+            "username" => "required|string|unique:users",
             "password" => "required|string",
             "auth_type" => "required|string",
             "last_name" => "required|string",
