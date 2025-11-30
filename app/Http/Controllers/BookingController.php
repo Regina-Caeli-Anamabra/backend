@@ -810,12 +810,12 @@ class BookingController extends Controller
      */
     public function generateUrl(Request $request, Utils $utils)
     {
-        try {
+        $request->validate([
+            "service_id" => "required|int",
+            "amount" => "required|int"
+        ]);
 
-            $request->validate([
-                "service_id" => "required|int",
-                "amount" => "required|int"
-            ]);
+        try {
 
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
@@ -863,7 +863,7 @@ class BookingController extends Controller
 
         }catch (\Throwable $e) {
         // Do something with your exception
-            return $utils->message("error", $e->getMessage() , 400);
+            Log::error("error", ["data" => $e->getMessage()]);
         }
     }
 
