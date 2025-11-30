@@ -75,7 +75,7 @@ class BookingController extends Controller
 
     /**
      * @OA\Get (
-     *     path="/api/v1/check-email",
+     *     path="/api/v1/check-username",
      *     summary="Check Email",
      *      @OA\Parameter(
      *          name="email",
