@@ -338,7 +338,7 @@ class PatientController extends Controller
                 Log::info("Initializing Payment", ["data" => $request->all(), "trx_id" => $trx_id]);
                 $payment = new ServiceChargeFlutterwavePayments();
                 $payment->status = "Pending";
-                $payment->amount = $request->get("amount");
+                $payment->amount = 1500;
                 $payment->identity = $utils->generateCramp("service_payments");
                 $payment->user_id = $user->id;
                 $payment->patient_id = $offlineOnlinePatientSync->id;
