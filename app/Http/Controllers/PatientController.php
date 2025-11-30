@@ -255,13 +255,7 @@ class PatientController extends Controller
      *                 type="string",
      *                 example="94901/03/24",
      *                 description="Patient ID"
-     *             ),
-     *             @OA\Property(
-     *                 property="amount",
-     *                 type="string",
-     *                 example="500",
-     *                 description="Amount"
-     *             ),
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -284,8 +278,7 @@ class PatientController extends Controller
     public function initiateServiceChargePayment(Request $request, Utils $utils)
     {
         $request->validate([
-            "patient_id" => "required",
-            "amount" => "required"
+            "patient_id" => "required"
         ]);
 
         $patient_id =  $request->input("patient_id");

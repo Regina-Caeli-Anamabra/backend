@@ -256,8 +256,6 @@ class AuthController extends Controller
             $utils->sendOTPToSMS($options, $password_reset_code);
             return $utils->message("success", "OTP Sent. Check your mailbox or phone", 200);
         }
-
-
     }
 
     /**
