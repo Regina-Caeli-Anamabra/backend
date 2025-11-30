@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
@@ -820,7 +821,6 @@ class BookingController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
-
              $user_id =  auth('sanctum')->id();
              $service_id = $request->get("service_id");
              $amount = $request->get("amount");
@@ -838,32 +838,42 @@ class BookingController extends Controller
                 "first_name" => Patients::where("user_id", $user_id)->value("firstName"),
                 "last_name" => Patients::where("user_id", $user_id)->value("lastName")
             ];
+
+
+
             Log::info("transaction Started", $logged_data);
 
-            $patient = OfflineOnlinePatientsSync::where('user_id', $user_id)->first();
+            $patient =  DB::transaction(function () use ($utils, $service_id, $user_id, $amount, $trx_id, $logged_data) {
 
-            $payment = new FlutterwavePayment();
-            $payment->status = "pending";
-            $payment->service_id = $service_id;
-            $payment->identity = $this->generateBookingCode("bookings");
-            $payment->user_id = $user_id;
-            $payment->amount = $amount;
-            $payment->trx_id = $trx_id;
-            $payment->patient_id =  $patient->id;
-            $payment->save();
+                $patient = OfflineOnlinePatientsSync::where('user_id', $user_id)->first();
+                $payment = new FlutterwavePayment();
+                $payment->status = "pending";
+                $payment->service_id = $service_id;
+                $payment->identity = $this->generateBookingCode("bookings");
+                $payment->user_id = $user_id;
+                $payment->amount = $amount;
+                $payment->trx_id = $trx_id;
+                $payment->patient_id = $patient->id;
+                $payment->save();
+                Log::info("transaction Completed", ["Payment" => $payment, "patient" => $patient, $logged_data]);
 
-            // Generate a signed URL
-            $signedUrl = URL::signedRoute('flutterwave.callback', [
-                'trx_id' => $trx_id,
-                'user_id' => $user_id,
-                "service_id" => $service_id
-            ]);
+                // Generate a signed URL
+                $signedUrl = URL::signedRoute('flutterwave.callback', [
+                    'trx_id' => $trx_id,
+                    'user_id' => $user_id,
+                    "service_id" => $service_id
+                ]);
+                return ["url"  => $signedUrl, "payment_id" => $payment->id, "identity" => $payment->identity,  'trx_id' => $trx_id];
+            });
 
-            return $utils->message("success", ["url"  => $signedUrl, "payment_id" => $payment->id, "identity" => $payment->identity,  'trx_id' => $trx_id] , 200);
+            return $utils->message("success", $patient, 200);
 
         }catch (\Throwable $e) {
         // Do something with your exception
             Log::error("error", ["data" => $e->getMessage()]);
+
+            return $utils->message("error", $e->getMessage(), 500);
+
         }
     }
 

@@ -290,13 +290,13 @@ class PatientController extends Controller
 
         $patient_id =  $request->input("patient_id");
         $offlineOnlinePatientSync = "";
-
+        $payment = "";
         try {
 
-            $dbSave =  DB::transaction(function () use ($utils, $patient_id, $request) {
+            if (!Patients::where("reg_id", $patient_id)->exists() && !PatientDontUse::where("patient_id", $patient_id)->exists())
+                return $utils->message("Error", "Patient Not Found.", 404);
 
-                if (!Patients::where("reg_id", $patient_id)->exists() && !PatientDontUse::where("patient_id", $patient_id)->exists())
-                    return $utils->message("Error", "Patient Not Found.", 404);
+            $payment =  DB::transaction(function () use ($utils, $patient_id, $request, $payment) {
 
                 if (!OfflineOnlinePatientsSync::where("reg_id", $patient_id)->exists()) {
                     $oldPatients = PatientDontUse::where("patient_id", $patient_id)->firstOrFail();
@@ -335,7 +335,7 @@ class PatientController extends Controller
 
                 $trx_id = $utils->generateCode(20);
 
-                Log::info("msg", ["data" => $request->all(), "trx_id" => $trx_id]);
+                Log::info("Initializing Payment", ["data" => $request->all(), "trx_id" => $trx_id]);
                 $payment = new ServiceChargeFlutterwavePayments();
                 $payment->status = "Pending";
                 $payment->amount = $request->get("amount");
@@ -343,12 +343,14 @@ class PatientController extends Controller
                 $payment->user_id = $user->id;
                 $payment->patient_id = $offlineOnlinePatientSync->id;
                 $payment->save();
-                return true;
+                Log::info("Payment Initialization Completed");
+                return $payment;
             });
+            return $utils->message("Success", $payment , 200);
+
         }catch (\Exception $exception){
             Log::error("Error", [ "data" => $exception->getMessage() ]);
         }
-        return $utils->message("Success", "Payment initiated successfully." , 200);
 
     }
 
