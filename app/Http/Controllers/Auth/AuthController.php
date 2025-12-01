@@ -169,9 +169,12 @@ class AuthController extends Controller
         ]);
 
         $phone = $request->get("phone");
-        $phone = ltrim($phone, '0');
         $phone_with_carrier = "+234". $phone;
-        $phone_without_zero = preg_replace('/^0/', '', $phone);
+        if (strpos($phone, '0') === 0) {
+            $phone_without_zero = preg_replace('/^0/', '', $phone);
+        }else{
+            $phone_without_zero = $phone;
+        }
 
         if (Patients::where("phone", $phone)->exists()){
 
@@ -184,6 +187,7 @@ class AuthController extends Controller
 //            $response = Http::get($url);
         }else  if (PatientDontUse::where("phone_no", $phone)->orWhere("phone_no", $phone_with_carrier)->orWhere("phone_no", $phone_without_zero)->exists()){
             $patients = PatientDontUse::where("phone_no", $phone)->get();
+
             return $utils->message("success",$patients, 200);
 
 //            $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $patient->patient_id .' is your Regina Ceali Reg ID. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
