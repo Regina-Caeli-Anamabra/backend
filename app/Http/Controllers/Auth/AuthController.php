@@ -169,6 +169,7 @@ class AuthController extends Controller
         ]);
 
         $phone = $request->get("phone");
+        $phone = ltrim($phone, '0');
         $phone_with_carrier = "+234". $phone;
         $phone_without_zero = preg_replace('/^0/', '', $phone);
 
@@ -182,7 +183,6 @@ class AuthController extends Controller
             // Send the POST request
 //            $response = Http::get($url);
         }else  if (PatientDontUse::where("phone_no", $phone)->orWhere("phone_no", $phone_with_carrier)->orWhere("phone_no", $phone_without_zero)->exists()){
-
             $patients = PatientDontUse::where("phone_no", $phone)->get();
             return $utils->message("success",$patients, 200);
 
