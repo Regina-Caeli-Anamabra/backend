@@ -25,6 +25,11 @@ class User extends Authenticatable
         return $this->hasOne(ServiceChargeFlutterwavePayments::class, 'user_id');
     }
 
+    public function offlineOnlineSync(): HasOne
+    {
+        return $this->hasOne(OfflineOnlinePatientsSync::class, 'user_id');
+    }
+
     protected $hidden = [
         "password"
     ];

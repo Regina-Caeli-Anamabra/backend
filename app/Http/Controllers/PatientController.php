@@ -296,6 +296,7 @@ class PatientController extends Controller
                     $user = new User();
                     $user->reg_id = $patient_id;
                     $user->phone = $oldPatients->phone_no;
+                    $user->email = $oldPatients->email;
                     $user->save();
 
                     $oldPatients->user_id = $user->id;
@@ -650,7 +651,7 @@ class PatientController extends Controller
                 return $utils->message("error","Unauthorized Access." , 401);
 
             $user_id = auth('sanctum')->id();
-            $patient = Patients::with(["user"])->where("user_id", $user_id)->get();
+            $patient = OfflineOnlinePatientsSync::with(["user"])->where("user_id", 70)->get();
             return $utils->message("success", $patient , 200);
 
         }catch (\Exception $exception){
