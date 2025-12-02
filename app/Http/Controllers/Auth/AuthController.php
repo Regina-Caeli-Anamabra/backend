@@ -703,7 +703,7 @@ class AuthController extends Controller
 
 
         }else{
-            return $utils->message( "error", "Invalid Email/Password", 401);
+            return $utils->message( "error", "Invalid Username/Password", 401);
         }
 
     }
