@@ -176,16 +176,17 @@ class AuthController extends Controller
             $phone_without_zero = $phone;
         }
 
-        if (Patients::where("phone", $phone)->exists()){
+//        if (Patients::where("phone", $phone)->exists()){
 
-            $patients = Patients::where("phone", $phone)->get();
-            return $utils->message("success",$patients, 200);
+//            $patients = Patients::where("phone", $phone)->get();
+//            return $utils->message("success",$patients, 200);
 //            $patient = Patients::where("phone", $phone)->first();
 //            $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $patient->reg_id .' your Regina Ceali Reg ID. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
 
             // Send the POST request
 //            $response = Http::get($url);
-        }else  if (PatientDontUse::whereIn('phone_no', [
+//        }else
+            if (PatientDontUse::whereIn('phone_no', [
                 $phone,
                 $phone_with_carrier,
                 $phone_without_zero
