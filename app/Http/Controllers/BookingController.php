@@ -31,58 +31,17 @@ class BookingController extends Controller
 {
 
 
-    /**
-     * @OA\Get (
-     *     path="/api/v1/check-email",
-     *     summary="Check Email",
-     *      @OA\Parameter(
-     *          name="email",
-     *          in="query",
-     *          description="email",
-     *          required=true,
-     *          example="email@mail.com",
-     *          @OA\Schema(type="string")
-     *      ),
-     *
-     *     @OA\Response(response="201", description="check Email", @OA\JsonContent()),
-     *     @OA\Response(response="404", description="Email not Found", @OA\JsonContent()),
-     *     @OA\Response(response="500", description="Server Error", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent()),
-     *
-     * )
-     * **/
-    public function checkEmail(Request $request, Utils $utils)
-    {
-
-        $request->validate([
-            "email" => "required|string|email|max:255",
-        ]);
-
-        try {
-            $status =  "";
-            if (\App\Models\User::where("email", $request->get("email"))->exists())
-                $status = true;
-            else
-                $status = false;
-            return $utils->message("success", $status, 200);
-
-        }catch (\Throwable $e) {
-            // Do something with your exception
-            return $utils->message("error", $e->getMessage() , 400);
-        }
-    }
-
 
     /**
      * @OA\Get (
      *     path="/api/v1/check-username",
-     *     summary="Check Email",
+     *     summary="Check username",
      *      @OA\Parameter(
-     *          name="email",
+     *          name="username",
      *          in="query",
      *          description="username",
      *          required=true,
-     *          example="email@mail.com",
+     *          example="sam",
      *          @OA\Schema(type="string")
      *      ),
      *
@@ -93,11 +52,11 @@ class BookingController extends Controller
      *
      * )
      * **/
-    public function chekUsername(Request $request, Utils $utils)
+    public function checkUsername(Request $request, Utils $utils)
     {
 
         $request->validate([
-            "username" => "required|string|email|max:255",
+            "username" => "required|string",
         ]);
 
         try {

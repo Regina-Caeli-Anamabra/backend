@@ -72,6 +72,7 @@ Route::get('/move-patient-to-users', function(){
 });
 
 
+
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], function () {
     Route::get('/generate-url', ['App\Http\Controllers\BookingController', 'generateUrl']);
@@ -96,7 +97,7 @@ Route::group(['prefix' => 'v1/patient', 'middleware' => ['auth:sanctum']], funct
 });
 Route::group(['prefix' => 'v1'], function () {
 
-    Route::get('/check-username', ['App\Http\Controllers\BookingController', 'checkEmail']);
+    Route::get('/check-username', ['App\Http\Controllers\BookingController', 'checkUsername']);
     Route::get('/check-email', ['App\Http\Controllers\BookingController', 'checkEmail']);
     Route::post('/recover-reg-id', ['App\Http\Controllers\Auth\AuthController', 'recoverRegId']);
     Route::get('/check-phone', ['App\Http\Controllers\BookingController', 'checkPhone']);

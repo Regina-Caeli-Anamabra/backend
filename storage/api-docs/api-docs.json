@@ -345,7 +345,6 @@
                                     "first_name",
                                     "last_name",
                                     "phone",
-                                    "email",
                                     "gender",
                                     "marital_status",
                                     "religion",
@@ -676,20 +675,20 @@
                 ]
             }
         },
-        "/api/v1/check-email": {
+        "/api/v1/check-username": {
             "get": {
-                "summary": "Check Email",
-                "operationId": "9d35f9488f4e19620a5aa19b32f62edc",
+                "summary": "Check username",
+                "operationId": "75e7e1b15ab2e13603d596913dc0fd65",
                 "parameters": [
                     {
-                        "name": "email",
+                        "name": "username",
                         "in": "query",
-                        "description": "email",
+                        "description": "username",
                         "required": true,
                         "schema": {
                             "type": "string"
                         },
-                        "example": "email@mail.com"
+                        "example": "sam"
                     }
                 ],
                 "responses": {
@@ -1638,6 +1637,14 @@
                         }
                     },
                     {
+                        "name": "mode_of_payment",
+                        "in": "query",
+                        "description": "Card or Transfer",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "interval",
                         "in": "query",
                         "description": "interval",
@@ -2209,6 +2216,11 @@
                                         "description": "Payment ID",
                                         "type": "string",
                                         "example": "94901/03/24"
+                                    },
+                                    "mode_of_transfer": {
+                                        "description": "Card or Transfer",
+                                        "type": "string",
+                                        "example": "Transfer"
                                     }
                                 },
                                 "type": "object"
@@ -2440,9 +2452,9 @@
                 "operationId": "b19de28c0ba967e14195ddfcf6890d31",
                 "parameters": [
                     {
-                        "name": "phone",
+                        "name": "patient_id",
                         "in": "query",
-                        "description": "phone",
+                        "description": "patient_id",
                         "required": true,
                         "schema": {
                             "type": "string"
