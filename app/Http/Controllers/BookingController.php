@@ -31,7 +31,6 @@ class BookingController extends Controller
 {
 
 
-###########
     /**
      * @OA\Get (
      *     path="/api/v1/check-username",
@@ -62,6 +61,47 @@ class BookingController extends Controller
         try {
             $status =  "";
             if (\App\Models\User::where("username", $request->get("username"))->exists())
+                $status = true;
+            else
+                $status = false;
+            return $utils->message("success", $status, 200);
+
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/check-email",
+     *     summary="Check username",
+     *      @OA\Parameter(
+     *          name="email",
+     *          in="query",
+     *          description="email",
+     *          required=true,
+     *          example="sam",
+     *          @OA\Schema(type="string")
+     *      ),
+     *
+     *     @OA\Response(response="201", description="check Email", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="Email not Found", @OA\JsonContent()),
+     *     @OA\Response(response="500", description="Server Error", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent()),
+     *
+     * )
+     * **/
+    public function checkEmail(Request $request, Utils $utils)
+    {
+
+        $request->validate([
+            "email" => "required|string",
+        ]);
+
+        try {
+            $status =  "";
+            if (\App\Models\User::where("email", $request->get("email"))->exists())
                 $status = true;
             else
                 $status = false;
