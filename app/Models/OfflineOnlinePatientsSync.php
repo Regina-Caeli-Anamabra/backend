@@ -11,6 +11,17 @@ class OfflineOnlinePatientsSync extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'firstName',
+        'lastName',
+        'phone',
+        'religion',
+        'next_of_kin',
+        'next_of_kin_phone',
+        'address_of_next_of_kin',
+        'state_of_residence',
+        'address_of_residence',
+    ];
 
     public function booking(): HasMany
     {

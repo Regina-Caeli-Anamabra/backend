@@ -519,33 +519,35 @@ class AuthController extends Controller
     public function registerUser(UserRequest $userRequest, Utils $utils, Execs $execs)
     {
 
-         $password =   Hash::make($userRequest->get("password"));
-        $verifyCode = mt_rand(100000,999999);
         try {
-            $latestId =  DB::table('users')->max('id');
+            $newPatientId = DB::transaction(function () use ($userRequest, $utils) { // Use the $request and $utils in the closure
+
+                $password =   Hash::make($userRequest->get("password"));
+                $verifyCode = mt_rand(100000,999999);
+                $latestId = DB::table('users')->max('id');
 
                 $parts = explode("/", $latestId);
-                $system_id = (int) $parts[0] + 1;
+                $system_id = (int)$parts[0] + 1;
                 $currentMonth = date('m');
                 $currentYear = date('y');
 
 
-            $latestPatient = DB::table('users')->orderBy('id', 'desc')->first();
+                $latestPatient = DB::table('users')->orderBy('id', 'desc')->first();
 
-            if ($latestPatient) {
-                $lastNumber = (int)$latestPatient->id;
-            } else {
-                $lastNumber = 0; // start from 0 if no record exists
-            }
+                if ($latestPatient) {
+                    $lastNumber = (int)$latestPatient->id;
+                } else {
+                    $lastNumber = 0; // start from 0 if no record exists
+                }
 
-            $newNumber = $lastNumber + 1;
-            $currentMonth = date('m');
-            $currentYear = date('y');
+                $newNumber = $lastNumber + 1;
+                $currentMonth = date('m');
+                $currentYear = date('y');
 
-            $newPatientId = "RO{$newNumber}/{$currentMonth}/{$currentYear}";
+                $newPatientId = "RO{$newNumber}/{$currentMonth}/{$currentYear}";
 
                 $phone = $userRequest->get("phone");
-                $user = New User();
+                $user = new User();
                 $user->password = $password;
                 $user->email = $userRequest->get("email");
                 $user->username = $userRequest->get("username");
@@ -607,17 +609,19 @@ class AuthController extends Controller
                     ];
                     if (!empty($email))
                         Mail::to($email)->send(new VerificationMail($data));
-                }else{
+                } else {
 
 
                     // Define the URL and data you want to send
-                    $url = 'https://portal.nigeriabulksms.com/api/?username='. env("SMS_USERNAME").'&password=' . env("SMS_PASSWORD"). '&message=' .  $verifyCode .' your Regina Ceali Hospital verification code. Expires in 5 minutes. &sender=' . env("SMS_SENDER"). '&mobiles=' .$phone;
+                    $url = 'https://portal.nigeriabulksms.com/api/?username=' . env("SMS_USERNAME") . '&password=' . env("SMS_PASSWORD") . '&message=' . $verifyCode . ' your Regina Ceali Hospital verification code. Expires in 5 minutes. &sender=' . env("SMS_SENDER") . '&mobiles=' . $phone;
 
                     // Send the POST request
                     $response = Http::get($url);
 
                 }
-                return $utils->message("success", [ "reg_id" => $newPatientId] , 200);
+                return $offlineOnlinePatientSync->reg_id;
+            });
+            return $utils->message("success", ["reg_id" => $newPatientId], 200);
 
             } catch (\Throwable $e) {
                 return $utils->message("error",$e->getMessage() , 400);

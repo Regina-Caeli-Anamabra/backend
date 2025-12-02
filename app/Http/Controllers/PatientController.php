@@ -750,58 +750,81 @@ class PatientController extends Controller
             'state_of_residence' => 'required|string|max:100',
             'address_of_residence' => 'required|string|max:255',
         ]);
-
         try {
+            if (!auth('sanctum')->check()) {
+                return $utils->message("error", "Unauthorized Access.", 401);
+            }
 
-            if(!auth('sanctum')->check())
-                return $utils->message("error","Unauthorized Access." , 401);
+            $authUser = auth('sanctum')->user();
 
-               $user =  OfflineOnlinePatientsSync::where("user_id", auth('sanctum')->id())->firstOrFail();
+            $user = OfflineOnlinePatientsSync::where("reg_id", $authUser->reg_id)->firstOrFail();
 
-               if($user){
-                    $user->firstName = $request->get("first_name");
-                    $user->lastName = $request->get("last_name");
-                    $user->phone = $request->get("phone");
-                    $user->religion = $request->get("religion");
-                    $user->next_of_kin = $request->get("next_of_kin");
-                    $user->next_of_kin_phone = $request->get("next_of_kin_phone");
-                    $user->address_of_next_of_kin = $request->get("address_of_next_of_kin");
-                    $user->state_of_residence = $request->get("state_of_residence");
-                    $user->address_of_residence = $request->get("address_of_residence");
-                    $user->update();
-                    if ($user->place == "online"){
-                        $patient =  Patients::where("user_id", auth('sanctum')->id())->firstOrFail();
-                        $patient->firstName = $request->get("first_name");
-                        $patient->lastName = $request->get("last_name");
-                        $patient->phone = $request->get("phone");
-                        $patient->religion = $request->get("religion");
-                        $patient->next_of_kin = $request->get("next_of_kin");
-                        $patient->next_of_kin_phone = $request->get("next_of_kin_phone");
-                        $patient->address_of_next_of_kin = $request->get("address_of_next_of_kin");
-                        $patient->state_of_residence = $request->get("state_of_residence");
-                        $patient->address_of_residence = $request->get("address_of_residence");
-                        $patient->update();
-                    }else{
-                         $patient =  PatientDontUse::where("user_id", auth('sanctum')->id())->firstOrFail();
-                        $patient->firstName = $request->get("first_name");
-                        $patient->lastName = $request->get("last_name");
-                        $patient->phone_no = $request->get("phone");
-                        $patient->ethnic = $request->get("religion");
-                        $patient->next_of_kin = $request->get("next_of_kin");
-                        $patient->next_of_kin_phoneno = $request->get("next_of_kin_phone");
-                        $patient->address = $request->get("address_of_next_of_kin");
-                        $patient->state_of_residence = $request->get("state_of_residence");
-                        $patient->address = $request->get("address_of_residence");
-                        $patient->update();
-                    }
-               }
-            return $utils->message("success", "User updated successfully.." , 200);
+            $email = $request->get("email");
+            $phone = $request->get("phone");
 
-        }catch (\Exception $exception){
-            return $utils->message("error", $exception->getMessage(), 400);
+            // Update Sync Table
+            $user->update([
+                "firstName"             => $request->get("first_name"),
+                "lastName"              => $request->get("last_name"),
+                "phone"                 => $phone,
+                "religion"              => $request->get("religion"),
+                "next_of_kin"           => $request->get("next_of_kin"),
+                "next_of_kin_phone"     => $request->get("next_of_kin_phone"),
+                "address_of_next_of_kin"=> $request->get("address_of_next_of_kin"),
+                "state_of_residence"    => $request->get("state_of_residence"),
+                "address_of_residence"  => $request->get("address_of_residence"),
+            ]);
+
+            // Update Patient Table Based on Place
+            if ($user->place === "online") {
+
+                $patient = Patients::where("reg_id", $authUser->reg_id)->firstOrFail();
+
+                $patient->update([
+                    "firstName"            => $request->get("first_name"),
+                    "lastName"             => $request->get("last_name"),
+                    "phone"                => $phone,
+                    "religion"             => $request->get("religion"),
+                    "next_of_kin"          => $request->get("next_of_kin"),
+                    "next_of_kin_phone"    => $request->get("next_of_kin_phone"),
+                    "address_of_next_of_kin"=> $request->get("address_of_next_of_kin"),
+                    "state_of_residence"   => $request->get("state_of_residence"),
+                    "address_of_residence" => $request->get("address_of_residence"),
+                ]);
+
+            } else {
+
+//                $patient = PatientDontUse::where("reg_id", $authUser->reg_id)->firstOrFail();
+//
+//                $patient->update([
+//                    "firstName"            => $request->get("first_name"),
+//                    "lastName"             => $request->get("last_name"),
+//                    "phone_no"             => $phone,
+//                    "ethnic"               => $request->get("religion"),
+//                    "next_of_kin"          => $request->get("next_of_kin"),
+//                    "next_of_kin_phoneno"  => $request->get("next_of_kin_phone"),
+//                    "address"              => $request->get("address_of_residence"),
+//                    "state_of_residence"   => $request->get("state_of_residence"),
+//                ]);
+            }
+
+            // Update User Email / Phone
+            if (!empty($email)) {
+                User::where("reg_id", $authUser->reg_id)->update(["email" => $email]);
+            }
+
+            if (!empty($phone)) {
+                User::where("reg_id", $authUser->reg_id)->update(["phone" => $phone]); // FIXED
+            }
+
+            return $utils->message("success", "User updated successfully.", 200);
+
+        } catch (\Exception $exception) {
 
             Log::error($exception->getMessage());
+            return $utils->message("error", $exception->getMessage(), 400);
         }
+
     }
     /**
      * @OA\Get (
