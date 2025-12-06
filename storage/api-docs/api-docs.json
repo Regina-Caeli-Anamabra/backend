@@ -2123,6 +2123,15 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "service_date",
+                        "in": "query",
+                        "description": "service_date",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {

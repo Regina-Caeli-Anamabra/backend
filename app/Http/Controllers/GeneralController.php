@@ -245,6 +245,13 @@ class GeneralController extends Controller
      *           required=true,
      *           @OA\Schema(type="string")
      *       ),
+     *       @OA\Parameter(
+     *           name="service_date",
+     *           in="query",
+     *           description="service_date",
+     *           required=true,
+     *           @OA\Schema(type="string")
+     *       ),
      *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
      *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
@@ -265,40 +272,49 @@ class GeneralController extends Controller
 
 
             $day = Carbon::now()->format('l');
-
             $services = DB::table('services')
                 ->where('category_id', $category_id)
                 ->orderBy('id', 'ASC')
                 ->get();
 
-            $selectedDate = Carbon::parse($request->date); // the date user selected
+            $selectedDate = Carbon::parse($request->service_date); // the date user selected
             $now = Carbon::now();                          // current time
 
             foreach ($services as $service) {
 
-                // Convert times to Carbon for comparison
+                // Convert to Carbon for comparison
                 $serviceStart = Carbon::parse($service->time_start);
                 $serviceEnd   = Carbon::parse($service->time_end);
 
-                // If the user chose today
+                // 👉 If selected date is in the future, DO NOTHING
+                if ($selectedDate->isFuture()) {
+                    continue; // skip and keep original time
+                }
+
+                // 👉 If the selected date is today: adjust times
                 if ($selectedDate->isToday()) {
 
-                    // If current time is greater than the service's start time
+                    // If current time passed the service start time
                     if ($now->greaterThan($serviceStart)) {
 
-                        // Set the new start time to current time (but NOT beyond the end time)
+                        // set new start time as NOW
                         $service->time_start = $now->toTimeString();
 
+                        // If now already passed end time → no availability
                         if ($now->greaterThanOrEqualTo($serviceEnd)) {
-                            // No available time slot left today
                             $service->time_start = null;
                             $service->time_end = null;
                         }
                     }
                 }
+
+                // 👉 If selected date is in the past (optional)
+                if ($selectedDate->isPast() && !$selectedDate->isToday()) {
+                    // You can block the whole day or return empty
+                    $service->time_start = null;
+                    $service->time_end = null;
+                }
             }
-
-
 
             return $utils->message("success", compact("services", "day") , 200);
         }catch (\Throwable $e) {
