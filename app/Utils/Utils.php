@@ -20,8 +20,8 @@ class Utils
      * @return string
      */
     public static function code_ref ($l, string $c = '1234567890') : string {
-        for ($s = '', $cl = strlen($c)-1, $i = 0; $i < $l; $s .= $c[mt_rand(0, $cl)], ++$i);
-        return $s;
+        $code = substr(bin2hex(random_bytes(8)), 0, 15);
+        return $code;
     }
 
     public static function generateCramp($type) :string

@@ -267,15 +267,37 @@ class GeneralController extends Controller
             $day = Carbon::now()->format('l');
 
             $services = DB::table('services')
-//                        ->join('days_available', 'services.id', '=', 'days_available.service_id')
-//                        ->where(function ($query) use ($day) {
-//                            $query->where("days_available.days", $day)
-//                                  ->orWhere("days_available.days", "On Request")
-//                                  ->orWhere("days_available.days", "Call Hospital");
-//                        })
-                        ->where("services.category_id", $serviceId)  // Corrected 'services.id'
-                        ->orderBy("services.id", "ASC")
-                        ->get();
+                ->where('category_id', $category_id)
+                ->orderBy('id', 'ASC')
+                ->get();
+
+            $selectedDate = Carbon::parse($request->date); // the date user selected
+            $now = Carbon::now();                          // current time
+
+            foreach ($services as $service) {
+
+                // Convert times to Carbon for comparison
+                $serviceStart = Carbon::parse($service->time_start);
+                $serviceEnd   = Carbon::parse($service->time_end);
+
+                // If the user chose today
+                if ($selectedDate->isToday()) {
+
+                    // If current time is greater than the service's start time
+                    if ($now->greaterThan($serviceStart)) {
+
+                        // Set the new start time to current time (but NOT beyond the end time)
+                        $service->time_start = $now->toTimeString();
+
+                        if ($now->greaterThanOrEqualTo($serviceEnd)) {
+                            // No available time slot left today
+                            $service->time_start = null;
+                            $service->time_end = null;
+                        }
+                    }
+                }
+            }
+
 
 
             return $utils->message("success", compact("services", "day") , 200);

@@ -827,15 +827,14 @@ class BookingController extends Controller
             if (\App\Models\User::where("id", $user_id)->where("paid", "!=", 1)->exists())
                 return $utils->message("error","Payment of Service Charge Required" , 400);
 
-
             $trx_id =  $utils->generateCode(20);
             $logged_data = [
                 "trx_id" => $trx_id,
                 "service_id" => $service_id,
                 "user_id" => $user_id,
                 "service" => Services::where("id", $service_id)->value("service_name"),
-                "first_name" => Patients::where("user_id", $user_id)->value("firstName"),
-                "last_name" => Patients::where("user_id", $user_id)->value("lastName")
+                "first_name" => OfflineOnlinePatientsSync::where("user_id", $user_id)->value("firstName"),
+                "last_name" => OfflineOnlinePatientsSync::where("user_id", $user_id)->value("lastName")
             ];
 
 
@@ -1092,11 +1091,16 @@ class BookingController extends Controller
             $interval = $request->get("interval");
             $identity = $request->get("identity");
             $booking_start = Carbon::parse($request->get("booking_start"));
-            $booking_start_formatted =  $booking_start->format("Y-m-d H:i");
-            $booking_end =  $booking_start->copy()->addMinute($interval)->format("Y-m-d H:i");
+            $booking_start_formatted =  Carbon::parse($booking_start->format("Y-m-d H:i"));
+            $booking_end = $booking_start_formatted->copy()->addMinutes($interval);
 
-//                if(Bookings::whereBetween("session_start", [$booking_start_formatted, $booking_end])->exists())
-//                    return $utils->message("error","The session is already booked." , 400);
+            if(Bookings::where(
+                function ($query) use ($booking_start_formatted, $booking_end) {
+                    $query->where('session_start', '<=', $booking_end)
+                        ->where('session_end', '>=', $booking_start_formatted);
+                }
+            )->exists())
+                return $utils->message("error","The session is already booked." , 400);
 
             $amount = Services::where("id", $request->get("service_id"))->value("service_fee");
             $name = Services::where("id", $request->get("service_id"))->value("service_name");
@@ -1104,8 +1108,10 @@ class BookingController extends Controller
             $recipient_id = $request->get("booked_by_id");
             $appointment_type = $request->get("booking_type");
             $modeOfPayment = $request->get("mode_of_payment");
-                $transaction_id = $request->get("trx_id");
-                 $paymentData = $utils->validatePayment($transaction_id);
+            $transaction_id = $request->get("trx_id");
+
+
+            $paymentData = $utils->validatePayment($transaction_id);
                 $data = [
                     "transaction_id" => $request->get("transaction_id"),
                     "user_id" => $user_id,
@@ -1172,10 +1178,12 @@ class BookingController extends Controller
                     }
                     Log::info("Flutterwave Completed", $paymentData);
 
+                    $random = substr(bin2hex(random_bytes(8)), 0, 15);
 
                     $booking = new Bookings();
                     $booking->flutterwave_id = $flutter->id;
-                    $booking->receipt_no = $utils->code_ref(10);
+                    $booking->booking_id = $utils->code_ref(15);
+                    $booking->receipt_no = $utils->code_ref(15);
                     $booking->session_start = $booking_start_formatted;
                     $booking->service_id = $service_id;
                     $booking->identity = $this->generateBookingCode("bookings");

@@ -141,6 +141,11 @@ class PatientController extends Controller
                         $flutter->merchant_fee = $paymentData["data"]["merchant_fee"];
                         $flutter->tx_ref = $paymentData["data"]["tx_ref"];
                         $flutter->update();
+
+                        $user = User::where("id", $user->id)->update(["paid" => 1]);
+                        Log::info("Completed Database transaction", $flutter);
+                        return true;
+
                     }else{
                         $flutter = ServiceChargeFlutterwavePayments::where("identity", $payment_id)->firstOrFail();
                         $flutter->user_id = $user->id;
@@ -163,11 +168,11 @@ class PatientController extends Controller
                         $flutter->tx_ref = $paymentData["data"]["tx_ref"];
                         $flutter->update();
                     }
+                    Log::info("Completed Database transaction", $flutter);
                     $user = User::where("id", $user->id)->update(["paid" => 1]);
                     return true;
 
                 });
-                Log::info("Completed Database transaction");
 
                 if ($dbSave)
                     return $utils->message("Success", "Payment Completed Successfully." , 200);
@@ -283,16 +288,21 @@ class PatientController extends Controller
 
         $patient_id =  $request->input("patient_id");
         $offlineOnlinePatientSync = "";
-        $payment = "";
+
         try {
 
             if (!Patients::where("reg_id", $patient_id)->exists() && !PatientDontUse::where("patient_id", $patient_id)->exists())
                 return $utils->message("Error", "Patient Not Found.", 404);
 
-            $payment =  DB::transaction(function () use ($utils, $patient_id, $request, $payment) {
+            $payment =  DB::transaction(function () use ($utils, $patient_id, $request) {
 
                 if (!OfflineOnlinePatientsSync::where("reg_id", $patient_id)->exists()) {
                     $oldPatients = PatientDontUse::where("patient_id", $patient_id)->firstOrFail();
+
+
+                    if (substr($oldPatients->phone_no, 0, 1) !== "0") {
+                        $oldPatients->phone_no = "0" . $oldPatients->phone_no;
+                    }
                     $user = new User();
                     $user->reg_id = $patient_id;
                     $user->phone = $oldPatients->phone_no;
@@ -344,6 +354,7 @@ class PatientController extends Controller
 
         }catch (\Exception $exception){
             Log::error("Error", [ "data" => $exception->getMessage() ]);
+            return $exception->getMessage();
         }
 
     }
@@ -404,6 +415,7 @@ class PatientController extends Controller
 
         if (!PatientDontUse::where("patient_id", $request->get("patient_id"))->exists())
             return $utils->message("error", "Patient Not Found" , 404);
+
 
         $patient_id = $request->get("patient_id");
         User::where("reg_id", $patient_id)
