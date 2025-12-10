@@ -690,6 +690,10 @@ class AuthController extends Controller
         if (auth()->attempt($loginRequest->only(['username', 'password'])) ){
             $authUser = Auth::user();
 
+
+            if (\App\Models\User::where("id", $user_id)->where("paid", "!=", 1)->exists())
+                return $utils->message("error","Payment of Service Charge Required" , 400);
+
             $success['token']  = $authUser->createToken('access_token')->plainTextToken;
 //            $success['token']  = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addMinute(2))->plainTextToken;
             $success['refreshToken']  = $authUser->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value],\Carbon\Carbon::now()->addDays(7))->plainTextToken;

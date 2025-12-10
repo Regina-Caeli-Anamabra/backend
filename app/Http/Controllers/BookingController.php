@@ -429,7 +429,7 @@ class BookingController extends Controller
 
         try {
             if (!Bookings::where("identity", $request->get("identity"))->exists())
-                return $utils->message("error", "Session Not Found" , 404);
+                return $utils->message("error", "Booking Not Found" , 404);
 
             $session = Bookings::with("services")
                         ->where("identity", $request->get("identity"))
@@ -824,9 +824,6 @@ class BookingController extends Controller
              $service_id = $request->get("service_id");
              $amount = $request->get("amount");
 
-            if (\App\Models\User::where("id", $user_id)->where("paid", "!=", 1)->exists())
-                return $utils->message("error","Payment of Service Charge Required" , 400);
-
             $trx_id =  $utils->generateCode(20);
             $logged_data = [
                 "trx_id" => $trx_id,
@@ -836,7 +833,6 @@ class BookingController extends Controller
                 "first_name" => OfflineOnlinePatientsSync::where("user_id", $user_id)->value("firstName"),
                 "last_name" => OfflineOnlinePatientsSync::where("user_id", $user_id)->value("lastName")
             ];
-
 
 
             Log::info("transaction Started", $logged_data);
@@ -1115,8 +1111,8 @@ class BookingController extends Controller
                 $data = [
                     "transaction_id" => $request->get("transaction_id"),
                     "user_id" => $user_id,
-                    "first_name" => Patients::where("user_id", $user_id)->value("firstName"),
-                    "last_name" => Patients::where("user_id", $user_id)->value("lastName"),
+                    "first_name" => OfflineOnlinePatientsSync::where("user_id", $user_id)->value("firstName"),
+                    "last_name" => OfflineOnlinePatientsSync::where("user_id", $user_id)->value("lastName"),
                     "payment_info" => $paymentData,
                 ]; #######
                 Log::info("Payment Completed", $data);

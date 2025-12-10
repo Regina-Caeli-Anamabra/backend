@@ -171,7 +171,6 @@ class PatientController extends Controller
                     Log::info("Completed Database transaction", $flutter);
                     $user = User::where("id", $user->id)->update(["paid" => 1]);
                     return true;
-
                 });
 
                 if ($dbSave)
@@ -663,7 +662,7 @@ class PatientController extends Controller
                 return $utils->message("error","Unauthorized Access." , 401);
 
             $user_id = auth('sanctum')->id();
-            $patient = OfflineOnlinePatientsSync::with(["user"])->where("user_id", 70)->get();
+            $patient = OfflineOnlinePatientsSync::with(["user"])->where("user_id", $user_id)->get();
             return $utils->message("success", $patient , 200);
 
         }catch (\Exception $exception){
