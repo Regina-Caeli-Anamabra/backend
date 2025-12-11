@@ -273,7 +273,7 @@ class GeneralController extends Controller
 
             $day = Carbon::now()->format('l');
             $services = DB::table('services')
-                ->where('category_id', $category_id)
+                ->where('category_id', $serviceId)
                 ->orderBy('id', 'ASC')
                 ->get();
 
