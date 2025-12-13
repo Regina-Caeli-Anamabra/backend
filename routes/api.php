@@ -129,6 +129,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/get-test-encryption-key', ['App\Http\Controllers\GeneralController', 'getTestEncryptionKey']);
         Route::get('/category', ['App\Http\Controllers\GeneralController', 'category']);
         Route::get('/services', ['App\Http\Controllers\GeneralController', 'services']);
+        Route::get('/services/get-time', ['App\Http\Controllers\GeneralController', 'servicesGetTime']);
         Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
     });
 

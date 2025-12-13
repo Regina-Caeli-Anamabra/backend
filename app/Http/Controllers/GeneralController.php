@@ -277,44 +277,6 @@ class GeneralController extends Controller
                 ->orderBy('id', 'ASC')
                 ->get();
 
-            $selectedDate = Carbon::parse($request->service_date); // the date user selected
-            $now = Carbon::now();                          // current time
-
-            foreach ($services as $service) {
-
-                // Convert to Carbon for comparison
-                $serviceStart = Carbon::parse($service->time_start);
-                $serviceEnd   = Carbon::parse($service->time_end);
-
-                // 👉 If selected date is in the future, DO NOTHING
-                if ($selectedDate->isFuture()) {
-                    continue; // skip and keep original time
-                }
-
-                // 👉 If the selected date is today: adjust times
-                if ($selectedDate->isToday()) {
-
-                    // If current time passed the service start time
-                    if ($now->greaterThan($serviceStart)) {
-
-                        // set new start time as NOW
-                        $service->time_start = $now->toTimeString();
-
-                        // If now already passed end time → no availability
-                        if ($now->greaterThanOrEqualTo($serviceEnd)) {
-                            $service->time_start = null;
-                            $service->time_end = null;
-                        }
-                    }
-                }
-
-                // 👉 If selected date is in the past (optional)
-                if ($selectedDate->isPast() && !$selectedDate->isToday()) {
-                    // You can block the whole day or return empty
-                    $service->time_start = null;
-                    $service->time_end = null;
-                }
-            }
 
             return $utils->message("success", compact("services", "day") , 200);
         }catch (\Throwable $e) {
@@ -322,6 +284,115 @@ class GeneralController extends Controller
             return $utils->message("error", $e->getMessage() , 400);
         }
     }
+
+
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/services/get-time",
+     *      tags={"General"},
+     *       security={
+     *            {"sanctum": {}},
+     *        },
+     *       @OA\Parameter(
+     *           name="service_id",
+     *           in="query",
+     *           description="service_id",
+     *           required=true,
+     *           @OA\Schema(type="string")
+     *       ),
+     *       @OA\Parameter(
+     *           name="service_date",
+     *           in="query",
+     *           description="service_date",
+     *           required=true,
+     *           @OA\Schema(type="string")
+     *       ),
+     *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *
+     * )
+     */
+    public function servicesGetTime(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "service_id" => "required",
+            "service_date" => "required"
+        ]);
+        try {
+
+            $service_id = $request->get("service_id");
+            if(!auth('sanctum')->check())
+                return $utils->message("error","Unauthorized Access." , 401);
+
+            $service_date = $request->get("service_date");
+            $day = Carbon::parse($service_date)->format('l');
+            $services = DB::table('services')
+                ->where('identity', $service_id)
+                ->get([
+                    'time_start',
+                    'time_end',
+                    'days_available'
+                ]);
+
+            $selectedDate = Carbon::parse($request->service_date);
+            $now = Carbon::now();
+
+
+            foreach ($services as $service) {
+
+                $availableDays = array_map('trim', explode(',', $service->days_available));
+
+                if (in_array($day, $availableDays)) {
+
+                    // Convert to Carbon for comparison
+                    $serviceStart = Carbon::parse($service->time_start);
+                    $serviceEnd   = Carbon::parse($service->time_end);
+
+                    // 👉 If selected date is in the future, DO NOTHING
+                    if ($selectedDate->isFuture()) {
+                        continue; // skip and keep original time
+                    }
+
+                    // 👉 If the selected date is today: adjust times
+                    if ($selectedDate->isToday()) {
+
+                        // If current time passed the service start time
+                        if ($now->greaterThan($serviceStart)) {
+
+                            // set new start time as NOW
+                            $service->time_start = $now->toTimeString();
+
+                            // If now already passed end time → no availability
+                            if ($now->greaterThanOrEqualTo($serviceEnd)) {
+                                $service->time_start = null;
+                                $service->time_end = null;
+                            }
+                        }
+                    }
+
+                    // 👉 If selected date is in the past (optional)
+                    if ($selectedDate->isPast() && !$selectedDate->isToday()) {
+                        // You can block the whole day or return empty
+                        $service->time_start = null;
+                        $service->time_end = null;
+                    }
+                }else{
+                    return $utils->message("success", "Service not available on this date" , 200);
+
+                }
+
+            }
+
+            return $utils->message("success", compact("services") , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+
+
 
     /**
      * @OA\Get (
