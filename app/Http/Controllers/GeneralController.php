@@ -245,13 +245,6 @@ class GeneralController extends Controller
      *           required=true,
      *           @OA\Schema(type="string")
      *       ),
-     *       @OA\Parameter(
-     *           name="service_date",
-     *           in="query",
-     *           description="service_date",
-     *           required=true,
-     *           @OA\Schema(type="string")
-     *       ),
      *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
      *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
