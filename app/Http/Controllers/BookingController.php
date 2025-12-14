@@ -824,6 +824,21 @@ class BookingController extends Controller
              $service_id = $request->get("service_id");
              $amount = $request->get("amount");
 
+            $interval = $request->get("interval");
+
+            $booking_start = Carbon::parse($request->get("booking_start"));
+            $booking_start_formatted =  Carbon::parse($booking_start->format("Y-m-d H:i"));
+            $booking_end = $booking_start_formatted->copy()->addMinutes($interval);
+
+            if(Bookings::where(
+                function ($query) use ($booking_start_formatted, $booking_end) {
+                    $query->where('session_start', '<=', $booking_end)
+                        ->where('session_end', '>=', $booking_start_formatted);
+                }
+            )->exists())
+                return $utils->message("error","The session is already booked." , 400);
+
+
             $trx_id =  $utils->generateCode(20);
             $logged_data = [
                 "trx_id" => $trx_id,
@@ -1084,19 +1099,8 @@ class BookingController extends Controller
         $user_id =  auth('sanctum')->user()->id;
 
         try {
-            $interval = $request->get("interval");
             $identity = $request->get("identity");
-            $booking_start = Carbon::parse($request->get("booking_start"));
-            $booking_start_formatted =  Carbon::parse($booking_start->format("Y-m-d H:i"));
-            $booking_end = $booking_start_formatted->copy()->addMinutes($interval);
 
-            if(Bookings::where(
-                function ($query) use ($booking_start_formatted, $booking_end) {
-                    $query->where('session_start', '<=', $booking_end)
-                        ->where('session_end', '>=', $booking_start_formatted);
-                }
-            )->exists())
-                return $utils->message("error","The session is already booked." , 400);
 
             $amount = Services::where("id", $request->get("service_id"))->value("service_fee");
             $name = Services::where("id", $request->get("service_id"))->value("service_name");

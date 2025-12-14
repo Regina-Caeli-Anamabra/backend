@@ -523,103 +523,90 @@ class AuthController extends Controller
         try {
             $newPatientId = DB::transaction(function () use ($userRequest, $utils) { // Use the $request and $utils in the closure
 
-                $password =   Hash::make($userRequest->get("password"));
-                $verifyCode = mt_rand(100000,999999);
-                $latestId = DB::table('users')->max('id');
+                // 🔒 Lock table row to prevent duplicates
+                $lastUserId = DB::table('users')
+                    ->lockForUpdate()
+                    ->max('id');
 
-                $parts = explode("/", $latestId);
-                $system_id = (int)$parts[0] + 1;
-                $currentMonth = date('m');
-                $currentYear = date('y');
-
-
-                $latestPatient = DB::table('users')->orderBy('id', 'desc')->first();
-
-                if ($latestPatient) {
-                    $lastNumber = (int)$latestPatient->id;
-                } else {
-                    $lastNumber = 0; // start from 0 if no record exists
-                }
-
-                $newNumber = $lastNumber + 1;
+                $newNumber = ($lastUserId ?? 0) + 1;
                 $currentMonth = date('m');
                 $currentYear = date('y');
 
                 $newPatientId = "RO{$newNumber}/{$currentMonth}/{$currentYear}";
 
-                $phone = $userRequest->get("phone");
+                $verifyCode = mt_rand(100000, 999999);
+
+                // 1️⃣ USER
                 $user = new User();
-                $user->password = $password;
-                $user->email = $userRequest->get("email");
-                $user->username = $userRequest->get("username");
-                $user->phone = $phone;
-                $user->authentication_type = $userRequest->get("auth_type");
-                $user->register_for_self = $userRequest->get("register_for_self");
-                $user->register_for_self = $userRequest->get("register_for_self");
+                $user->password = Hash::make($userRequest->password);
+                $user->email = $userRequest->email;
+                $user->username = $userRequest->username;
+                $user->phone = $userRequest->phone;
+                $user->authentication_type = $userRequest->auth_type;
+                $user->register_for_self = $userRequest->register_for_self;
                 $user->vCode = $verifyCode;
                 $user->reg_id = $newPatientId;
                 $user->save();
 
-
+                // 2️⃣ PATIENT
                 $patient = new Patients();
-                $patient->firstName = $userRequest->get("first_name");
-                $patient->lastName = $userRequest->get("last_name");
+                $patient->firstName = $userRequest->first_name;
+                $patient->lastName = $userRequest->last_name;
                 $patient->user_id = $user->id;
                 $patient->reg_id = $newPatientId;
-                $patient->phone = $phone;
-                $patient->date_of_birth = $userRequest->get("date_of_birth");
-                $patient->gender = $userRequest->get("gender");
-                $patient->marital_status = $userRequest->get("marital_status");
-                $patient->religion = $userRequest->get("religion");
-                $patient->nationality = $userRequest->get("nationality");
-                $patient->next_of_kin = $userRequest->get("next_of_kin");
-                $patient->next_of_kin_phone = $userRequest->get("next_of_kin_phone");
-                $patient->nature_of_relationship = $userRequest->get("nature_of_relationship");
-                $patient->state_of_residence = $userRequest->get("state_of_residence");
-                $patient->address_of_residence = $userRequest->get("address_of_residence");
-                $patient->user_id = $user->id;
+                $patient->phone = $userRequest->phone;
+                $patient->date_of_birth = $userRequest->date_of_birth;
+                $patient->gender = $userRequest->gender;
+                $patient->marital_status = $userRequest->marital_status;
+                $patient->religion = $userRequest->religion;
+                $patient->nationality = $userRequest->nationality;
+                $patient->next_of_kin = $userRequest->next_of_kin;
+                $patient->next_of_kin_phone = $userRequest->next_of_kin_phone;
+                $patient->nature_of_relationship = $userRequest->nature_of_relationship;
+                $patient->state_of_residence = $userRequest->state_of_residence;
+                $patient->address_of_residence = $userRequest->address_of_residence;
                 $patient->save();
 
-                $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
-                $offlineOnlinePatientSync->firstName = $userRequest->get("first_name");
-                $offlineOnlinePatientSync->lastName = $userRequest->get("last_name");
-                $offlineOnlinePatientSync->user_id = $user->id;
-                $offlineOnlinePatientSync->reg_id = $newPatientId;
-                $offlineOnlinePatientSync->phone = $phone;
-                $offlineOnlinePatientSync->date_of_birth = $userRequest->get("date_of_birth");
-                $offlineOnlinePatientSync->gender = $userRequest->get("gender");
-                $offlineOnlinePatientSync->nature_of_relationship = $userRequest->get("gender");
-                $offlineOnlinePatientSync->marital_status = $userRequest->get("marital_status");
-                $offlineOnlinePatientSync->religion = $userRequest->get("religion");
-                $offlineOnlinePatientSync->nationality = $userRequest->get("nationality");
-                $offlineOnlinePatientSync->next_of_kin = $userRequest->get("next_of_kin");
-                $offlineOnlinePatientSync->next_of_kin_phone = $userRequest->get("next_of_kin_phone");
-                $offlineOnlinePatientSync->nature_of_relationship = $userRequest->get("nature_of_relationship");
-                $offlineOnlinePatientSync->state_of_residence = $userRequest->get("state_of_residence");
-                $offlineOnlinePatientSync->address_of_residence = $userRequest->get("address_of_residence");
-                $offlineOnlinePatientSync->user_id = $user->id;
-                $offlineOnlinePatientSync->patient_id = $patient->id;
-                $offlineOnlinePatientSync->place = "online";
-                $offlineOnlinePatientSync->save();
+                // 3️⃣ OFFLINE / ONLINE SYNC
+                $sync = new OfflineOnlinePatientsSync();
+                $sync->firstName = $patient->firstName;
+                $sync->lastName = $patient->lastName;
+                $sync->user_id = $user->id;
+                $sync->patient_id = $patient->id;
+                $sync->reg_id = $newPatientId;
+                $sync->phone = $userRequest->phone;
+                $sync->date_of_birth = $userRequest->date_of_birth;
+                $sync->gender = $userRequest->gender;
+                $sync->marital_status = $userRequest->marital_status;
+                $sync->religion = $userRequest->religion;
+                $sync->nationality = $userRequest->nationality;
+                $sync->next_of_kin = $userRequest->next_of_kin;
+                $sync->next_of_kin_phone = $userRequest->next_of_kin_phone;
+                $sync->nature_of_relationship = $userRequest->nature_of_relationship;
+                $sync->state_of_residence = $userRequest->state_of_residence;
+                $sync->address_of_residence = $userRequest->address_of_residence;
+                $sync->place = "online";
+                $sync->save();
 
-
-                if ($userRequest->get("auth_type") == "EMAIL") {
-                    $email = $userRequest->get("email");
-                    $data = [
-                        "code" => $verifyCode
-                    ];
-                    if (!empty($email))
-                        Mail::to($email)->send(new VerificationMail($data));
+                // 📩 Send verification AFTER DB success
+                if ($userRequest->auth_type === "EMAIL") {
+                    Mail::to($user->email)->send(new VerificationMail([
+                        'code' => $verifyCode
+                    ]));
                 } else {
-
-                    // Define the URL and data you want to send
-                    $url = 'https://portal.nigeriabulksms.com/api/?username=' . env("SMS_USERNAME") . '&password=' . env("SMS_PASSWORD") . '&message=' . $verifyCode . ' your Regina Ceali Hospital verification code. Expires in 5 minutes. &sender=' . env("SMS_SENDER") . '&mobiles=' . $phone;
-
-                    // Send the POST request
-                    $response = Http::get($url);
-
+                    Http::get(
+                        'https://portal.nigeriabulksms.com/api/',
+                        [
+                            'username' => env("SMS_USERNAME"),
+                            'password' => env("SMS_PASSWORD"),
+                            'message'  => "{$verifyCode} is your Regina Ceali Hospital verification code. Expires in 5 minutes.",
+                            'sender'   => env("SMS_SENDER"),
+                            'mobiles'  => $user->phone,
+                        ]
+                    );
                 }
-                return $offlineOnlinePatientSync->reg_id;
+
+                return $newPatientId;
             });
             return $utils->message("success", ["reg_id" => $newPatientId], 200);
 
