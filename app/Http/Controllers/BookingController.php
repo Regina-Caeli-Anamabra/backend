@@ -789,10 +789,29 @@ class BookingController extends Controller
      *          @OA\Schema(type="string")
      *      ),
      *      @OA\Parameter(
+     *          name="booking_start",
+     *          in="query",
+     *          description="2024-04-29 18:00:00",
+     *          required=true,
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Parameter(
      *          name="amount",
      *          in="query",
      *          description="amount",
      *          required=true,
+     *          @OA\Schema(type="string")
+     *      ),
+     *       @OA\Parameter(
+     *           name="booking_type",
+     *           in="query",
+     *           description="New or Reschedule",
+     *           @OA\Schema(type="string")
+     *       ),
+     *      @OA\Parameter(
+     *          name="mode_of_payment",
+     *          in="query",
+     *          description="Card or Transfer",
      *          @OA\Schema(type="string")
      *      ),
      *      @OA\Parameter(
@@ -822,8 +841,17 @@ class BookingController extends Controller
 
              $user_id =  auth('sanctum')->id();
              $service_id = $request->get("service_id");
-             $amount = $request->get("amount");
 
+            $trx_id =  $utils->generateCode(20);
+            $logged_data = [
+                "trx_id" => $trx_id,
+                "service_id" => $service_id,
+                "user_id" => $user_id,
+                "service" => Services::where("id", $service_id)->value("service_name"),
+                "first_name" => OfflineOnlinePatientsSync::where("user_id", $user_id)->value("firstName"),
+                "last_name" => OfflineOnlinePatientsSync::where("user_id", $user_id)->value("lastName")
+            ];
+            $amount = $request->get("amount");
             $interval = $request->get("interval");
 
             $booking_start = Carbon::parse($request->get("booking_start"));
@@ -839,20 +867,22 @@ class BookingController extends Controller
                 return $utils->message("error","The session is already booked." , 400);
 
 
-            $trx_id =  $utils->generateCode(20);
-            $logged_data = [
-                "trx_id" => $trx_id,
-                "service_id" => $service_id,
-                "user_id" => $user_id,
-                "service" => Services::where("id", $service_id)->value("service_name"),
-                "first_name" => OfflineOnlinePatientsSync::where("user_id", $user_id)->value("firstName"),
-                "last_name" => OfflineOnlinePatientsSync::where("user_id", $user_id)->value("lastName")
-            ];
+
+            $patient =  DB::transaction(function () use ($booking_start, $booking_end, $booking_start_formatted, $request, $utils, $service_id, $user_id, $amount, $trx_id, $logged_data) {
+
+                $amount = Services::where("id", $request->get("service_id"))->value("service_fee");
+                $name = Services::where("id", $request->get("service_id"))->value("service_name");
+                $service_id = $request->get("service_id");
+                $recipient_id = $request->get("booked_by_id");
+                $appointment_type = $request->get("booking_type");
+                $modeOfPayment = $request->get("mode_of_payment");
+                $transaction_id = $request->get("trx_id");
 
 
-            Log::info("transaction Started", $logged_data);
 
-            $patient =  DB::transaction(function () use ($utils, $service_id, $user_id, $amount, $trx_id, $logged_data) {
+                Log::info("transaction Started", $logged_data);
+
+
 
                 $patient = OfflineOnlinePatientsSync::where('user_id', $user_id)->first();
                 $payment = new FlutterwavePayment();
@@ -866,16 +896,34 @@ class BookingController extends Controller
                 $payment->save();
                 Log::info("transaction Completed", ["Payment" => $payment, "patient" => $patient, $logged_data]);
 
+                $identity = $this->generateBookingCode("bookings");;
+                $booking = new Bookings();
+                $booking->flutterwave_id = null;
+                $booking->booking_id = $utils->code_ref(15);
+                $booking->receipt_no = $utils->code_ref(15);
+                $booking->session_start = $booking_start_formatted;
+                $booking->service_id = $service_id;
+                $booking->identity = $identity;
+                $booking->price =  $amount;
+                $booking->session_end = $booking_end;
+                $booking->paid = 0;
+                $booking->user_id = $user_id;
+                $booking->booking_for_self = 1;
+                $booking->offline_online_sync_id  = (int) OfflineOnlinePatientsSync::where("user_id", $user_id)->first()->id;
+                $booking->appointment_type = $appointment_type;
+                $booking->save();
+
                 // Generate a signed URL
                 $signedUrl = URL::signedRoute('flutterwave.callback', [
                     'trx_id' => $trx_id,
                     'user_id' => $user_id,
                     "service_id" => $service_id
                 ]);
-                return ["url"  => $signedUrl, "payment_id" => $payment->id, "identity" => $payment->identity,  'trx_id' => $trx_id];
+                return ["booking_identity" => $identity, "url"  => $signedUrl, "payment_id" => $payment->id, "identity" => $payment->identity,  'trx_id' => $trx_id];
             });
 
             return $utils->message("success", $patient, 200);
+
 
         }catch (\Throwable $e) {
         // Do something with your exception
@@ -1023,13 +1071,13 @@ class BookingController extends Controller
      *      security={
      *           {"sanctum": {}},
      *       },
-     *     @OA\Parameter(
-     *         name="booking_start",
-     *         in="query",
-     *         description="2024-04-29 18:00:00",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
+     *      @OA\Parameter(
+     *          name="booking_start",
+     *          in="query",
+     *          description="2024-04-29 18:00:00",
+     *          required=true,
+     *          @OA\Schema(type="string")
+     *      ),
      *     @OA\Parameter(
      *         name="identity",
      *         in="query",
@@ -1051,22 +1099,28 @@ class BookingController extends Controller
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Parameter(
-     *         name="booking_type",
-     *         in="query",
-     *         description="New or Reschedule",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="trx_id",
      *         in="query",
      *         description="trx_id",
      *         @OA\Schema(type="string")
      *     ),
+     *      @OA\Parameter(
+     *          name="booking_type",
+     *          in="query",
+     *          description="New or Reschedule",
+     *          @OA\Schema(type="string")
+     *      ),
      *     @OA\Parameter(
      *         name="mode_of_payment",
      *         in="query",
      *         description="Card or Transfer",
      *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="booking_id",
+     *         in="query",
+     *         description="interval",
+     *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Parameter(
      *         name="interval",
@@ -1087,8 +1141,8 @@ class BookingController extends Controller
             "booking_start" => "required",
             "booking_type" => "required",
             "identity" => "required",
+            "booking_id" => "required",
             "service_id" => "required|int",
-            "booking_for_self" => "required|int",
             "interval" => "required|int"
         ]);
 
@@ -1178,26 +1232,17 @@ class BookingController extends Controller
                     }
                     Log::info("Flutterwave Completed", $paymentData);
 
-                    $random = substr(bin2hex(random_bytes(8)), 0, 15);
+                    $booking_identity = $request->get("booking_id");
+                    $booking = Bookings::where("identity", $booking_identity)->update([
+                        "paid" => 1,
+                        "price" =>  $paymentData["data"]["amount_settled"],
+                        "flutterwave_id" => $flutter->id
+                    ]);
 
-                    $booking = new Bookings();
-                    $booking->flutterwave_id = $flutter->id;
-                    $booking->booking_id = $utils->code_ref(15);
-                    $booking->receipt_no = $utils->code_ref(15);
-                    $booking->session_start = $booking_start_formatted;
-                    $booking->service_id = $service_id;
-                    $booking->identity = $this->generateBookingCode("bookings");
-                    $booking->price =  $paymentData["data"]["amount_settled"];
-                    $booking->session_end = $booking_end;
-                    $booking->user_id = $user_id;
-                    $booking->booking_for_self = $request->get("booking_for_self");
-                    $booking->offline_online_sync_id  = (int) OfflineOnlinePatientsSync::where("user_id", $user_id)->first()->id;
-                    $booking->appointment_type = $appointment_type;
-                    $booking->save();
-                    $id_from_payment = $this->addPayment($utils, $user_id, $flutter->id, $booking->id, $amount, $service_id, $name);
+                    $updatedBooking = Bookings::where("identity", $booking_identity)->firstOrFail();
+                    $id_from_payment = $this->addPayment($utils, $user_id, $flutter->id, $updatedBooking->id, $amount, $service_id, $name);
 
-
-                    return $utils->message("success", $booking, 200);
+                    return $utils->message("success", $updatedBooking, 200);
                 }
 
             return $utils->message("error", "Network Problem. Please Try Again.", 400);

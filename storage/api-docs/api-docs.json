@@ -1571,10 +1571,35 @@
                         }
                     },
                     {
+                        "name": "booking_start",
+                        "in": "query",
+                        "description": "2024-04-29 18:00:00",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "amount",
                         "in": "query",
                         "description": "amount",
                         "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "booking_type",
+                        "in": "query",
+                        "description": "New or Reschedule",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mode_of_payment",
+                        "in": "query",
+                        "description": "Card or Transfer",
                         "schema": {
                             "type": "string"
                         }
@@ -1673,17 +1698,17 @@
                         }
                     },
                     {
-                        "name": "booking_type",
+                        "name": "trx_id",
                         "in": "query",
-                        "description": "New or Reschedule",
+                        "description": "trx_id",
                         "schema": {
                             "type": "string"
                         }
                     },
                     {
-                        "name": "trx_id",
+                        "name": "booking_type",
                         "in": "query",
-                        "description": "trx_id",
+                        "description": "New or Reschedule",
                         "schema": {
                             "type": "string"
                         }
@@ -1694,6 +1719,14 @@
                         "description": "Card or Transfer",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "interval",
+                        "schema": {
+                            "type": "integer"
                         }
                     },
                     {
@@ -2119,15 +2152,6 @@
                         "name": "category_id",
                         "in": "query",
                         "description": "category_id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "service_date",
-                        "in": "query",
-                        "description": "service_date",
                         "required": true,
                         "schema": {
                             "type": "string"
