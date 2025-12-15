@@ -809,12 +809,6 @@ class BookingController extends Controller
      *           @OA\Schema(type="string")
      *       ),
      *      @OA\Parameter(
-     *          name="mode_of_payment",
-     *          in="query",
-     *          description="Card or Transfer",
-     *          @OA\Schema(type="string")
-     *      ),
-     *      @OA\Parameter(
      *          name="interval",
      *          in="query",
      *          description="interval",
@@ -878,11 +872,7 @@ class BookingController extends Controller
                 $modeOfPayment = $request->get("mode_of_payment");
                 $transaction_id = $request->get("trx_id");
 
-
-
                 Log::info("transaction Started", $logged_data);
-
-
 
                 $patient = OfflineOnlinePatientsSync::where('user_id', $user_id)->first();
                 $payment = new FlutterwavePayment();
@@ -919,7 +909,13 @@ class BookingController extends Controller
                     'user_id' => $user_id,
                     "service_id" => $service_id
                 ]);
-                return ["booking_identity" => $identity, "url"  => $signedUrl, "payment_id" => $payment->id, "identity" => $payment->identity,  'trx_id' => $trx_id];
+                return [
+                    "booking_identity" => $identity,
+                    "url"  => $signedUrl,
+                    "payment_id" => $payment->id,
+                    "identity" => $payment->identity,
+                    'trx_id' => $trx_id
+                ];
             });
 
             return $utils->message("success", $patient, 200);
@@ -1064,6 +1060,8 @@ class BookingController extends Controller
                 break;
         }
     }
+
+
     /**
      * @OA\Post(
      *     path="/api/v1/patient/add-a-session",
