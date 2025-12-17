@@ -286,79 +286,112 @@ class PatientController extends Controller
             "patient_id" => "required"
         ]);
 
-        $patient_id =  $request->input("patient_id");
+        $patient_id = $request->input("patient_id");
 
         try {
 
-            if (!Patients::where("reg_id", $patient_id)->exists() && !PatientDontUse::where("patient_id", $patient_id)->exists())
+            // Confirm patient exists (online OR offline)
+            if (
+                !Patients::where("reg_id", $patient_id)->exists() &&
+                !PatientDontUse::where("patient_id", $patient_id)->exists()
+            ) {
                 return $utils->message("Error", "Patient Not Found.", 404);
+            }
 
-            $payment =  DB::transaction(function () use ($utils, $patient_id, $request) {
+            $payment = DB::transaction(function () use ($utils, $patient_id, $request) {
 
-//                    if (!User::where("reg_id", $patient_id)->where("paid", 1)->exists()) {
-//
-                        if(PatientDontUse::where("patient_id", $patient_id)->exists()){
-//
-                            $oldPatients = PatientDontUse::where("patient_id", $patient_id)->firstOrFail();
-//
-                            if (substr($oldPatients->phone_no, 0, 1) !== "0") {
-                                $oldPatients->phone_no = "0" . $oldPatients->phone_no;
-                            }
-//
-                            $user = new User();
-                            $user->reg_id = $patient_id;
-                            $user->phone = $oldPatients->phone_no;
-                            $user->email = $oldPatients->email;
-                            $user->save();
+                // Always initialize shared variables
+                $user = User::where("reg_id", $patient_id)->first();
+                $offlineOnlinePatientSync = null;
 
-                            $oldPatients->user_id = $user->id;
-                            $oldPatients->save();
+                // If user does not exist OR has not paid
+                if (!$user || $user->paid != 1) {
 
-                            $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
-                            $offlineOnlinePatientSync->firstName = $oldPatients->firstName;
-                            $offlineOnlinePatientSync->lastName = $oldPatients->glastName;
-                            $offlineOnlinePatientSync->user_id = $user->id;
-                            $offlineOnlinePatientSync->reg_id = $patient_id;
-                            $offlineOnlinePatientSync->phone = $oldPatients->phone_no;
-                            $offlineOnlinePatientSync->date_of_birth = $oldPatients->dateOfBirth;
-                            $offlineOnlinePatientSync->gender = $oldPatients->gender;
-                            $offlineOnlinePatientSync->nature_of_relationship = $oldPatients->next_of_kin_relationship;
-                            $offlineOnlinePatientSync->marital_status = $oldPatients->marital_status;
-                            $offlineOnlinePatientSync->religion = $oldPatients->ethnic;
-                            $offlineOnlinePatientSync->nationality = $oldPatients->nationality;
-                            $offlineOnlinePatientSync->next_of_kin = $oldPatients->next_of_kin;
-                            $offlineOnlinePatientSync->next_of_kin_phone = $oldPatients->next_of_kin_phoneno;
-                            $offlineOnlinePatientSync->state_of_residence = $oldPatients->state_of_residence;
-                            $offlineOnlinePatientSync->address_of_residence = $oldPatients->permanent_address;
-                            $offlineOnlinePatientSync->patient_id = $oldPatients->id;
-                            $offlineOnlinePatientSync->place = "offline";
-                            $offlineOnlinePatientSync->save();
+                    // Sync offline patient → online user
+                    if (!$user && PatientDontUse::where("patient_id", $patient_id)->exists()) {
+
+                        $oldPatient = PatientDontUse::where("patient_id", $patient_id)->firstOrFail();
+
+                        if (substr($oldPatient->phone_no, 0, 1) !== "0") {
+                            $oldPatient->phone_no = "0" . $oldPatient->phone_no;
                         }
 
-                        $trx_id = $utils->generateCode(20);
+                        // Create user
+                        $user = new User();
+                        $user->reg_id = $patient_id;
+                        $user->phone = $oldPatient->phone_no;
+                        $user->email = $oldPatient->email;
+                        $user->paid = 0;
+                        $user->save();
 
-                        Log::info("Initializing Payment", ["data" => $request->all(), "trx_id" => $trx_id]);
-                        $payment = new ServiceChargeFlutterwavePayments();
-                        $payment->status = "Pending";
-                        $payment->amount = 1500;
-                        $payment->identity = $utils->generateCramp("service_payments");
-                        $payment->user_id = $user->id;
-                        $payment->patient_id = $offlineOnlinePatientSync->id;
-                        $payment->save();
+                        // Link old patient
+                        $oldPatient->user_id = $user->id;
+                        $oldPatient->save();
 
-                        Log::info("Payment Initialization Completed", ["data" => $payment, "offlinesync" => $offlineOnlinePatientSync]);
-                        return $payment;
-//                    }else{
-//                       return $payment = ServiceChargeFlutterwavePayments::where("user_id", User::where("reg_id", $patient_id))->firstOrFail();
-//                    }
+                        // Sync record
+                        $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
+                        $offlineOnlinePatientSync->firstName = $oldPatient->firstName;
+                        $offlineOnlinePatientSync->lastName = $oldPatient->glastName;
+                        $offlineOnlinePatientSync->user_id = $user->id;
+                        $offlineOnlinePatientSync->reg_id = $patient_id;
+                        $offlineOnlinePatientSync->phone = $oldPatient->phone_no;
+                        $offlineOnlinePatientSync->date_of_birth = $oldPatient->dateOfBirth;
+                        $offlineOnlinePatientSync->gender = $oldPatient->gender;
+                        $offlineOnlinePatientSync->nature_of_relationship = $oldPatient->next_of_kin_relationship;
+                        $offlineOnlinePatientSync->marital_status = $oldPatient->marital_status;
+                        $offlineOnlinePatientSync->religion = $oldPatient->ethnic;
+                        $offlineOnlinePatientSync->nationality = $oldPatient->nationality;
+                        $offlineOnlinePatientSync->next_of_kin = $oldPatient->next_of_kin;
+                        $offlineOnlinePatientSync->next_of_kin_phone = $oldPatient->next_of_kin_phoneno;
+                        $offlineOnlinePatientSync->state_of_residence = $oldPatient->state_of_residence;
+                        $offlineOnlinePatientSync->address_of_residence = $oldPatient->permanent_address;
+                        $offlineOnlinePatientSync->patient_id = $oldPatient->id;
+                        $offlineOnlinePatientSync->place = "offline";
+                        $offlineOnlinePatientSync->save();
+                    }else{
+                        $offlineOnlinePatientSync = OfflineOnlinePatientsSync::where("reg_id", $patient_id)->firstOrFail();
+                    }
 
+                    // Initialize payment
+                    $trx_id = $utils->generateCode(20);
+
+                    Log::info("Initializing Payment", [
+                        "patient_id" => $patient_id,
+                        "trx_id" => $trx_id
+                    ]);
+
+                    $payment = new ServiceChargeFlutterwavePayments();
+                    $payment->status = "Pending";
+                    $payment->amount = 1500;
+                    $payment->identity = $utils->generateCramp("service_payments");
+                    $payment->user_id = $user->id;
+                    $payment->patient_id = optional($offlineOnlinePatientSync)->id;
+                    $payment->save();
+
+                    Log::info("Payment Initialized", [
+                        "payment_id" => $payment->id
+                    ]);
+
+                    return $payment;
+                }
+
+                // Already paid → return existing payment
+                return ServiceChargeFlutterwavePayments::where("user_id", $user->id)
+                    ->latest()
+                    ->firstOrFail();
             });
-            return $utils->message("Success", $payment , 200);
 
-        }catch (\Exception $exception){
-            Log::error("Error", [ "data" => $exception->getMessage() ]);
-            return $exception->getMessage();
+            return $utils->message("Success", $payment, 200);
+
+        } catch (\Throwable $e) {
+            Log::error("Payment Error", [
+                "message" => $e->getMessage(),
+                "patient_id" => $patient_id
+            ]);
+
+            return $utils->message("Error", "Something went wrong", 500);
         }
+
 
     }
 
