@@ -299,7 +299,7 @@ class PatientController extends Controller
 //
 //                        if(PatientDontUse::where("patient_id", $patient_id)->exists()){
 //
-//                            $oldPatients = PatientDontUse::where("patient_id", $patient_id)->firstOrFail();
+                            $oldPatients = PatientDontUse::where("patient_id", $patient_id)->firstOrFail();
 //
 //                            if (substr($oldPatients->phone_no, 0, 1) !== "0") {
 //                                $oldPatients->phone_no = "0" . $oldPatients->phone_no;
