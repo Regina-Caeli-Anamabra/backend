@@ -301,7 +301,8 @@ class PatientController extends Controller
                     $oldPatients->phone_no = "0" . $oldPatients->phone_no;
                 }
 
-                    if (!User::where("reg_id", $patient_id)->where("paid", 1)->exists()){
+                    if (!User::where("reg_id", $patient_id)->where("paid", 1)->exists())
+                        return $utils->message("Error", "Patient Already Exists.", 400);
 
                         $user = new User();
                         $user->reg_id = $patient_id;
@@ -346,7 +347,7 @@ class PatientController extends Controller
 
                         Log::info("Payment Initialization Completed", ["data" => $payment, "offlinesync" => $offlineOnlinePatientSync]);
                         return $payment;
-                    }
+
 
             });
             return $utils->message("Success", $payment , 200);
