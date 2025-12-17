@@ -290,6 +290,9 @@ class PatientController extends Controller
 
         try {
 
+            if (!User::where("reg_id", $patient_id)->where("paid", 1)->exists())
+                return $utils->message("Error", "Patient Already Exists.", 400);
+
             if (!Patients::where("reg_id", $patient_id)->exists() && !PatientDontUse::where("patient_id", $patient_id)->exists())
                 return $utils->message("Error", "Patient Not Found.", 404);
 
@@ -300,9 +303,6 @@ class PatientController extends Controller
                 if (substr($oldPatients->phone_no, 0, 1) !== "0") {
                     $oldPatients->phone_no = "0" . $oldPatients->phone_no;
                 }
-
-                    if (!User::where("reg_id", $patient_id)->where("paid", 1)->exists())
-                        return $utils->message("Error", "Patient Already Exists.", 400);
 
                         $user = new User();
                         $user->reg_id = $patient_id;
