@@ -295,9 +295,9 @@ class PatientController extends Controller
 
             $payment =  DB::transaction(function () use ($utils, $patient_id, $request) {
 
-                    if (!User::where("reg_id", $patient_id)->where("paid", 1)->exists()) {
-
-                        if(PatientDontUse::where("patient_id", $patient_id)->exists()){
+//                    if (!User::where("reg_id", $patient_id)->where("paid", 1)->exists()) {
+//
+//                        if(PatientDontUse::where("patient_id", $patient_id)->exists()){
 //
 //                            $oldPatients = PatientDontUse::where("patient_id", $patient_id)->firstOrFail();
 //
@@ -333,21 +333,21 @@ class PatientController extends Controller
 //                            $offlineOnlinePatientSync->patient_id = $oldPatients->id;
 //                            $offlineOnlinePatientSync->place = "offline";
 //                            $offlineOnlinePatientSync->save();
-                        }
+//                        }
 
-                        $trx_id = $utils->generateCode(20);
-
-                        Log::info("Initializing Payment", ["data" => $request->all(), "trx_id" => $trx_id]);
-                        $payment = new ServiceChargeFlutterwavePayments();
-                        $payment->status = "Pending";
-                        $payment->amount = 1500;
-                        $payment->identity = $utils->generateCramp("service_payments");
-                        $payment->user_id = $user->id;
-                        $payment->patient_id = $offlineOnlinePatientSync->id;
-                        $payment->save();
-
-                        Log::info("Payment Initialization Completed", ["data" => $payment, "offlinesync" => $offlineOnlinePatientSync]);
-                        return $payment;
+//                        $trx_id = $utils->generateCode(20);
+//
+//                        Log::info("Initializing Payment", ["data" => $request->all(), "trx_id" => $trx_id]);
+//                        $payment = new ServiceChargeFlutterwavePayments();
+//                        $payment->status = "Pending";
+//                        $payment->amount = 1500;
+//                        $payment->identity = $utils->generateCramp("service_payments");
+//                        $payment->user_id = $user->id;
+//                        $payment->patient_id = $offlineOnlinePatientSync->id;
+//                        $payment->save();
+//
+//                        Log::info("Payment Initialization Completed", ["data" => $payment, "offlinesync" => $offlineOnlinePatientSync]);
+//                        return $payment;
                     }else{
                        return $payment = ServiceChargeFlutterwavePayments::where("user_id", User::where("reg_id", $patient_id))->firstOrFail();
                     }
