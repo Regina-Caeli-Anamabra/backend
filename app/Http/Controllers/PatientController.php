@@ -295,7 +295,7 @@ class PatientController extends Controller
 
             $payment =  DB::transaction(function () use ($utils, $patient_id, $request) {
 
-                    if (!User::where("reg_id", $patient_id)->where("paid", 1)->exists()) {
+//                    if (!User::where("reg_id", $patient_id)->where("paid", 1)->exists()) {
 //
                         if(PatientDontUse::where("patient_id", $patient_id)->exists()){
 //
@@ -348,9 +348,9 @@ class PatientController extends Controller
 
                         Log::info("Payment Initialization Completed", ["data" => $payment, "offlinesync" => $offlineOnlinePatientSync]);
                         return $payment;
-                    }else{
-                       return $payment = ServiceChargeFlutterwavePayments::where("user_id", User::where("reg_id", $patient_id))->firstOrFail();
-                    }
+//                    }else{
+//                       return $payment = ServiceChargeFlutterwavePayments::where("user_id", User::where("reg_id", $patient_id))->firstOrFail();
+//                    }
 
             });
             return $utils->message("Success", $payment , 200);
