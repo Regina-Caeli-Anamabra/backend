@@ -345,9 +345,9 @@ class PatientController extends Controller
                         $payment->save();
 
                         Log::info("Payment Initialization Completed", ["data" => $payment, "offlinesync" => $offlineOnlinePatientSync]);
+                        return $payment;
                     }
 
-                return $payment;
             });
             return $utils->message("Success", $payment , 200);
 
