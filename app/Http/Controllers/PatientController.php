@@ -313,26 +313,26 @@ class PatientController extends Controller
 
                             $oldPatients->user_id = $user->id;
                             $oldPatients->save();
-
-                            $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
-                            $offlineOnlinePatientSync->firstName = $oldPatients->firstName;
-                            $offlineOnlinePatientSync->lastName = $oldPatients->glastName;
-                            $offlineOnlinePatientSync->user_id = $user->id;
-                            $offlineOnlinePatientSync->reg_id = $patient_id;
-                            $offlineOnlinePatientSync->phone = $oldPatients->phone_no;
-                            $offlineOnlinePatientSync->date_of_birth = $oldPatients->dateOfBirth;
-                            $offlineOnlinePatientSync->gender = $oldPatients->gender;
-                            $offlineOnlinePatientSync->nature_of_relationship = $oldPatients->next_of_kin_relationship;
-                            $offlineOnlinePatientSync->marital_status = $oldPatients->marital_status;
-                            $offlineOnlinePatientSync->religion = $oldPatients->ethnic;
-                            $offlineOnlinePatientSync->nationality = $oldPatients->nationality;
-                            $offlineOnlinePatientSync->next_of_kin = $oldPatients->next_of_kin;
-                            $offlineOnlinePatientSync->next_of_kin_phone = $oldPatients->next_of_kin_phoneno;
-                            $offlineOnlinePatientSync->state_of_residence = $oldPatients->state_of_residence;
-                            $offlineOnlinePatientSync->address_of_residence = $oldPatients->permanent_address;
-                            $offlineOnlinePatientSync->patient_id = $oldPatients->id;
-                            $offlineOnlinePatientSync->place = "offline";
-                            $offlineOnlinePatientSync->save();
+//
+//                            $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
+//                            $offlineOnlinePatientSync->firstName = $oldPatients->firstName;
+//                            $offlineOnlinePatientSync->lastName = $oldPatients->glastName;
+//                            $offlineOnlinePatientSync->user_id = $user->id;
+//                            $offlineOnlinePatientSync->reg_id = $patient_id;
+//                            $offlineOnlinePatientSync->phone = $oldPatients->phone_no;
+//                            $offlineOnlinePatientSync->date_of_birth = $oldPatients->dateOfBirth;
+//                            $offlineOnlinePatientSync->gender = $oldPatients->gender;
+//                            $offlineOnlinePatientSync->nature_of_relationship = $oldPatients->next_of_kin_relationship;
+//                            $offlineOnlinePatientSync->marital_status = $oldPatients->marital_status;
+//                            $offlineOnlinePatientSync->religion = $oldPatients->ethnic;
+//                            $offlineOnlinePatientSync->nationality = $oldPatients->nationality;
+//                            $offlineOnlinePatientSync->next_of_kin = $oldPatients->next_of_kin;
+//                            $offlineOnlinePatientSync->next_of_kin_phone = $oldPatients->next_of_kin_phoneno;
+//                            $offlineOnlinePatientSync->state_of_residence = $oldPatients->state_of_residence;
+//                            $offlineOnlinePatientSync->address_of_residence = $oldPatients->permanent_address;
+//                            $offlineOnlinePatientSync->patient_id = $oldPatients->id;
+//                            $offlineOnlinePatientSync->place = "offline";
+//                            $offlineOnlinePatientSync->save();
                         }
 
                         $trx_id = $utils->generateCode(20);
