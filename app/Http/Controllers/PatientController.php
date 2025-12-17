@@ -297,7 +297,6 @@ class PatientController extends Controller
 
                     if (!User::where("reg_id", $patient_id)->where("paid", 1)->exists()) {
 
-
                         if(PatientDontUse::where("patient_id", $patient_id)->exists()){
 
                             $oldPatients = PatientDontUse::where("patient_id", $patient_id)->firstOrFail();
@@ -334,7 +333,6 @@ class PatientController extends Controller
                             $offlineOnlinePatientSync->patient_id = $oldPatients->id;
                             $offlineOnlinePatientSync->place = "offline";
                             $offlineOnlinePatientSync->save();
-
                         }
 
                         $trx_id = $utils->generateCode(20);
