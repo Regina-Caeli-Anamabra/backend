@@ -301,7 +301,10 @@ class PatientController extends Controller
                     $oldPatients->phone_no = "0" . $oldPatients->phone_no;
                 }
 
-                    $user = new User();
+                    if (User::where("reg_id", $patient_id)->exists())
+                        return $utils->message("Error", "User Already Exists.", 40);
+
+                $user = new User();
                     $user->reg_id = $patient_id;
                     $user->phone = $oldPatients->phone_no;
                     $user->email = $oldPatients->email;

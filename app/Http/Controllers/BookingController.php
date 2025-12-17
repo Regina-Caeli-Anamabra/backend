@@ -623,7 +623,7 @@ class BookingController extends Controller
         $user_id =  auth('sanctum')->user()->id;
 
         try {
-            $booking = Bookings::with(["services"])->where("user_id", $user_id)->get();
+            $booking = Bookings::with(["services"])->where("paid", 1)->where("user_id", $user_id)->get();
             return $utils->message("success", $booking , 200);
         }catch (\Throwable $e) {
             // Do something with your exception
@@ -855,7 +855,8 @@ class BookingController extends Controller
             if(Bookings::where(
                 function ($query) use ($booking_start_formatted, $booking_end) {
                     $query->where('session_start', '<=', $booking_end)
-                        ->where('session_end', '>=', $booking_start_formatted);
+                        ->where('session_end', '>=', $booking_start_formatted)
+                        ->where('paid', 1);
                 }
             )->exists())
                 return $utils->message("error","The session is already booked." , 400);
