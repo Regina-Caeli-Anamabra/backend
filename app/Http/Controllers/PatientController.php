@@ -280,7 +280,7 @@ class PatientController extends Controller
      * )
      */
 
-    public function initiateServiceChargePayment($request, $utils)
+    public function initiateServiceChargePayment(Request $request, Utils $utils)
     {
         $request->validate([
             "patient_id" => "required"
