@@ -298,21 +298,21 @@ class PatientController extends Controller
                     if (!User::where("reg_id", $patient_id)->where("paid", 1)->exists()) {
 
                         if(PatientDontUse::where("patient_id", $patient_id)->exists()){
-
-                            $oldPatients = PatientDontUse::where("patient_id", $patient_id)->firstOrFail();
-
-                            if (substr($oldPatients->phone_no, 0, 1) !== "0") {
-                                $oldPatients->phone_no = "0" . $oldPatients->phone_no;
-                            }
-
-                            $user = new User();
-                            $user->reg_id = $patient_id;
-                            $user->phone = $oldPatients->phone_no;
-                            $user->email = $oldPatients->email;
-                            $user->save();
-
-                            $oldPatients->user_id = $user->id;
-                            $oldPatients->save();
+//
+//                            $oldPatients = PatientDontUse::where("patient_id", $patient_id)->firstOrFail();
+//
+//                            if (substr($oldPatients->phone_no, 0, 1) !== "0") {
+//                                $oldPatients->phone_no = "0" . $oldPatients->phone_no;
+//                            }
+//
+//                            $user = new User();
+//                            $user->reg_id = $patient_id;
+//                            $user->phone = $oldPatients->phone_no;
+//                            $user->email = $oldPatients->email;
+//                            $user->save();
+//
+//                            $oldPatients->user_id = $user->id;
+//                            $oldPatients->save();
 //
 //                            $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
 //                            $offlineOnlinePatientSync->firstName = $oldPatients->firstName;
