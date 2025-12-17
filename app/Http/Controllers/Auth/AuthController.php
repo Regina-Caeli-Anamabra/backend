@@ -606,8 +606,7 @@ class AuthController extends Controller
                     );
                 }
 
-                return $newPatientId;
-            });
+                return $newPatientId;            });
             return $utils->message("success", ["reg_id" => $newPatientId], 200);
 
             } catch (\Throwable $e) {
