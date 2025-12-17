@@ -290,8 +290,8 @@ class PatientController extends Controller
 
         try {
 
-//            if (!Patients::where("reg_id", $patient_id)->exists() && !PatientDontUse::where("patient_id", $patient_id)->exists())
-//                return $utils->message("Error", "Patient Not Found.", 404);
+            if (!Patients::where("reg_id", $patient_id)->exists() && !PatientDontUse::where("patient_id", $patient_id)->exists())
+                return $utils->message("Error", "Patient Not Found.", 404);
 
             $payment =  DB::transaction(function () use ($utils, $patient_id, $request) {
 
