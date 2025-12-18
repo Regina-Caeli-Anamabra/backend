@@ -675,9 +675,11 @@ class AuthController extends Controller
         if (auth()->attempt($loginRequest->only(['username', 'password'])) ){
             $authUser = Auth::user();
 
+            if (\App\Models\User::where("id", $authUser->id)->where("paid", "!=", 1)->exists()){
 
-            if (\App\Models\User::where("id", $authUser->id)->where("paid", "!=", 1)->exists())
-                return $utils->message("error","Payment of Service Charge Required" , 400);
+                $reg_id = \App\Models\User::where("id", $authUser->id)->where("paid", "!=", 1)->pluck("reg_id");
+                return $utils->message("error", ["error" => "Payment of Service Charge Required", "reg_id" => $reg_id] , 400);
+            }
 
             $success['token']  = $authUser->createToken('access_token')->plainTextToken;
 //            $success['token']  = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addMinute(2))->plainTextToken;
@@ -689,7 +691,6 @@ class AuthController extends Controller
             $success['first_name'] =  Patients::where("user_id", $authUser->id)->value("firstName");
             $success['last_name'] =  Patients::where("user_id", $authUser->id)->value("lastName");
             return $utils->message("success", $success, 200);
-
 
         }else{
             return $utils->message( "error", "Invalid Username/Password", 401);
