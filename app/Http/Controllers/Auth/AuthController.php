@@ -11,6 +11,7 @@ use App\Utils\CurlPost;
 use App\Models\Patients;
 use App\Enums\TokenAbility;
 use App\Models\NewCustomer;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Mail\VerifyCodeMail;
 use Illuminate\Http\Request;
@@ -606,11 +607,16 @@ class AuthController extends Controller
                     );
                 }
 
-                return $newPatientId;            });
+                return $newPatientId;
+            });
             return $utils->message("success", ["reg_id" => $newPatientId], 200);
 
             } catch (\Throwable $e) {
-                return $utils->message("error",$e->getMessage() , 400);
+
+                Log::info("error", [
+                    "error" => "e->getMessage()"
+                ]);
+                return $utils->message("error", "Network Error. Please Try again." , 400);
             }
     }
 
