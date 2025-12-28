@@ -18,7 +18,6 @@ role=${CONTAINER_ROLE:-app}
 echo role
 if [ "$role" = "app" ]; then
     php artisan migrate
-    php artisan key:generate
     php artisan cache:clear
     php artisan config:clear
     php artisan route:clear

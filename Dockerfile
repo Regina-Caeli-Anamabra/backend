@@ -32,5 +32,5 @@ ENV PORT=8000
 
 # Switch to non-root user
 USER appuser
-
+RUN chown root:root .env
 ENTRYPOINT ["./docker/entrypoint.sh"]
