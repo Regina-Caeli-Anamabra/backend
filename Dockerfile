@@ -19,8 +19,11 @@ RUN chown -R appuser:appuser /app
 RUN chmod +x ./docker/entrypoint.sh
 
 # Laravel required writable directories
-RUN chown -R appuser:appuser storage bootstrap/cache \
+# Laravel + L5-Swagger writable directories
+RUN mkdir -p storage/logs storage/api-docs bootstrap/cache \
+ && chown -R appuser:appuser storage bootstrap/cache \
  && chmod -R 775 storage bootstrap/cache
+
 
 
 
