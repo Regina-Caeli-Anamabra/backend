@@ -24,6 +24,9 @@ RUN mkdir -p storage/logs storage/api-docs bootstrap/cache \
  && chown -R appuser:appuser storage bootstrap/cache \
  && chmod -R 775 storage bootstrap/cache
 
+sudo chown -R 1000:1000 storage\
+sudo chmod -R 775 storage
+
 
 
 
