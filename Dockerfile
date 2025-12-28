@@ -18,6 +18,12 @@ COPY . .
 RUN chown -R appuser:appuser /app
 RUN chmod +x ./docker/entrypoint.sh
 
+# Laravel required writable directories
+RUN chown -R appuser:appuser storage bootstrap/cache \
+ && chmod -R 775 storage bootstrap/cache
+
+
+
 RUN echo "max_execution_time = 300" >> /usr/local/etc/php/php.ini
 
 COPY --from=composer:2.7.4 /usr/bin/composer /usr/bin/composer
