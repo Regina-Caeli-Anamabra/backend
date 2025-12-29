@@ -1,42 +1,39 @@
 FROM php:8.2 as php
 
-RUN apt-get update -y \
- && apt-get install -y unzip libpq-dev libcurl4-gnutls-dev
+RUN apt-get update -y
+RUN apt-get install -y unzip libpq-dev libcurl4-gnutls-dev
+RUN docker-php-ext-install pdo pdo_mysql bcmath
+RUN docker-php-ext-configure pcntl --enable-pcntl \
+  && docker-php-ext-install pcntl;
 
-RUN docker-php-ext-install pdo pdo_mysql bcmath \
- && docker-php-ext-configure pcntl --enable-pcntl \
- && docker-php-ext-install pcntl
 
-# Create non-root user
-RUN groupadd -g 1000 appuser \
- && useradd -u 1000 -g appuser -m appuser
+#RUN pecl install -o -f redis \
+#    && rm -rf /tmp/pear \
+#    && docker-php-ext-enable redis
+
 
 WORKDIR /app
 COPY . .
 
-# Fix permissions
-RUN chown -R appuser:appuser /app
-RUN chmod +x ./docker/entrypoint.sh
-
-# Laravel required writable directories
-# Laravel + L5-Swagger writable directories
-RUN mkdir -p storage/logs storage/api-docs bootstrap/cache \
- && chown -R appuser:appuser storage bootstrap/cache \
- && chmod -R 775 storage bootstrap/cache
-
-sudo chown -R 1000:1000 storage\
-sudo chmod -R 775 storage
-
-
-
+RUN ls -l ./docker/entrypoint.sh
+RUN  chmod +x ./docker/entrypoint.sh
 
 RUN echo "max_execution_time = 300" >> /usr/local/etc/php/php.ini
+
 
 COPY --from=composer:2.7.4 /usr/bin/composer /usr/bin/composer
 
 ENV PORT=8000
+ENTRYPOINT [ "./docker/entrypoint.sh" ]
 
-# Switch to non-root user
-USER appuser
-
-ENTRYPOINT ["./docker/entrypoint.sh"]
+# ==============================================================================
+#  node
+#FROM node:14-alpine as node
+#
+#WORKDIR /var/www
+#COPY . .
+#
+#RUN npm install --global cross-env
+#RUN npm install
+#
+#VOLUME /var/www/node_modules
