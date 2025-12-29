@@ -13,6 +13,11 @@ class Services extends Model
     use HasFactory;
 
     protected $guarded = [];
+    public function daysAvailable(): HasMany
+    {
+        return $this->hasMany(DaysAvailable::class, 'service_id');
+    }
+
     public function services(): HasMany
     {
         return $this->hasMany(Payments::class);
@@ -26,7 +31,7 @@ class Services extends Model
 
     public function payments(): HasMany
     {
-        return $this->hasMany('App\Models\FlutterwavePayment');
+        return $this->hasMany('App\Models\ flutterwave_payments', 'service_id');
     }
 
 }

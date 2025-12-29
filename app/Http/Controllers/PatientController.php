@@ -2,22 +2,660 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PatientResource;
 use App\Http\Resources\PaymentResource;
 use App\Http\Resources\PaymentsResource;
+use App\Http\Resources\SearchBookingResource;
+use App\Http\Resources\SearchPatientResource;
 use App\Models\Bookings;
 use App\Models\FlutterwavePayment;
+use App\Models\OfflineOnlinePatientsSync;
+use App\Models\PatientDontUse;
+use App\Models\PatientFromHospital;
 use App\Models\Patients;
 use App\Models\Payments;
+use App\Models\ServiceChargeFlutterwavePayments;
+use App\Models\Services;
 use App\Models\User;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Testing\Fluent\Concerns\Has;
 use Mockery\Exception;
 
 class PatientController extends Controller
 {
+    /**
+     * @OA\Post(
+     *     path="/api/v1/complete-service-charge-payments",
+     *     summary="Complete service charge payment",
+     *     tags={"Patients"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"patient_id", "trx_id", "payment_identity"},
+     *             @OA\Property(
+     *                 property="payment_identity",
+     *                 type="string",
+     *                 example="30601745065990641745065990189454",
+     *                 description="Patient ID"
+     *             ),
+     *             @OA\Property(
+     *                 property="trx_id",
+     *                 type="string",
+     *                 example="1739976680226",
+     *                 description="TRX ID"
+     *             ),
+     *             @OA\Property(
+     *                 property="patient_id",
+     *                 type="string",
+     *                 example="94901/03/24",
+     *                 description="Payment ID"
+     *             ),
+     *             @OA\Property(
+     *                 property="mode_of_transfer",
+     *                 type="string",
+     *                 example="Transfer",
+     *                 description="Card or Transfer"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Payment completed successfully",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation Error",
+     *         @OA\JsonContent()
+     *     )
+     * )
+     */
+
+    public function CompleteServiceChargePayment(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "payment_identity" => "required",
+            "trx_id" => "required",
+            "patient_id" => "required",
+            "mode_of_transfer" => "required",
+        ]);
+
+        if (!ServiceChargeFlutterwavePayments::where("identity", $request->get("payment_identity"))->exists())
+            return $utils->message("error", "Payment Not Found" , 404);
+
+        if (!User::where("reg_id", $request->input("patient_id"))->exists())
+            return $utils->message("Error", "User Not Found." , 404);
+
+
+        $patient = $request->get("patient_id");
+        $trx_id = $request->get("trx_id");
+        $mode_of_transfer = $request->get("mode_of_transfer");
+        $payment_id = $request->get("payment_identity");
+
+        $user = User::where("reg_id", $patient)->first();
+        Log::info("Validating Trx id", ["trx_id" => $trx_id, "mode_of_transfer" => $mode_of_transfer]);
+        $paymentData = $utils->validatePayment($trx_id);
+        Log::info("Validated Trx ID", ["data" => $paymentData]);
+        Log::info("Insert Data to database");
+        if ($paymentData["data"]["status"] == "successful") {
+            try {
+
+                $patients = OfflineOnlinePatientsSync::where("user_id", $user->id)->first();
+                $dbSave =  DB::transaction(function () use ($utils, $mode_of_transfer, $paymentData, $payment_id, $trx_id, $user, $patients) {
+                    if ($mode_of_transfer == "Card") {
+                        $flutter = ServiceChargeFlutterwavePayments::where("identity", $payment_id)->firstOrFail();
+                        $flutter->user_id = $user->id;
+                        $flutter->patient_id = $patients->id;
+                        $flutter->trx_id = $trx_id;
+                        $flutter->account_id = $paymentData["data"]["account_id"];
+                        $flutter->amount = $paymentData["data"]["amount"];
+                        $flutter->amount_settled = $paymentData["data"]["amount_settled"];
+                        $flutter->app_fee = $paymentData["data"]["app_fee"];
+                        $flutter->charged_amount = $paymentData["data"]["charged_amount"];
+                        $flutter->country = $paymentData["data"]["card"]["country"];
+                        $flutter->expiry = $paymentData["data"]["card"]["expiry"];
+                        $flutter->first_6digits = $paymentData["data"]["card"]["first_6digits"];
+                        $flutter->issuer = $paymentData["data"]["card"]["issuer"];
+                        $flutter->last_4digits = $paymentData["data"]["card"]["last_4digits"];
+                        $flutter->card_token = $paymentData["data"]["card"]["token"];
+                        $flutter->card_type = $paymentData["data"]["card"]["type"];
+                        $flutter->email = $paymentData["data"]["customer"]["email"];
+                        $flutter->name = $paymentData["data"]["customer"]["name"];
+                        $flutter->phone_number = $paymentData["data"]["customer"]["phone_number"];
+                        $flutter->flw_ref = $paymentData["data"]["flw_ref"];
+                        $flutter->ip = $paymentData["data"]["ip"];
+                        $flutter->processor_response = $paymentData["data"]["processor_response"];
+                        $flutter->status = $paymentData["data"]["status"];
+                        $flutter->narration = $paymentData["data"]["status"];
+                        $flutter->merchant_fee = $paymentData["data"]["merchant_fee"];
+                        $flutter->tx_ref = $paymentData["data"]["tx_ref"];
+                        $flutter->update();
+
+                        $user = User::where("id", $user->id)->update(["paid" => 1]);
+                        Log::info("Completed Database transaction", $flutter);
+                        return true;
+
+                    }else{
+                        $flutter = ServiceChargeFlutterwavePayments::where("identity", $payment_id)->firstOrFail();
+                        $flutter->user_id = $user->id;
+                        $flutter->patient_id = $patients->id;
+                        $flutter->trx_id = $trx_id;
+                        $flutter->account_id = $paymentData["data"]["account_id"];
+                        $flutter->amount = $paymentData["data"]["amount"];
+                        $flutter->amount_settled = $paymentData["data"]["amount_settled"];
+                        $flutter->app_fee = $paymentData["data"]["app_fee"];
+                        $flutter->charged_amount = $paymentData["data"]["charged_amount"];
+                        $flutter->email = $paymentData["data"]["customer"]["email"];
+                        $flutter->name = $paymentData["data"]["customer"]["name"];
+                        $flutter->phone_number = $paymentData["data"]["customer"]["phone_number"];
+                        $flutter->flw_ref = $paymentData["data"]["flw_ref"];
+                        $flutter->ip = $paymentData["data"]["ip"];
+                        $flutter->processor_response = $paymentData["data"]["processor_response"];
+                        $flutter->status = $paymentData["data"]["status"];
+                        $flutter->narration = $paymentData["data"]["status"];
+                        $flutter->merchant_fee = $paymentData["data"]["merchant_fee"];
+                        $flutter->tx_ref = $paymentData["data"]["tx_ref"];
+                        $flutter->update();
+                    }
+                    Log::info("Completed Database transaction", ["data" => $flutter]);
+                    $user = User::where("id", $user->id)->update(["paid" => 1]);
+                    return true;
+                });
+
+                if ($dbSave)
+                    return $utils->message("Success", "Payment Completed Successfully." , 200);
+
+            }catch (Exception $e){
+                Log::error("Error", [ "data" => $e->getMessage() ]);
+            }
+        }
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/cancel-service-charge-payments",
+     *     summary="Cancel service charge payment",
+     *     tags={"Patients"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"patient_id"},
+     *             @OA\Property(
+     *                 property="patient_id",
+     *                 type="string",
+     *                 example="94901/03/24",
+     *                 description="Patient ID"
+     *             ),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Create Password",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation Error",
+     *         @OA\JsonContent()
+     *     )
+     * )
+     */
+
+    public function cancelServiceChargePayment(Request $request, Utils $utils)
+    {
+
+        $request->validate([
+            "patient_id" => "required"
+        ]);
+
+        if (!User::where("reg_id", $request->input("patient_id"))->exists())
+            return $utils->message("Error", "Patient Not Found." , 404);
+
+        $user = User::where("reg_id", $request->input("patient_id"))->first();
+        $transaction_id = $request->get('trx_id');
+
+        $trx_id =  $utils->generateCode(20);
+
+        $payment = ServiceChargeFlutterwavePayments::where("identity", $transaction_id)->firstOrFail();
+        $payment->status = "Cancelled";
+        $payment->user_id = $user->id;
+        $payment->amount = 1500;
+        $payment->identity = $utils->generateCramp("service_payments");
+        $payment->patient_id =  Patients::where('user_id', $user->id)->first()->id;
+        $payment->save();
+
+        return $utils->message("Success", $payment , 200);
+
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/initiate-service-charge-payments",
+     *     summary="Initiate service charge payment",
+     *     tags={"Patients"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"patient_id"},
+     *             @OA\Property(
+     *                 property="patient_id",
+     *                 type="string",
+     *                 example="94901/03/24",
+     *                 description="Patient ID"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Create Password",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation Error",
+     *         @OA\JsonContent()
+     *     )
+     * )
+     */
+
+    public function initiateServiceChargePayment(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "patient_id" => "required"
+        ]);
+
+        $patient_id = $request->input("patient_id");
+
+        try {
+
+            // Confirm patient exists (online OR offline)
+            if (
+                !Patients::where("reg_id", $patient_id)->exists() &&
+                !PatientDontUse::where("patient_id", $patient_id)->exists()
+            ) {
+                return $utils->message("Error", "Patient Not Found.", 404);
+            }
+
+            $payment = DB::transaction(function () use ($utils, $patient_id, $request) {
+
+                // Always initialize shared variables
+                $user = User::where("reg_id", $patient_id)->first();
+                $offlineOnlinePatientSync = null;
+
+                // If user does not exist OR has not paid
+                if (!$user || $user->paid != 1) {
+
+                    // Sync offline patient → online user
+                    if (!$user && PatientDontUse::where("patient_id", $patient_id)->exists()) {
+
+                        $oldPatient = PatientDontUse::where("patient_id", $patient_id)->firstOrFail();
+
+                        if (substr($oldPatient->phone_no, 0, 1) !== "0") {
+                            $oldPatient->phone_no = "0" . $oldPatient->phone_no;
+                        }
+
+                        // Create user
+                        $user = new User();
+                        $user->reg_id = $patient_id;
+                        $user->phone = $oldPatient->phone_no;
+                        $user->email = $oldPatient->email;
+                        $user->paid = 0;
+                        $user->save();
+
+                        // Link old patient
+                        $oldPatient->user_id = $user->id;
+                        $oldPatient->save();
+
+                        // Sync record
+                        $offlineOnlinePatientSync = new OfflineOnlinePatientsSync();
+                        $offlineOnlinePatientSync->firstName = $oldPatient->firstName;
+                        $offlineOnlinePatientSync->lastName = $oldPatient->glastName;
+                        $offlineOnlinePatientSync->user_id = $user->id;
+                        $offlineOnlinePatientSync->reg_id = $patient_id;
+                        $offlineOnlinePatientSync->phone = $oldPatient->phone_no;
+                        $offlineOnlinePatientSync->date_of_birth = $oldPatient->dateOfBirth;
+                        $offlineOnlinePatientSync->gender = $oldPatient->gender;
+                        $offlineOnlinePatientSync->nature_of_relationship = $oldPatient->next_of_kin_relationship;
+                        $offlineOnlinePatientSync->marital_status = $oldPatient->marital_status;
+                        $offlineOnlinePatientSync->religion = $oldPatient->ethnic;
+                        $offlineOnlinePatientSync->nationality = $oldPatient->nationality;
+                        $offlineOnlinePatientSync->next_of_kin = $oldPatient->next_of_kin;
+                        $offlineOnlinePatientSync->next_of_kin_phone = $oldPatient->next_of_kin_phoneno;
+                        $offlineOnlinePatientSync->state_of_residence = $oldPatient->state_of_residence;
+                        $offlineOnlinePatientSync->address_of_residence = $oldPatient->permanent_address;
+                        $offlineOnlinePatientSync->patient_id = $oldPatient->id;
+                        $offlineOnlinePatientSync->place = "offline";
+                        $offlineOnlinePatientSync->save();
+                    }else{
+                        $offlineOnlinePatientSync = OfflineOnlinePatientsSync::where("reg_id", $patient_id)->firstOrFail();
+                    }
+
+                    // Initialize payment
+                    $trx_id = $utils->generateCode(20);
+
+                    Log::info("Initializing Payment", [
+                        "patient_id" => $patient_id,
+                        "trx_id" => $trx_id
+                    ]);
+
+                    $payment = new ServiceChargeFlutterwavePayments();
+                    $payment->status = "Pending";
+                    $payment->amount = 1500;
+                    $payment->identity = $utils->generateCramp("service_payments");
+                    $payment->user_id = $user->id;
+                    $payment->patient_id = optional($offlineOnlinePatientSync)->id;
+                    $payment->save();
+
+                    Log::info("Payment Initialized", [
+                        "payment_id" => $payment->id
+                    ]);
+
+                    return $payment;
+                }
+
+                // Already paid → return existing payment
+                return ServiceChargeFlutterwavePayments::where("user_id", $user->id)
+                    ->latest()
+                    ->firstOrFail();
+            });
+
+            return $utils->message("Success", $payment, 200);
+
+        } catch (\Throwable $e) {
+            Log::error("Payment Error", [
+                "message" => $e->getMessage(),
+                "patient_id" => $patient_id
+            ]);
+
+            return $utils->message("Error", "Something went wrong", 500);
+        }
+
+
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/create-password",
+     *     summary="Create Password",
+     *     tags={"Patients"},
+     *     @OA\Parameter(
+     *         name="patient_id",
+     *         in="query",
+     *         description="Patient ID",
+     *         example="94901/03/24",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="username",
+     *         in="query",
+     *         description="Username",
+     *         example="sam",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="password",
+     *         in="query",
+     *         description="Password",
+     *         example="sam12345",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="password_confirmation",
+     *         in="query",
+     *         description="Password confirmation",
+     *         example="sam12345",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Create Password", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
+     * )
+     */
+
+    public function createPassword(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "patient_id" => "required|string",
+            "username" => "required|string",
+            "password" => "required|string|min:8|confirmed"
+        ], [
+            'password.confirmed' => 'The password confirmation does not match.',
+        ]);
+
+        if (!PatientDontUse::where("patient_id", $request->get("patient_id"))->exists())
+            return $utils->message("error", "Patient Not Found" , 404);
+
+
+        $patient_id = $request->get("patient_id");
+        User::where("reg_id", $patient_id)
+            ->update([
+                "password" => Hash::make($request->get("password")),
+                "username" => $request->get("username")
+            ]);
+
+        $patientDontUse = PatientDontUse::where("patient_id", $request->get("patient_id"))->first();
+
+        $users = User::where("reg_id", $patient_id)->first();
+        $patientDontUse->user_id = $users->id;
+        $patientDontUse->save();
+
+        return $utils->message("success", "Password Updated Successfully." , 200);
+
+    }
+
+
+//    public function createPassword(Request $request, Utils $utils)
+//    {
+//        $request->validate([
+//            "patient_id" => "required|string",
+//            "password" => "required|string|min:8|confirmed"
+//        ], [
+//            'password.confirmed' => 'The password confirmation does not match.',
+//        ]);
+//
+//        if (!User::where("reg_id", $request->get("patient_id"))->exists())
+//            return $utils->message("error", "Patient Not Found" , 404);
+//
+//        $patient =  User::where("reg_id", $request->get("patient_id"))
+//                    ->update([
+//                        "password" => Hash::make($request->get("password"))
+//                    ]);
+//
+//        return $utils->message("success", "Password Updated Successfully." , 200);
+//
+//    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/get-details",
+     *     summary="Get Patient Details",
+     *     tags={"Patients"},
+     *     @OA\Parameter(
+     *         name="patient_id",
+     *         in="query",
+     *         description="patient_id",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Patient Details", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthorized", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
+     * )
+     */
+    public function getDetails(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "patient_id" => "required|string"
+        ]);
+
+        $patient_id = $request->get("patient_id");
+
+        if (!PatientDontUse::where("patient_id", $patient_id )->exists())
+            return $utils->message("error", "Patient does not exist" , 400);
+
+        $patient = PatientDontUse::where("patient_id", $patient_id)->get();
+
+        return $utils->message("success", $patient , 200);
+
+    }
+
+    public function updatePatient(Request $request, Utils $utils)
+    {
+
+        $reg_id = $request->get("reg_id");
+        $phone = $request->get("phone_no");
+        $user = User::where("reg_id", $reg_id)->first();
+
+        if ($user) {
+            $patient = Patients::where("user_id", $user->id)->first();
+
+            if ($patient) {
+                $patient->firstName = $request->get("firstName");
+                $patient->lastName = $request->get("lastName");
+                $patient->phone = $phone;
+                $patient->date_of_birth = $request->get("dateOfBirth");
+                $patient->nature_of_relationship = $request->get("next_of_kin_relationship");
+                $patient->marital_status = $request->get("marital_status");
+                $patient->next_of_kin = $request->get("next_of_kin");
+//                $patient->state_of_origin = $request->get("state_of_Origin");
+                $patient->next_of_kin_phone = $request->get("next_of_kin_phoneno");
+                $patient->address_of_next_of_kin = $request->get("next_of_kin_address");
+                $patient->state_of_residence = $request->get("state_of_Residence");
+//                $patient->address_of_residence = $request->get("address");
+
+                $patient->update();
+
+                return $utils->message("error", $patient , 200);
+            } else {
+                return $utils->message("error", "Patient Not Found" , 400);
+            }
+        } else {
+            return $utils->message("error", "User Not Found" , 404);
+        }
+
+
+    }
+
+
+    public function getPatient(Request $request, Utils $utils)
+    {
+
+        $user =  User::where("reg_id", $request->input('reg_id'))->first();
+        $patient = Patients::where("user_id", $user->id)->first();
+        return $utils->message("success",$patient , 200);
+
+    }
+    public function updateService(Request $request, Utils $utils)
+    {
+        $identity = $request->get("identity");
+        $name = $request->get("name");
+        $amount = $request->get("amount");
+
+        $services = Services::where("identity", $identity)->firstOrFail();
+        $services->service_name = $name;
+        $services->service_fee = $amount;
+        $services->update();
+        return $utils->message("success",$services , 200);
+    }
+    public function getService($identity, Request $request, Utils $utils)
+    {
+        try {
+            $services = Services::where("identity", $identity)->firstOrFail();
+
+            return $utils->message("success", $services  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+    public function searchPatient(Request $request, Utils $utils)
+    {
+
+        $search_item = $request->get("search_item");
+        try {
+            $patients = Patients::where(function ($query) use ($search_item) {
+                $query->where("phone", 'like', "%{$search_item}%")
+                    ->orWhere("firstName", 'like', "%{$search_item}%")
+                    ->orWhere("lastName", 'like', "%{$search_item}%")
+                    ->orWhere("middleName", 'like', "%{$search_item}%")
+                    ->orWhere("patient_id", 'like', "%{$search_item}%")
+                    ->orWhereRaw("CONCAT(firstName, ' ', lastName) LIKE ?", ["%{$search_item}%"]);
+            })->get();
+            $patients = SearchPatientResource::collection($patients);
+            return $utils->message("success", $patients  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+    public function searchHospitalPatient(Request $request, Utils $utils)
+    {
+
+        $search_item = $request->get("search_item");
+        try {
+            $patients = PatientDontUse::where(function ($query) use ($search_item) {
+                $query->where("phone_no", 'like', "%{$search_item}%")
+                    ->orWhere("firstName", 'like', "%{$search_item}%")
+                    ->orWhere("lastName", 'like', "%{$search_item}%")
+                    ->orWhere("middleName", 'like', "%{$search_item}%")
+                    ->orWhere("system_id", 'like', "%{$search_item}%")
+                    ->orWhere("patient_id", 'like', "%{$search_item}%")
+                    ->orWhereRaw("CONCAT(firstName, ' ', lastName) LIKE ?", ["%{$search_item}%"]);
+            })->get();
+            $patients = SearchPatientResource::collection($patients);
+            return $utils->message("success", $patients  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
+    public function searchBooking(Request $request, Utils $utils)
+    {
+
+        $search_item = $request->get("search_item");
+        try {
+            $patients = Bookings::with("patient")->orWhereHas('patient', function ($query) use ($search_item) {
+                $query->where("phone_no", 'like', "%{$search_item}%");
+                $query->orWhere("firstName", 'like', "%{$search_item}%");
+                $query->orWhere("lastName", 'like', "%{$search_item}%");
+                $query->orWhere("middleName", 'like', "%{$search_item}%");
+                $query->orWhere("system_id", 'like', "%{$search_item}%");
+                $query->orWhere("patient_id", 'like', "%{$search_item}%");
+            })->get();
+            $patients = SearchBookingResource::collection($patients);
+            return $utils->message("success", $patients  , 200);
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error", $e->getMessage() , 400);
+        }
+    }
     public function getPayments(Request $request, Utils $utils)
     {
         try {
@@ -25,11 +663,14 @@ class PatientController extends Controller
             if(!auth('sanctum')->check())
                 return $utils->message("error","Unauthorized Access." , 401);
 
-           $patient = FlutterwavePayment::with(["services", "patients"])->where("status", "successful")->orderBy("created_at", "DESC")->get();
+            $patient = FlutterwavePayment::with(["patients", "services"])->whereHas("patients")->get();
+             PaymentResource::collection($patient);
              $data = [
                  "payments" => PaymentResource::collection($patient),
                  "total" => number_format(FlutterwavePayment::sum("amount_settled"), 2)
              ];
+
+
             return $utils->message("success",$data , 200);
 
         }catch (\Exception $exception){
@@ -58,7 +699,7 @@ class PatientController extends Controller
                 return $utils->message("error","Unauthorized Access." , 401);
 
             $user_id = auth('sanctum')->id();
-            $patient = Patients::with(["user"])->where("user_id", $user_id)->get();
+            $patient = OfflineOnlinePatientsSync::with(["user"])->where("user_id", $user_id)->get();
             return $utils->message("success", $patient , 200);
 
         }catch (\Exception $exception){
@@ -87,13 +728,6 @@ class PatientController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="phone",
-     *         in="query",
-     *         description="phone",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="email",
      *         in="query",
      *         description="email",
@@ -101,30 +735,9 @@ class PatientController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
-     *         name="gender",
-     *         in="query",
-     *         description="gender",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="marital_status",
-     *         in="query",
-     *         description="marital_status",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="religion",
      *         in="query",
      *         description="religion",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="nationality",
-     *         in="query",
-     *         description="nationality",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -138,18 +751,6 @@ class PatientController extends Controller
      *         name="next_of_kin_phone",
      *         in="query",
      *         description="next_of_kin_phone",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="nature_of_relationship",
-     *         in="query",
-     *         description="nature_of_relationship",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="date_of_birth",
-     *         in="query",
-     *         description="date_of_birth",
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
@@ -173,6 +774,13 @@ class PatientController extends Controller
      *         description="address_of_next_of_kin",
      *         @OA\Schema(type="string")
      *     ),
+     *      @OA\Parameter(
+     *          name="phone",
+     *          in="query",
+     *          required=true,
+     *          description="phone",
+     *          @OA\Schema(type="string")
+     *      ),
      *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
      *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
@@ -181,57 +789,90 @@ class PatientController extends Controller
      */
     public function updateProfile(Request $request, Utils $utils)
     {
+        $request->validate([
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
+            'religion' => 'nullable|string|max:50',
+            'next_of_kin' => 'required|string|max:100',
+            'address_of_next_of_kin' => 'required|string|max:255',
+            'state_of_residence' => 'required|string|max:100',
+            'address_of_residence' => 'required|string|max:255',
+        ]);
         try {
+            if (!auth('sanctum')->check()) {
+                return $utils->message("error", "Unauthorized Access.", 401);
+            }
 
-            if(!auth('sanctum')->check())
-                return $utils->message("error","Unauthorized Access." , 401);
+            $authUser = auth('sanctum')->user();
 
-               $user =  Patients::where("user_id", auth('sanctum')->id())->firstOrFail();
-               if($user){
-                    $user->first_name = $request->get("first_name");
-                    $user->last_name = $request->get("last_name");
-                    $user->phone = $request->get("phone");
-                    $user->gender = $request->get("gender");
-                    $user->marital_status = $request->get("marital_status");
-                    $user->religion = $request->get("religion");
-                    $user->nationality = $request->get("nationality");
-                    $user->next_of_kin = $request->get("next_of_kin");
-                    $user->next_of_kin_phone = $request->get("next_of_kin_phone");
-                    $user->address_of_next_of_kin = $request->get("address_of_next_of_kin");
-                    $user->nature_of_relationship = $request->get("nature_of_relationship");
-                    $user->date_of_birth = $request->get("date_of_birth");
-                    $user->state_of_residence = $request->get("state_of_residence");
-                    $user->address_of_residence = $request->get("address_of_residence");
-                    $user->save();
-               }
-//               $user =  Patients::where("user_id", auth('sanctum')->id())->update([
-//                            "first_name" => $request->get("first_name"),
-//                            "last_name" => $request->get("last_name"),
-//                            "phone" => $request->get("phone"),
-//                            "gender" => $request->get("gender"),
-//                            "marital_status" => $request->get("marital_status"),
-//                            "religion" => $request->get("religion"),
-//                            "preferred_language" => $request->get("preferred_language"),
-//                            "nationality" => $request->get("nationality"),
-//                            "state" => $request->get("state"),
-//                            "lga" => $request->get("lga"),
-//                            "town" => $request->get("town"),
-//                            "card_number" => $request->get("card_number"),
-//                            "next_of_kin" => $request->get("next_of_kin"),
-//                            "next_of_kin_phone" => $request->get("next_of_kin_phone"),
-//                            "nature_of_relationship" => $request->get("nature_of_relationship"),
-//                            "date_of_birth" => $request->get("date_of_birth"),
-//                            "insurance_number" => $request->get("insurance_number"),
-//                            "ward" => $request->get("ward"),
-//                            "state_of_residence" => $request->get("state_of_residence"),
-//                            "address_of_residence" => $request->get("address_of_residence")
-//                    ]);
+            $user = OfflineOnlinePatientsSync::where("reg_id", $authUser->reg_id)->firstOrFail();
 
-            return $utils->message("success", $user , 200);
+            $email = $request->get("email");
+            $phone = $request->get("phone");
 
-        }catch (\Exception $exception){
+            // Update Sync Table
+            $user->update([
+                "firstName"             => $request->get("first_name"),
+                "lastName"              => $request->get("last_name"),
+                "phone"                 => $phone,
+                "religion"              => $request->get("religion"),
+                "next_of_kin"           => $request->get("next_of_kin"),
+                "next_of_kin_phone"     => $request->get("next_of_kin_phone"),
+                "address_of_next_of_kin"=> $request->get("address_of_next_of_kin"),
+                "state_of_residence"    => $request->get("state_of_residence"),
+                "address_of_residence"  => $request->get("address_of_residence"),
+            ]);
+
+            // Update Patient Table Based on Place
+            if ($user->place === "online") {
+
+                $patient = Patients::where("reg_id", $authUser->reg_id)->firstOrFail();
+
+                $patient->update([
+                    "firstName"            => $request->get("first_name"),
+                    "lastName"             => $request->get("last_name"),
+                    "phone"                => $phone,
+                    "religion"             => $request->get("religion"),
+                    "next_of_kin"          => $request->get("next_of_kin"),
+                    "next_of_kin_phone"    => $request->get("next_of_kin_phone"),
+                    "address_of_next_of_kin"=> $request->get("address_of_next_of_kin"),
+                    "state_of_residence"   => $request->get("state_of_residence"),
+                    "address_of_residence" => $request->get("address_of_residence"),
+                ]);
+
+            } else {
+
+//                $patient = PatientDontUse::where("reg_id", $authUser->reg_id)->firstOrFail();
+//
+//                $patient->update([
+//                    "firstName"            => $request->get("first_name"),
+//                    "lastName"             => $request->get("last_name"),
+//                    "phone_no"             => $phone,
+//                    "ethnic"               => $request->get("religion"),
+//                    "next_of_kin"          => $request->get("next_of_kin"),
+//                    "next_of_kin_phoneno"  => $request->get("next_of_kin_phone"),
+//                    "address"              => $request->get("address_of_residence"),
+//                    "state_of_residence"   => $request->get("state_of_residence"),
+//                ]);
+            }
+
+            // Update User Email / Phone
+            if (!empty($email)) {
+                User::where("reg_id", $authUser->reg_id)->update(["email" => $email]);
+            }
+
+            if (!empty($phone)) {
+                User::where("reg_id", $authUser->reg_id)->update(["phone" => $phone]); // FIXED
+            }
+
+            return $utils->message("success", "User updated successfully.", 200);
+
+        } catch (\Exception $exception) {
+
             Log::error($exception->getMessage());
+            return $utils->message("error", $exception->getMessage(), 400);
         }
+
     }
     /**
      * @OA\Get (
@@ -263,41 +904,6 @@ class PatientController extends Controller
 
         }catch (Exception $exception){
             Log::error($exception->getMessage());
-        }
-    }
-    public function addPayment(Request $request, Utils $utils)
-    {
-        $request->validate([
-            "user_id" => "required|int",
-            "trx_id" => "required|string",
-            "booking_id" => "required|int",
-            "service_id" => "required|int",
-            "amount" => "required"
-        ]);
-
-        try {
-            $trx_id =  Str::random(20);
-            if (!Payments::where("trx_id", $trx_id)->exists()){
-                $user_id = $request->get("user_id");
-                $payments = new Payments();
-                $payments->user_id = $user_id;
-                $payments->merchant_trx_id = $request->get("trx_id");
-                $payments->booking_id = $request->get("booking_id");
-                $payments->amount = $request->get("amount");
-                $payments->trx_id = $trx_id;
-                $payments->service_id = $request->get("service_id");
-                $payments->patient_id = Patients::where("user_id", $user_id)->value("id");
-                $payments->save();
-                return $utils->message("success", $payments , 200);
-
-            }else{
-                return $utils->message("error", "Network Error. Please Try Again." , 400);
-
-            }
-
-        }catch (\Throwable $e) {
-            // Do something with your exception
-            return $utils->message("error", $e->getMessage() , 400);
         }
     }
 

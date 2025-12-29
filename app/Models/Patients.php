@@ -12,12 +12,17 @@ class Patients extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        "first_name"
-    ];
+    protected $guarded = [];
+
+    protected $table = "patients";
+
     public function bookings(): HasMany
     {
         return $this->hasMany(Bookings::class, 'patient_id');
+    }
+    public function serviceCharge(): HasMany
+    {
+        return $this->hasMany(ServiceChargeFlutterwavePayments::class, 'patient_id');
     }
     public function user(): BelongsTo
     {

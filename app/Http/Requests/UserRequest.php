@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UserRequest extends FormRequest
 {
@@ -23,26 +24,19 @@ class UserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "username" => "required|string|unique:users",
-            "phone" => "required|string|unique:patients",
+            "phone" => "required|string",
             "first_name" => "required|string",
+            "username" => "required|string|unique:users",
+            "password" => "required|string",
+            "auth_type" => "required|string",
             "last_name" => "required|string",
             "gender" => "required|string",
-            "email" => "required|string",
             "marital_status" => "required|string",
             "religion" => "required|string",
             "nationality" => "required|string",
             "state" => "required|string",
             "state_of_residence" => "required|string",
             "address_of_residence" => "required|string",
-            "password" => [
-                'required',
-                'min:8',
-                'regex:/[a-z]/',      // must contain at least one lowercase letter
-                'regex:/[A-Z]/',      // must contain at least one uppercase letter
-                'regex:/[0-9]/',      // must contain at least one digit
-                'regex:/[@$!%*#?&.]/'
-            ],
         ];
     }
 
@@ -50,8 +44,7 @@ class UserRequest extends FormRequest
     {
         // use trans instead on Lang
         return [
-            'password.min' => 'Password must be greater then 8 Characters',
-            'password.regex' => 'Password must contain a capital letter, a number and a special character'
+            'password.min' => 'Password must be greater then 8 Characters'
         ];
     }
 }

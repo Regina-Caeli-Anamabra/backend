@@ -12,6 +12,10 @@ class Bookings extends Model
 {
     use HasFactory;
 
+    public function offlineOnlineSync(): BelongsTo
+    {
+        return $this->belongsTo(OfflineOnlinePatientsSync::class, 'offline_online_sync_id');
+    }
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patients::class, 'patient_id');
@@ -21,6 +25,10 @@ class Bookings extends Model
         return $this->belongsTo(User::class, "user_id");
     }
 
+    public function flutterPayment(): BelongsTo
+    {
+        return $this->belongsTo(FlutterwavePayment::class, "flutterwave_id");
+    }
     public function bookingPayments(): HasOne
     {
         return $this->hasOne(Bookings::class);

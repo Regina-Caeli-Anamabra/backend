@@ -1,61 +1,81 @@
----
+version: '3'
+
 services:
-  mysql_db:
-    image: mysql:8.3
-    container_name: hms_db_mysql
-    restart: unless-stopped
-    ports:
-      - 3355:3306
-    environment:
-      - MYSQL_DATABASE=${DB_DATABASE}
-      - MYSQL_ROOT_PASSWORD=${DB_MASTER_PASSWORD}
-      - MYSQL_USER=${DB_USERNAME}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
-      - CONTAINER_ROLE=app
-    volumes:
-      - db-data:/var/lib/mysql
-      - ~/php.ini:/usr/local/etc/php/php.ini
-      - ./mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
-    networks:
-      - mysql_network
+    mysql_db:
+        image: mysql:8.3
+        container_name: regina_prod_mysql
+        restart: unless-stopped
+        ports:
+            - 3361:3306
+        environment:
+            - MYSQL_DATABASE=${DB_DATABASE}
+            - MYSQL_ROOT_PASSWORD=${DB_MASTER_PASSWORD}
+            - MYSQL_USER=${DB_USERNAME}
+            - MYSQL_PASSWORD=${DB_PASSWORD}
+            - MYSQL_INITDB_ARGS="--default-authentication-plugin=mysql_native_password"
+        volumes:
+            - db-data:/var/lib/mysql
+            - ~/php.ini:/usr/local/etc/php/php.ini
+            - ./mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+        networks:
+            - mysql_network
 
+    regina_app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - APP_ENV="${APP_ENV}"
+        container_name: regina_laravel_app
+        restart: unless-stopped
+        environment:
+            - APP_ENV="${APP_ENV}"
+            - DB_DATABASE=${DB_DATABASE}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - DB_USERNAME=${DB_USERNAME}
+            - CONTAINER_ROLE=app
+            - UPLOAD_LIMIT=100000000
+            - PHP_UPLOAD_MAX_FILESIZE=20M
+            - PHP_POST_MAX_SIZE=20M
+        working_dir: /app
+        volumes:
+            - ./:/app
+        ports:
+            - 8030:8000
+        depends_on:
+            - mysql_db
+        networks:
+            - mysql_network
 
-  hms_app:
-    build:
-      context: .
-      target: php
-      args:
-        - APP_ENV="${APP_ENV}"
-    container_name: hms_laravel_app
-    environment:
-      - APP_ENV="${APP_ENV}"
-      - DB_DATABASE=${DB_DATABASE}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_USERNAME=${DB_USERNAME}
-      - CONTAINER_ROLE=app
-    working_dir: /app
-    ports:
-      - 8030:8000
-    depends_on:
-      - mysql_db
-    networks:
-      - mysql_network
-
-  phpmyadmin:
-      image: phpmyadmin
-      restart: always
-      ports:
-          - 9300:80
-      environment:
-          - PMA_ARBITRARY=1
-          - UPLOAD_LIMIT= 100000000
-      depends_on:
-          - mysql_db
-      networks:
-        - mysql_network
+    phpmyadmin:
+        image: phpmyadmin
+        restart: always
+        ports:
+            - 9000:80
+        environment:
+            - PMA_ARBITRARY=1
+            - UPLOAD_LIMIT=100000000
+        depends_on:
+            - mysql_db
+        networks:
+            - mysql_network
+    python_sync_database:
+        build: python/
+        ports:
+            - "5000:5000"
+        environment:
+            - DB_HOST=mysql_db
+            - MYSQL_DATABASE=${DB_DATABASE}
+            - MYSQL_ROOT_PASSWORD=${DB_MASTER_PASSWORD}
+            - MYSQL_USER=${DB_USERNAME}
+            - MYSQL_PASSWORD=${DB_PASSWORD}
+        depends_on:
+            - mysql_db
+        networks:
+            - mysql_network
 volumes:
-  db-data: null
+    db-data: null
 
 networks:
-  mysql_network:
-      driver: bridge
+    mysql_network:
+        driver: bridge

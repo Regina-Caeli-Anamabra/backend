@@ -9,6 +9,6 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $table = "reginas";
+    protected $table = 'category';
 
 }
